@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZA_ISLAMIC</title>
-    <!-- TradingView kutubxonasi (grafik uchun) -->
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
         :root {
@@ -28,6 +27,7 @@
             --text-dim: #666;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
         body {
             background: var(--bg);
             color: var(--text);
@@ -36,7 +36,7 @@
             transition: background 0.3s, color 0.3s;
         }
 
-        /* HEADER */
+        /* ===== HEADER ===== */
         .header {
             display: flex;
             justify-content: space-between;
@@ -48,8 +48,34 @@
             top: 0;
             z-index: 100;
         }
-        .logo { font-size: 20px; font-weight: bold; letter-spacing: 2px; }
-        .logo span { color: var(--green); }
+
+        /* ===== ANIMATSIYALI LOGO ===== */
+        .logo-wrap {
+            overflow: hidden;
+            width: 220px;
+            height: 30px;
+            position: relative;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            white-space: nowrap;
+            position: absolute;
+            animation: slideLogo 6s ease-in-out infinite;
+        }
+
+        .logo span { color: var(--green); transition: color 0.5s; }
+
+        @keyframes slideLogo {
+            0%   { transform: translateX(0);      color: #ffffff; }
+            25%  { transform: translateX(60px);   color: #4CAF50; }
+            50%  { transform: translateX(120px);  color: #2196F3; }
+            75%  { transform: translateX(60px);   color: #FFC107; }
+            100% { transform: translateX(0);      color: #ffffff; }
+        }
+
         .theme-toggle {
             background: var(--bg-input);
             border: 1px solid var(--border);
@@ -57,83 +83,143 @@
             width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; font-size: 18px;
             display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
         }
 
-        /* MENU */
+        /* ===== MENU (o'ngga surilgan) ===== */
         .menu {
             display: flex;
             background: var(--bg-card);
             border-bottom: 1px solid var(--border);
-            overflow-x: auto;
             position: sticky;
             top: 71px;
             z-index: 99;
+            justify-content: flex-end;
+            padding-right: 20px;
+            gap: 5px;
+            overflow-x: auto;
         }
         .menu-btn {
-            flex: 1; padding: 12px 15px; background: none; border: none;
+            padding: 12px 18px; background: none; border: none;
             color: var(--text-dim); font-size: 13px; cursor: pointer;
             border-bottom: 2px solid transparent; white-space: nowrap;
             transition: all 0.2s;
         }
         .menu-btn.active { color: var(--text); border-bottom-color: var(--green); font-weight: bold; }
+        .menu-btn:hover { color: var(--text); }
 
-        /* CONTENT */
-        .content { padding: 20px; max-width: 500px; margin: 0 auto; }
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 20px;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        h2 { font-size: 18px; margin-bottom: 15px; color: var(--text); }
-        .section-title { color: var(--green); font-weight: bold; margin: 20px 0 10px 0; font-size: 14px; }
 
-        /* ASSET CATEGORY TABS (ichki tablar) */
-        .asset-tabs {
-            display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto;
-        }
+        h2 { font-size: 20px; margin-bottom: 15px; color: var(--text); }
+
+        /* ===== DASHBOARD ===== */
+        .asset-tabs { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
         .asset-tab {
-            padding: 8px 12px; background: var(--bg-input); border: 1px solid var(--border);
-            color: var(--text-dim); border-radius: 20px; font-size: 12px; cursor: pointer;
-            white-space: nowrap;
+            padding: 9px 18px; background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-dim); border-radius: 20px; font-size: 13px; cursor: pointer;
+            white-space: nowrap; transition: all 0.2s;
         }
         .asset-tab.active { background: var(--green); color: white; border-color: var(--green); }
 
-        /* MARKET GRID */
-        .market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        /* RESPONSIVE GRID */
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
         .market-card {
             background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px;
+            border-radius: 12px; padding: 15px;
+            transition: transform 0.2s, border-color 0.2s;
         }
-        .market-name { font-size: 12px; color: var(--text-dim); margin-bottom: 5px; }
-        .market-price { font-size: 16px; font-weight: bold; color: var(--text); }
-        .market-change { font-size: 11px; margin-top: 4px; }
+        .market-card:hover { transform: translateY(-3px); border-color: var(--green); }
+
+        .market-name { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; font-weight: 500; }
+        .market-price { font-size: 22px; font-weight: bold; color: var(--text); }
+        .market-change { font-size: 12px; margin-top: 6px; font-weight: bold; }
         .positive { color: var(--green); }
         .negative { color: var(--red); }
-        .loading { text-align: center; color: var(--text-dim); padding: 20px; grid-column: 1/-1; }
+        .loading { text-align: center; color: var(--text-dim); padding: 30px; grid-column: 1/-1; }
 
-        /* RISK KALKULYATOR */
+        /* ===== RISK ===== */
         label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--text-dim); }
         input, select {
-            width: 100%; padding: 10px; margin-bottom: 12px; background: var(--bg-input);
+            width: 100%; padding: 11px; margin-bottom: 12px; background: var(--bg-input);
             border: 1px solid var(--border); border-radius: 6px; color: var(--text);
             font-size: 15px; outline: none;
         }
         input:focus, select:focus { border-color: var(--green); }
-        .symbol-info { font-size: 12px; color: var(--yellow); margin-bottom: 12px; padding: 8px; background: var(--bg-input); border-radius: 6px; }
+        .symbol-info { font-size: 12px; color: var(--yellow); margin-bottom: 12px; padding: 10px; background: var(--bg-input); border-radius: 6px; }
+        .section-title { color: var(--green); font-weight: bold; margin: 20px 0 10px 0; font-size: 14px; }
         .result-box { margin-top: 15px; padding: 15px; background: var(--bg-input); border-radius: 8px; font-size: 14px; line-height: 1.8; }
         .result-row { display: flex; justify-content: space-between; }
 
-        /* CHART */
-        #tvchart { width: 100%; height: 400px; border-radius: 10px; overflow: hidden; }
+        /* ===== GRAFIK (to'liq ekran) ===== */
+        #chartContainer {
+            width: 100%;
+            height: calc(100vh - 160px);
+            min-height: 500px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+        #tvchart { width: 100%; height: 100%; }
 
-        /* NEWS */
+        .chart-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .chart-controls select { margin-bottom: 0; max-width: 250px; }
+        .fullscreen-btn {
+            padding: 10px 18px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+        .fullscreen-btn:hover { background: var(--green); color: white; border-color: var(--green); }
+
+        /* ===== YANGILIKLAR ===== */
         .news-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; margin-bottom: 10px; }
-        .news-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; color: var(--text); }
+        .news-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; }
         .news-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
         .news-date { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+
+        /* ===== MOBIL MOSLASHISH ===== */
+        @media (max-width: 600px) {
+            .content { padding: 15px; }
+            .menu { justify-content: flex-start; padding-right: 0; }
+            .menu-btn { padding: 10px 12px; font-size: 12px; }
+            .market-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+            .market-price { font-size: 16px; }
+            .logo-wrap { width: 160px; }
+            #chartContainer { height: calc(100vh - 180px); min-height: 400px; }
+        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="logo">ZA<span>_</span>ISLAMIC</div>
+        <div class="logo-wrap">
+            <div class="logo">ZA<span>_</span>ISLAMIC</div>
+        </div>
         <button class="theme-toggle" id="themeToggle">🌙</button>
     </div>
 
@@ -149,18 +235,16 @@
         <!-- DASHBOARD -->
         <div class="tab-content active" id="dashboard">
             <h2>Bozor holati</h2>
-            
             <div class="asset-tabs">
                 <button class="asset-tab active" data-category="forex">💱 Forex</button>
                 <button class="asset-tab" data-category="crypto">🪙 Kripto</button>
                 <button class="asset-tab" data-category="indices">📈 Indekslar</button>
                 <button class="asset-tab" data-category="stocks">📊 Aksiyalar</button>
             </div>
-
             <div class="market-grid" id="marketGrid">
                 <div class="loading">⏳ Ma'lumotlar yuklanmoqda...</div>
             </div>
-            <button onclick="loadMarketData()" style="width:100%; padding:10px; margin-top:15px; background:var(--bg-input); border:1px solid var(--border); color:var(--text); border-radius:6px; cursor:pointer; font-size:13px;">🔄 Yangilash</button>
+            <button onclick="loadMarketData()" style="width:100%; padding:12px; margin-top:20px; background:var(--bg-input); border:1px solid var(--border); color:var(--text); border-radius:8px; cursor:pointer; font-size:14px;">🔄 Yangilash</button>
         </div>
 
         <!-- RISK -->
@@ -192,18 +276,22 @@
 
         <!-- GRAFIK -->
         <div class="tab-content" id="chart">
-            <h2>Grafik</h2>
-            <select id="chart-symbol" style="margin-bottom:15px;">
-                <option value="FX:EURUSD">EUR/USD</option>
-                <option value="FX:GBPUSD">GBP/USD</option>
-                <option value="FX:USDJPY">USD/JPY</option>
-                <option value="BITSTAMP:BTCUSD">BTC/USD</option>
-                <option value="BITSTAMP:ETHUSD">ETH/USD</option>
-                <option value="OANDA:XAUUSD">XAU/USD (Oltin)</option>
-                <option value="NASDAQ:AAPL">AAPL</option>
-                <option value="NASDAQ:TSLA">TSLA</option>
-            </select>
-            <div id="tvchart"></div>
+            <div class="chart-controls">
+                <select id="chart-symbol">
+                    <option value="FX:EURUSD">EUR/USD</option>
+                    <option value="FX:GBPUSD">GBP/USD</option>
+                    <option value="FX:USDJPY">USD/JPY</option>
+                    <option value="BITSTAMP:BTCUSD">BTC/USD</option>
+                    <option value="BITSTAMP:ETHUSD">ETH/USD</option>
+                    <option value="OANDA:XAUUSD">XAU/USD (Oltin)</option>
+                    <option value="NASDAQ:AAPL">AAPL</option>
+                    <option value="NASDAQ:TSLA">TSLA</option>
+                </select>
+                <button class="fullscreen-btn" id="fullscreenBtn">⛶ To'liq ekran</button>
+            </div>
+            <div id="chartContainer">
+                <div id="tvchart"></div>
+            </div>
         </div>
 
         <!-- YANGILIKLAR -->
@@ -229,7 +317,7 @@
             document.getElementById(this.dataset.tab).classList.add('active');
 
             if (this.dataset.tab === 'chart') {
-                initChart();
+                setTimeout(initChart, 100);
             }
         });
     });
@@ -241,6 +329,11 @@
         currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', currentTheme === 'light' ? 'light' : '');
         this.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+        if (chartInitialized) {
+            chartInitialized = false;
+            document.getElementById('tvchart').innerHTML = '';
+            initChart();
+        }
     });
 
     // ===== RISK KALKULYATOR =====
@@ -313,21 +406,16 @@
     tpInput.addEventListener('input', calculate);
     detectSymbol();
 
-    // ===== DASHBOARD - BOZOR MA'LUMOTLARI =====
+    // ===== DASHBOARD =====
     let currentCategory = 'forex';
 
     const assets = {
         forex: [
-            { name: 'EUR/USD', symbol: 'EURUSD', tv: 'FX:EURUSD' },
-            { name: 'GBP/USD', symbol: 'GBPUSD', tv: 'FX:GBPUSD' },
-            { name: 'USD/JPY', symbol: 'USDJPY', tv: 'FX:USDJPY' },
-            { name: 'AUD/USD', symbol: 'AUDUSD', tv: 'FX:AUDUSD' },
-            { name: 'USD/CAD', symbol: 'USDCAD', tv: 'FX:USDCAD' },
-            { name: 'USD/CHF', symbol: 'USDCHF', tv: 'FX:USDCHF' },
-            { name: 'NZD/USD', symbol: 'NZDUSD', tv: 'FX:NZDUSD' },
-            { name: 'EUR/GBP', symbol: 'EURGBP', tv: 'FX:EURGBP' },
-            { name: 'XAU/USD', symbol: 'XAUUSD', tv: 'OANDA:XAUUSD' },
-            { name: 'XAG/USD', symbol: 'XAGUSD', tv: 'OANDA:XAGUSD' }
+            { name: 'EUR/USD', symbol: 'EURUSD' }, { name: 'GBP/USD', symbol: 'GBPUSD' },
+            { name: 'USD/JPY', symbol: 'USDJPY' }, { name: 'AUD/USD', symbol: 'AUDUSD' },
+            { name: 'USD/CAD', symbol: 'USDCAD' }, { name: 'USD/CHF', symbol: 'USDCHF' },
+            { name: 'NZD/USD', symbol: 'NZDUSD' }, { name: 'EUR/GBP', symbol: 'EURGBP' },
+            { name: 'XAU/USD', symbol: 'XAUUSD' }, { name: 'XAG/USD', symbol: 'XAGUSD' }
         ],
         crypto: [
             { name: 'BTC/USDT', symbol: 'BTCUSDT' }, { name: 'ETH/USDT', symbol: 'ETHUSDT' },
@@ -365,28 +453,7 @@
         const grid = document.getElementById('marketGrid');
         grid.innerHTML = '<div class="loading">⏳ Ma\'lumotlar yuklanmoqda...</div>';
         const list = assets[currentCategory];
-        
-        // Forex va Indekslar uchun mock ma'lumot (real API yo'q)
-        if (currentCategory === 'forex' || currentCategory === 'indices') {
-            let html = '';
-            list.forEach(item => {
-                const price = (Math.random() * 100 + 1).toFixed(currentCategory === 'indices' ? 0 : 4);
-                const change = (Math.random() * 2 - 1).toFixed(2);
-                const isPositive = change >= 0;
-                html += `
-                    <div class="market-card">
-                        <div class="market-name">${item.name}</div>
-                        <div class="market-price">${price}</div>
-                        <div class="market-change ${isPositive ? 'positive' : 'negative'}">
-                            ${isPositive ? '▲' : '▼'} ${Math.abs(change)}%
-                        </div>
-                    </div>`;
-            });
-            grid.innerHTML = html;
-            return;
-        }
 
-        // Kripto uchun CoinGecko API
         if (currentCategory === 'crypto') {
             try {
                 const ids = list.map(i => i.symbol.replace('USDT','').toLowerCase()).join(',');
@@ -415,32 +482,31 @@
             return;
         }
 
-        // Aksiyalar uchun mock
-        if (currentCategory === 'stocks') {
-            let html = '';
-            list.forEach(item => {
-                const price = (Math.random() * 200 + 10).toFixed(2);
-                const change = (Math.random() * 4 - 2).toFixed(2);
-                const isPositive = change >= 0;
-                html += `
-                    <div class="market-card">
-                        <div class="market-name">${item.name}</div>
-                        <div class="market-price">$${price}</div>
-                        <div class="market-change ${isPositive ? 'positive' : 'negative'}">
-                            ${isPositive ? '▲' : '▼'} ${Math.abs(change)}%
-                        </div>
-                    </div>`;
-            });
-            grid.innerHTML = html;
-        }
+        // Forex, Indekslar, Aksiyalar uchun mock
+        let html = '';
+        list.forEach(item => {
+            const base = currentCategory === 'indices' ? 10000 : (currentCategory === 'stocks' ? 100 : 1);
+            const price = (Math.random() * base + base * 0.5).toFixed(currentCategory === 'indices' ? 0 : 2);
+            const change = (Math.random() * 3 - 1.5).toFixed(2);
+            const isPositive = change >= 0;
+            html += `
+                <div class="market-card">
+                    <div class="market-name">${item.name}</div>
+                    <div class="market-price">${currentCategory === 'stocks' ? '$' : ''}${price}</div>
+                    <div class="market-change ${isPositive ? 'positive' : 'negative'}">
+                        ${isPositive ? '▲' : '▼'} ${Math.abs(change)}%
+                    </div>
+                </div>`;
+        });
+        grid.innerHTML = html;
     }
 
     // ===== TRADINGVIEW GRAFIK =====
     let chartInitialized = false;
     function initChart() {
         if (chartInitialized) return;
-        const container = document.getElementById('tvchart');
         const symbol = document.getElementById('chart-symbol').value;
+        document.getElementById('tvchart').innerHTML = '';
         new TradingView.widget({
             "container_id": "tvchart",
             "autosize": true,
@@ -455,37 +521,42 @@
             "hide_side_toolbar": false,
             "allow_symbol_change": true,
             "details": true,
-            "hotlist": true,
-            "calendar": false,
+            "withdateranges": true,
+            "save_image": true,
             "studies": ["MASimple@tv-basicstudies"],
             "show_popup_button": true,
             "popup_width": "1000",
             "popup_height": "650"
         });
         chartInitialized = true;
-        
-        document.getElementById('chart-symbol').addEventListener('change', function() {
-            container.innerHTML = '';
-            chartInitialized = false;
-            initChart();
-        });
     }
 
-    // ===== YANGILIKLAR =====
-    async function loadNews() {
-        const list = document.getElementById('newsList');
-        try {
-            // Hozircha statik ma'lumot, keyin News API ulanadi
-            list.innerHTML = `
-                <div class="news-item">
-                    <div class="news-title">📈 Bozor yangiliklari</div>
-                    <div class="news-desc">Forex va kripto bozoridagi so'nggi o'zgarishlar tez orada shu yerda ko'rinadi.</div>
-                    <div class="news-date">Tez orada...</div>
-                </div>
-            `;
-        } catch (e) {
-            list.innerHTML = '<div class="news-item"><div class="news-title">⚠️ Yangiliklarni yuklab bo\'lmadi</div></div>';
+    document.getElementById('chart-symbol').addEventListener('change', function() {
+        chartInitialized = false;
+        initChart();
+    });
+
+    // To'liq ekran tugmasi
+    document.getElementById('fullscreenBtn').addEventListener('click', function() {
+        const el = document.getElementById('chartContainer');
+        if (!document.fullscreenElement) {
+            if (el.requestFullscreen) el.requestFullscreen();
+            else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+            else if (el.msRequestFullscreen) el.msRequestFullscreen();
+        } else {
+            if (document.exitFullscreen) document.exitFullscreen();
         }
+    });
+
+    // ===== YANGILIKLAR =====
+    function loadNews() {
+        document.getElementById('newsList').innerHTML = `
+            <div class="news-item">
+                <div class="news-title">📈 Bozor yangiliklari</div>
+                <div class="news-desc">Forex va kripto bozoridagi so'nggi o'zgarishlar tez orada shu yerda ko'rinadi.</div>
+                <div class="news-date">Tez orada...</div>
+            </div>
+        `;
     }
 
     // Boshlang'ich yuklash
