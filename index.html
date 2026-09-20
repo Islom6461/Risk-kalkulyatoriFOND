@@ -7,186 +7,93 @@
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
         :root {
-            --bg: #0d0d0d;
-            --bg-card: #1a1a1a;
-            --bg-input: #2a2a2a;
-            --border: #333;
-            --text: #ffffff;
-            --text-dim: #888;
-            --green: #4CAF50;
-            --red: #F44336;
-            --yellow: #FFC107;
-            --blue: #2196F3;
+            --bg: #0d0d0d; --bg-card: #1a1a1a; --bg-input: #2a2a2a;
+            --border: #333; --text: #ffffff; --text-dim: #888;
+            --green: #4CAF50; --red: #F44336; --yellow: #FFC107; --blue: #2196F3;
             --sidebar-w: 70px;
         }
         [data-theme="light"] {
-            --bg: #f5f5f5;
-            --bg-card: #ffffff;
-            --bg-input: #f0f0f0;
-            --border: #ddd;
-            --text: #000000;
-            --text-dim: #666;
+            --bg: #f5f5f5; --bg-card: #ffffff; --bg-input: #f0f0f0;
+            --border: #ddd; --text: #000000; --text-dim: #666;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
         body {
-            background: var(--bg);
-            color: var(--text);
+            background: var(--bg); color: var(--text);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            min-height: 100vh;
-            transition: background 0.3s, color 0.3s;
+            min-height: 100vh; transition: background 0.3s, color 0.3s;
             display: flex;
         }
 
-        /* ===== SIDEBAR (o'ng tomonda) ===== */
+        /* ===== SIDEBAR ===== */
         .sidebar {
-            position: fixed;
-            top: 0;
-            right: 0;
-            width: var(--sidebar-w);
-            height: 100vh;
-            background: var(--bg-card);
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px 0;
-            z-index: 100;
-            transition: width 0.3s;
+            position: fixed; top: 0; right: 0;
+            width: var(--sidebar-w); height: 100vh;
+            background: var(--bg-card); border-left: 1px solid var(--border);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 15px 0; z-index: 100;
         }
-
         .sidebar-logo {
-            font-size: 11px;
-            font-weight: bold;
-            color: var(--green);
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            letter-spacing: 3px;
-            margin-bottom: 25px;
-            height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-size: 11px; font-weight: bold; color: var(--green);
+            writing-mode: vertical-rl; text-orientation: mixed;
+            letter-spacing: 3px; margin-bottom: 25px; height: 120px;
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .sidebar-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            width: 100%;
-            padding: 0 8px;
-            flex: 1;
-        }
-
+        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 8px; flex: 1; overflow-y: auto; }
         .sidebar-btn {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 5px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-dim);
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 12px 5px; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text-dim); font-size: 18px;
+            cursor: pointer; transition: all 0.2s; position: relative;
         }
-        .sidebar-btn .label {
-            font-size: 9px;
-            margin-top: 4px;
-            color: var(--text-dim);
-            font-weight: 500;
-        }
-        .sidebar-btn:hover {
-            color: var(--text);
-            border-color: var(--green);
-            transform: scale(1.05);
-        }
-        .sidebar-btn.active {
-            background: var(--green);
-            color: white;
-            border-color: var(--green);
-        }
+        .sidebar-btn .label { font-size: 9px; margin-top: 4px; color: var(--text-dim); font-weight: 500; }
+        .sidebar-btn:hover { color: var(--text); border-color: var(--green); transform: scale(1.05); }
+        .sidebar-btn.active { background: var(--green); color: white; border-color: var(--green); }
         .sidebar-btn.active .label { color: white; }
 
+        /* Signal badge */
+        .signal-badge {
+            position: absolute; top: -5px; right: -5px;
+            background: var(--red); color: white;
+            font-size: 10px; font-weight: bold;
+            padding: 2px 6px; border-radius: 10px;
+            min-width: 18px; text-align: center;
+        }
+
         .sidebar-theme {
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text); width: 45px; height: 45px; border-radius: 50%;
+            cursor: pointer; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
             margin-top: 10px;
         }
 
-        /* ===== ASOSIY KONTENT ===== */
+        /* ===== ASOSIY ===== */
         .main-content {
-            flex: 1;
-            margin-right: var(--sidebar-w);
-            padding: 20px;
+            flex: 1; margin-right: var(--sidebar-w); padding: 20px;
             width: calc(100% - var(--sidebar-w));
-            max-width: calc(100% - var(--sidebar-w));
         }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
         h2 { font-size: 20px; margin-bottom: 15px; color: var(--text); }
 
         /* ===== DASHBOARD ===== */
-        .asset-sections {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        @media (min-width: 1200px) {
-            .asset-sections { grid-template-columns: repeat(4, 1fr); }
-        }
-
+        .asset-sections { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        @media (min-width: 1200px) { .asset-sections { grid-template-columns: repeat(4, 1fr); } }
         .asset-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px;
         }
         .asset-section-title {
-            color: var(--green);
-            font-size: 15px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border);
+            color: var(--green); font-size: 15px; font-weight: bold;
+            margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
         }
-        .asset-list {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            max-height: 520px;
-            overflow-y: auto;
-            padding-right: 3px;
-        }
+        .asset-list { display: flex; flex-direction: column; gap: 6px; max-height: 520px; overflow-y: auto; padding-right: 3px; }
         .asset-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 10px;
-            background: var(--bg-input);
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid transparent;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 10px; background: var(--bg-input); border-radius: 6px;
+            cursor: pointer; transition: all 0.2s; border: 1px solid transparent;
         }
-        .asset-item:hover {
-            border-color: var(--green);
-            transform: translateX(3px);
-        }
+        .asset-item:hover { border-color: var(--green); transform: translateX(3px); }
         .asset-item-name { font-size: 12px; color: var(--text); font-weight: 500; }
         .asset-item-price { font-size: 12px; color: var(--text); font-weight: bold; }
         .asset-item-change { font-size: 10px; margin-top: 2px; }
@@ -194,20 +101,129 @@
         .negative { color: var(--red); }
         .loading { text-align: center; color: var(--text-dim); padding: 20px; font-size: 12px; }
 
-        /* ===== RISK ===== */
-        .risk-wrap {
-            max-width: 500px;
-            margin: 0 auto;
+        /* ===== SIGNAL BO'LIMI ===== */
+        .signal-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .signal-stat {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 25px;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .signal-stat-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; text-transform: uppercase; }
+        .signal-stat-value { font-size: 22px; font-weight: bold; }
+
+        .signal-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .signal-filter {
+            padding: 7px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .signal-filter.active { background: var(--green); color: white; border-color: var(--green); }
+
+        .signal-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .signal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--green);
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .signal-card:hover { transform: translateX(3px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .signal-card.buy { border-left-color: var(--green); }
+        .signal-card.sell { border-left-color: var(--red); }
+        .signal-card.active-signal { border-left-color: var(--yellow); animation: pulse 2s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+        }
+
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .signal-pair {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text);
+        }
+        .signal-type {
+            font-size: 11px;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 15px;
+            text-transform: uppercase;
+        }
+        .signal-type.buy { background: rgba(76, 175, 80, 0.2); color: var(--green); }
+        .signal-type.sell { background: rgba(244, 67, 54, 0.2); color: var(--red); }
+        .signal-type.active { background: rgba(255, 193, 7, 0.2); color: var(--yellow); }
+
+        .signal-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .signal-detail {
+            background: var(--bg-input);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        .signal-detail-label { font-size: 10px; color: var(--text-dim); margin-bottom: 3px; }
+        .signal-detail-value { font-size: 13px; font-weight: bold; color: var(--text); }
+
+        .signal-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-dim);
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .signal-status {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .signal-status.active { background: rgba(255, 193, 7, 0.2); color: var(--yellow); }
+        .signal-status.tp { background: rgba(76, 175, 80, 0.2); color: var(--green); }
+        .signal-status.sl { background: rgba(244, 67, 54, 0.2); color: var(--red); }
+        .signal-status.pending { background: rgba(33, 150, 243, 0.2); color: var(--blue); }
+
+        /* ===== RISK ===== */
+        .risk-wrap {
+            max-width: 500px; margin: 0 auto;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 25px;
         }
         label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--text-dim); }
         input, select {
-            width: 100%; padding: 11px; margin-bottom: 12px; background: var(--bg-input);
-            border: 1px solid var(--border); border-radius: 6px; color: var(--text);
-            font-size: 15px; outline: none;
+            width: 100%; padding: 11px; margin-bottom: 12px;
+            background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 6px; color: var(--text); font-size: 15px; outline: none;
         }
         input:focus, select:focus { border-color: var(--green); }
         .symbol-info { font-size: 12px; color: var(--yellow); margin-bottom: 12px; padding: 10px; background: var(--bg-input); border-radius: 6px; }
@@ -217,102 +233,46 @@
 
         /* ===== GRAFIK ===== */
         #chartContainer {
-            width: 100%;
-            height: calc(100vh - 100px);
-            min-height: 500px;
-            border-radius: 10px;
-            overflow: hidden;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            width: 100%; height: calc(100vh - 100px); min-height: 500px;
+            border-radius: 10px; overflow: hidden;
+            background: var(--bg-card); border: 1px solid var(--border);
         }
         #tvchart { width: 100%; height: 100%; }
-        .chart-controls {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 15px; gap: 10px; flex-wrap: wrap;
-        }
+        .chart-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; }
         .chart-controls select { margin-bottom: 0; max-width: 250px; }
         .fullscreen-btn {
             padding: 10px 18px; background: var(--bg-input); border: 1px solid var(--border);
-            color: var(--text); border-radius: 6px; cursor: pointer;
-            font-size: 13px; white-space: nowrap;
+            color: var(--text); border-radius: 6px; cursor: pointer; font-size: 13px;
         }
         .fullscreen-btn:hover { background: var(--green); color: white; border-color: var(--green); }
 
-        /* ===== YANGILIKLAR (Forex Factory uslubi) ===== */
-        .news-filters {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
+        /* ===== YANGILIKLAR ===== */
+        .news-filters { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .news-filter {
-            padding: 7px 14px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
+            padding: 7px 14px; background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-dim); border-radius: 20px; font-size: 12px; cursor: pointer;
         }
         .news-filter.active { background: var(--green); color: white; border-color: var(--green); }
-
-        .news-table {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-        }
+        .news-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
         .news-row {
-            display: grid;
-            grid-template-columns: 80px 70px 1fr 100px 90px;
-            gap: 10px;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
-            align-items: center;
-            cursor: pointer;
-            transition: background 0.2s;
-            font-size: 13px;
+            display: grid; grid-template-columns: 80px 70px 1fr 100px 90px;
+            gap: 10px; padding: 12px 15px; border-bottom: 1px solid var(--border);
+            align-items: center; cursor: pointer; transition: background 0.2s; font-size: 13px;
         }
         .news-row:hover { background: var(--bg-input); }
         .news-row:last-child { border-bottom: none; }
         .news-row.header {
-            background: var(--bg-input);
-            font-weight: bold;
-            font-size: 11px;
-            color: var(--text-dim);
-            cursor: default;
-            text-transform: uppercase;
+            background: var(--bg-input); font-weight: bold; font-size: 11px;
+            color: var(--text-dim); cursor: default; text-transform: uppercase;
         }
-        .news-row.header:hover { background: var(--bg-input); }
-
         .news-time { font-size: 12px; color: var(--text-dim); }
-        .news-currency {
-            font-weight: bold;
-            font-size: 13px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            background: var(--bg-input);
-            text-align: center;
-        }
         .news-event { font-size: 13px; color: var(--text); }
         .news-impact { display: flex; gap: 2px; justify-content: center; }
-        .news-impact .star { font-size: 14px; }
-        .news-actual { text-align: right; font-size: 13px; font-weight: bold; }
         .news-forecast { text-align: right; font-size: 12px; color: var(--text-dim); }
-
-        /* Impact ranglari */
         .impact-high { color: #F44336; }
         .impact-medium { color: #FFC107; }
         .impact-low { color: #FFA726; }
-
-        .currency-badge {
-            display: inline-block;
-            padding: 3px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            background: var(--bg-input);
-        }
+        .currency-badge { display: inline-block; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .currency-USD { background: #1e88e5; color: white; }
         .currency-EUR { background: #43a047; color: white; }
         .currency-GBP { background: #e53935; color: white; }
@@ -325,32 +285,18 @@
 
         /* ===== MODAL ===== */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85); z-index: 1000;
+            justify-content: center; align-items: center; padding: 20px;
         }
         .modal-overlay.active { display: flex; }
-
         .modal-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            max-width: 900px;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 25px;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 15px; max-width: 900px; width: 100%;
+            max-height: 90vh; overflow-y: auto; padding: 25px;
             animation: modalIn 0.3s ease;
         }
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         .modal-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);
@@ -363,8 +309,6 @@
             display: flex; align-items: center; justify-content: center;
         }
         .modal-close:hover { background: var(--red); color: white; border-color: var(--red); }
-        .modal-price { font-size: 36px; font-weight: bold; text-align: center; margin: 15px 0 5px 0; }
-        .modal-change { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
         .modal-info { background: var(--bg-input); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .modal-info-row {
             display: flex; justify-content: space-between;
@@ -373,30 +317,20 @@
         .modal-info-row:last-child { border-bottom: none; }
         .modal-info-label { color: var(--text-dim); }
         .modal-info-value { color: var(--text); font-weight: bold; }
-        #modalChart {
-            width: 100%; height: 350px; border-radius: 10px;
-            overflow: hidden; margin-bottom: 15px; background: var(--bg-input);
-        }
-        .modal-desc {
-            font-size: 13px; color: var(--text-dim); line-height: 1.6;
-            padding: 15px; background: var(--bg-input); border-radius: 10px;
-        }
+        #modalChart { width: 100%; height: 350px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; background: var(--bg-input); }
+        .modal-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; padding: 15px; background: var(--bg-input); border-radius: 10px; }
 
-        /* Yangilik modal tafsiloti */
-        .news-detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+        /* Signal detail modal */
+        .signal-detail-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr);
+            gap: 10px; margin-bottom: 15px;
         }
-        .news-detail-item {
-            background: var(--bg-input);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
+        .signal-detail-item {
+            background: var(--bg-input); padding: 12px;
+            border-radius: 8px; text-align: center;
         }
-        .news-detail-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; }
-        .news-detail-value { font-size: 16px; font-weight: bold; }
+        .signal-detail-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; }
+        .signal-detail-value { font-size: 16px; font-weight: bold; }
 
         /* ===== MOBIL ===== */
         @media (max-width: 600px) {
@@ -409,40 +343,36 @@
             #chartContainer { height: calc(100vh - 120px); min-height: 400px; }
             .risk-wrap { padding: 18px; }
             .modal-box { padding: 18px; }
-            .modal-price { font-size: 28px; }
             #modalChart { height: 250px; }
-            .news-row {
-                grid-template-columns: 60px 50px 1fr 60px;
-                font-size: 11px;
-                padding: 10px;
-            }
+            .news-row { grid-template-columns: 60px 50px 1fr 60px; font-size: 11px; padding: 10px; }
             .news-forecast { display: none; }
-            .news-row.header { font-size: 9px; }
-            .news-detail-grid { grid-template-columns: 1fr; }
+            .signal-stats { grid-template-columns: repeat(2, 1fr); }
+            .signal-details { grid-template-columns: repeat(2, 1fr); }
+            .signal-detail-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <!-- SIDEBAR (o'ng tomonda) -->
+    <!-- SIDEBAR -->
     <div class="sidebar">
         <div class="sidebar-logo">ZA_ISLAMIC</div>
         <div class="sidebar-menu">
             <button class="sidebar-btn active" data-tab="dashboard" title="Dashboard">
-                🏠
-                <span class="label">Bosh</span>
+                🏠<span class="label">Bosh</span>
+            </button>
+            <button class="sidebar-btn" data-tab="signal" title="Signallar">
+                🎯<span class="label">Signal</span>
+                <span class="signal-badge" id="signalBadge">3</span>
             </button>
             <button class="sidebar-btn" data-tab="chart" title="Grafik">
-                📈
-                <span class="label">Grafik</span>
+                📈<span class="label">Grafik</span>
             </button>
             <button class="sidebar-btn" data-tab="risk" title="Risk">
-                📊
-                <span class="label">Risk</span>
+                📊<span class="label">Risk</span>
             </button>
             <button class="sidebar-btn" data-tab="news" title="Yangiliklar">
-                📰
-                <span class="label">Yangilik</span>
+                📰<span class="label">Yangilik</span>
             </button>
         </div>
         <button class="sidebar-theme" id="themeToggle" title="Rejim">🌙</button>
@@ -472,6 +402,44 @@
                     <div class="asset-list" id="stocksList"><div class="loading">⏳ Yuklanmoqda...</div></div>
                 </div>
             </div>
+        </div>
+
+        <!-- SIGNAL BO'LIMI -->
+        <div class="tab-content" id="signal">
+            <h2>🎯 Savdo Signallari</h2>
+            
+            <!-- Statistika -->
+            <div class="signal-stats">
+                <div class="signal-stat">
+                    <div class="signal-stat-label">Jami signallar</div>
+                    <div class="signal-stat-value" id="statTotal">0</div>
+                </div>
+                <div class="signal-stat">
+                    <div class="signal-stat-label">Faol</div>
+                    <div class="signal-stat-value" style="color:var(--yellow);" id="statActive">0</div>
+                </div>
+                <div class="signal-stat">
+                    <div class="signal-stat-label">Foyda (TP)</div>
+                    <div class="signal-stat-value" style="color:var(--green);" id="statTP">0</div>
+                </div>
+                <div class="signal-stat">
+                    <div class="signal-stat-label">Zarar (SL)</div>
+                    <div class="signal-stat-value" style="color:var(--red);" id="statSL">0</div>
+                </div>
+            </div>
+
+            <!-- Filtrlar -->
+            <div class="signal-filters">
+                <button class="signal-filter active" data-filter="all">Barchasi</button>
+                <button class="signal-filter" data-filter="active">🟡 Faol</button>
+                <button class="signal-filter" data-filter="buy">🟢 BUY</button>
+                <button class="signal-filter" data-filter="sell">🔴 SELL</button>
+                <button class="signal-filter" data-filter="tp">✅ TP</button>
+                <button class="signal-filter" data-filter="sl">❌ SL</button>
+            </div>
+
+            <!-- Signallar ro'yxati -->
+            <div class="signal-list" id="signalList"></div>
         </div>
 
         <!-- GRAFIK -->
@@ -521,7 +489,7 @@
             </div>
         </div>
 
-        <!-- YANGILIKLAR (Forex Factory uslubi) -->
+        <!-- YANGILIKLAR -->
         <div class="tab-content" id="news">
             <h2>📰 Iqtisodiy Kalendar</h2>
             <div class="news-filters">
@@ -530,15 +498,7 @@
                 <button class="news-filter" data-filter="medium">🟡 O'rta</button>
                 <button class="news-filter" data-filter="low">🟠 Past</button>
             </div>
-            <div class="news-table" id="newsTable">
-                <div class="news-row header">
-                    <div>Vaqt</div>
-                    <div>Valyuta</div>
-                    <div>Voqea</div>
-                    <div>Ta'sir</div>
-                    <div>Prognoz</div>
-                </div>
-            </div>
+            <div class="news-table" id="newsTable"></div>
         </div>
 
     </div>
@@ -566,7 +526,7 @@
         });
     });
 
-    // ===== TUNGI/KUNDUZGI REJIM =====
+    // ===== REJIM =====
     const themeToggle = document.getElementById('themeToggle');
     let currentTheme = 'dark';
     themeToggle.addEventListener('click', function() {
@@ -717,7 +677,6 @@
     }
 
     async function loadDashboard() {
-        // Forex
         let forexHtml = '';
         assets.forex.forEach(item => {
             const basePrice = item.symbol.includes('JPY') ? 150 : (item.symbol.includes('XAU') ? 2000 : (item.symbol.includes('XAG') ? 25 : 1.1));
@@ -735,7 +694,6 @@
         });
         document.getElementById('forexList').innerHTML = forexHtml;
 
-        // Kripto
         try {
             const cryptoList = assets.crypto;
             const ids = cryptoList.map(i => i.symbol.replace('USDT','').toLowerCase()).join(',');
@@ -763,7 +721,6 @@
             document.getElementById('cryptoList').innerHTML = '<div class="loading">⚠️ Yuklanmadi</div>';
         }
 
-        // Indekslar
         let indicesHtml = '';
         assets.indices.forEach(item => {
             const price = getMockPrice(item.symbol, 15000).toFixed(0);
@@ -780,7 +737,6 @@
         });
         document.getElementById('indicesList').innerHTML = indicesHtml;
 
-        // Aksiyalar
         let stocksHtml = '';
         assets.stocks.forEach(item => {
             const price = getMockPrice(item.symbol, 150).toFixed(2);
@@ -805,18 +761,19 @@
         const isPositive = info.usd_24h_change >= 0;
         const tvSymbol = `BINANCE:${coinId.toUpperCase()}USDT`;
         const body = `
-            <div class="modal-price">$${info.usd.toLocaleString()}</div>
-            <div class="modal-change ${isPositive ? 'positive' : 'negative'}">
-                ${isPositive ? '▲' : '▼'} ${Math.abs(info.usd_24h_change).toFixed(2)}% (24 soat)
+            <div style="text-align:center;margin-bottom:15px;">
+                <div style="font-size:36px;font-weight:bold;">$${info.usd.toLocaleString()}</div>
+                <div style="font-size:16px;font-weight:bold;color:${isPositive ? 'var(--green)' : 'var(--red)'};">
+                    ${isPositive ? '▲' : '▼'} ${Math.abs(info.usd_24h_change).toFixed(2)}% (24 soat)
+                </div>
             </div>
             <div id="modalChart"></div>
             <div class="modal-info">
                 <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
                 ${info.usd_market_cap ? `<div class="modal-info-row"><span class="modal-info-label">Bozor kapitallashuvi:</span><span class="modal-info-value">$${(info.usd_market_cap / 1e9).toFixed(2)} mlrd</span></div>` : ''}
                 ${info.usd_24h_vol ? `<div class="modal-info-row"><span class="modal-info-label">24 soatlik hajm:</span><span class="modal-info-value">$${(info.usd_24h_vol / 1e9).toFixed(2)} mlrd</span></div>` : ''}
-                <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value" style="color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span></div>
             </div>
-            <div class="modal-desc"><b>📊 Tahlil:</b><br>${name} hozirda $${info.usd.toLocaleString()} darajasida savdo qilinmoqda.</div>
         `;
         openModal(name, body);
         setTimeout(() => initModalChart(tvSymbol), 200);
@@ -827,18 +784,19 @@
         const categoryNames = { forex: 'Forex', indices: 'Indeks', stocks: 'Aksiya' };
         const isStock = category === 'stocks';
         const body = `
-            <div class="modal-price">${isStock ? '$' : ''}${price}</div>
-            <div class="modal-change ${isPositive ? 'positive' : 'negative'}">
-                ${isPositive ? '▲' : '▼'} ${Math.abs(change)}% (kunlik)
+            <div style="text-align:center;margin-bottom:15px;">
+                <div style="font-size:36px;font-weight:bold;">${isStock ? '$' : ''}${price}</div>
+                <div style="font-size:16px;font-weight:bold;color:${isPositive ? 'var(--green)' : 'var(--red)'};">
+                    ${isPositive ? '▲' : '▼'} ${Math.abs(change)}% (kunlik)
+                </div>
             </div>
             <div id="modalChart"></div>
             <div class="modal-info">
                 <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
                 <div class="modal-info-row"><span class="modal-info-label">Turi:</span><span class="modal-info-value">${categoryNames[category]}</span></div>
                 <div class="modal-info-row"><span class="modal-info-label">Joriy narx:</span><span class="modal-info-value">${isStock ? '$' : ''}${price}</span></div>
-                <div class="modal-info-row"><span class="modal-info-label">Kunlik o'zgarish:</span><span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${change}%</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Kunlik o'zgarish:</span><span class="modal-info-value" style="color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '+' : ''}${change}%</span></div>
             </div>
-            <div class="modal-desc"><b>📊 Tahlil:</b><br>${name} aktivning joriy narxi ${isStock ? '$' : ''}${price}.</div>
         `;
         openModal(name, body);
         setTimeout(() => initModalChart(tvSymbol), 200);
@@ -860,64 +818,238 @@
         });
     }
 
-    // ===== YANGILIKLAR (Forex Factory uslubi) =====
+    // ===== SIGNAL BO'LIMI =====
+    // Bu yerga signallarni qo'lda kiritasiz
+    const signals = [
+        {
+            id: 1,
+            pair: 'EUR/USD',
+            type: 'BUY',
+            entry: '1.1485',
+            sl: '1.1465',
+            tp: '1.1545',
+            status: 'active',
+            time: '2026-09-20 10:30',
+            note: 'Kuchli qo\'llab-quvvatlash darajasidan qaytish. 4H grafikda bullish pattern.',
+            tvSymbol: 'FX:EURUSD'
+        },
+        {
+            id: 2,
+            pair: 'XAU/USD',
+            type: 'SELL',
+            entry: '2048.50',
+            sl: '2055.00',
+            tp: '2035.00',
+            status: 'active',
+            time: '2026-09-20 09:15',
+            note: 'Qarshilik darajasidan rad etish. Kunlik grafikda bearish divergence.',
+            tvSymbol: 'OANDA:XAUUSD'
+        },
+        {
+            id: 3,
+            pair: 'BTC/USDT',
+            type: 'BUY',
+            entry: '80473',
+            sl: '79000',
+            tp: '83000',
+            status: 'tp',
+            time: '2026-09-19 14:20',
+            note: 'Kuchli xarid zonasidan kirish. Take Profitga yetdi.',
+            tvSymbol: 'BINANCE:BTCUSDT'
+        },
+        {
+            id: 4,
+            pair: 'GBP/JPY',
+            type: 'SELL',
+            entry: '188.50',
+            sl: '189.80',
+            tp: '186.00',
+            status: 'sl',
+            time: '2026-09-19 11:00',
+            note: 'Stop Lossga yetdi. Bozor kutilmagan tomonga ketdi.',
+            tvSymbol: 'FX:GBPJPY'
+        },
+        {
+            id: 5,
+            pair: 'NAS100',
+            type: 'BUY',
+            entry: '15315',
+            sl: '15200',
+            tp: '15500',
+            status: 'pending',
+            time: '2026-09-20 11:00',
+            note: 'Kutilayotgan signal. Narx entry darajasiga yetganda faollashadi.',
+            tvSymbol: 'CAPITALCOM:US100'
+        }
+    ];
+
+    let currentSignalFilter = 'all';
+
+    function renderSignals() {
+        const list = document.getElementById('signalList');
+        const filtered = signals.filter(s => {
+            if (currentSignalFilter === 'all') return true;
+            if (currentSignalFilter === 'buy') return s.type === 'BUY';
+            if (currentSignalFilter === 'sell') return s.type === 'SELL';
+            return s.status === currentSignalFilter;
+        });
+
+        // Statistika
+        document.getElementById('statTotal').textContent = signals.length;
+        document.getElementById('statActive').textContent = signals.filter(s => s.status === 'active').length;
+        document.getElementById('statTP').textContent = signals.filter(s => s.status === 'tp').length;
+        document.getElementById('statSL').textContent = signals.filter(s => s.status === 'sl').length;
+
+        // Badge
+        const activeCount = signals.filter(s => s.status === 'active').length;
+        document.getElementById('signalBadge').textContent = activeCount;
+        document.getElementById('signalBadge').style.display = activeCount > 0 ? 'block' : 'none';
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="loading">📭 Bu filtrda signallar yo\'q</div>';
+            return;
+        }
+
+        let html = '';
+        filtered.forEach(s => {
+            const typeClass = s.type === 'BUY' ? 'buy' : 'sell';
+            const statusText = {
+                'active': '🟡 Faol',
+                'tp': '✅ TP',
+                'sl': '❌ SL',
+                'pending': '🔵 Kutilmoqda'
+            }[s.status];
+            
+            const cardClass = s.status === 'active' ? 'active-signal' : typeClass;
+
+            html += `
+                <div class="signal-card ${cardClass}" onclick="openSignalDetail(${s.id})">
+                    <div class="signal-header">
+                        <div class="signal-pair">${s.pair}</div>
+                        <div>
+                            <span class="signal-type ${typeClass}">${s.type}</span>
+                        </div>
+                    </div>
+                    <div class="signal-details">
+                        <div class="signal-detail">
+                            <div class="signal-detail-label">Entry</div>
+                            <div class="signal-detail-value">${s.entry}</div>
+                        </div>
+                        <div class="signal-detail">
+                            <div class="signal-detail-label">Stop Loss</div>
+                            <div class="signal-detail-value" style="color:var(--red);">${s.sl}</div>
+                        </div>
+                        <div class="signal-detail">
+                            <div class="signal-detail-label">Take Profit</div>
+                            <div class="signal-detail-value" style="color:var(--green);">${s.tp}</div>
+                        </div>
+                        <div class="signal-detail">
+                            <div class="signal-detail-label">Holat</div>
+                            <div class="signal-detail-value" style="font-size:11px;">${statusText}</div>
+                        </div>
+                    </div>
+                    <div class="signal-meta">
+                        <span>🕐 ${s.time}</span>
+                        <span class="signal-status ${s.status}">${statusText}</span>
+                    </div>
+                </div>
+            `;
+        });
+        list.innerHTML = html;
+    }
+
+    document.querySelectorAll('.signal-filter').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.signal-filter').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentSignalFilter = this.dataset.filter;
+            renderSignals();
+        });
+    });
+
+    function openSignalDetail(id) {
+        const s = signals.find(x => x.id === id);
+        if (!s) return;
+        
+        const isBuy = s.type === 'BUY';
+        const statusText = {
+            'active': '🟡 Faol',
+            'tp': '✅ Take Profit',
+            'sl': '❌ Stop Loss',
+            'pending': '🔵 Kutilmoqda'
+        }[s.status];
+
+        const body = `
+            <div style="text-align:center;margin-bottom:20px;">
+                <div style="font-size:32px;font-weight:bold;color:${isBuy ? 'var(--green)' : 'var(--red)'};">
+                    ${isBuy ? '▲ BUY' : '▼ SELL'} ${s.pair}
+                </div>
+                <div style="font-size:14px;color:var(--text-dim);margin-top:5px;">${statusText} | ${s.time}</div>
+            </div>
+            <div id="modalChart"></div>
+            <div class="signal-detail-grid">
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Entry narxi</div>
+                    <div class="signal-detail-value">${s.entry}</div>
+                </div>
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Signal turi</div>
+                    <div class="signal-detail-value" style="color:${isBuy ? 'var(--green)' : 'var(--red)'};">${s.type}</div>
+                </div>
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Stop Loss</div>
+                    <div class="signal-detail-value" style="color:var(--red);">${s.sl}</div>
+                </div>
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Take Profit</div>
+                    <div class="signal-detail-value" style="color:var(--green);">${s.tp}</div>
+                </div>
+            </div>
+            <div class="modal-info">
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Holat:</span>
+                    <span class="modal-info-value">${statusText}</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Vaqt:</span>
+                    <span class="modal-info-value">${s.time}</span>
+                </div>
+            </div>
+            <div class="modal-desc">
+                <b>📝 Izoh:</b><br>
+                ${s.note}
+            </div>
+        `;
+        openModal(`${s.pair} - ${s.type} Signal`, body);
+        setTimeout(() => initModalChart(s.tvSymbol), 200);
+    }
+
+    renderSignals();
+
+    // ===== YANGILIKLAR =====
     const newsData = [
-        // Bugun (Dushanba)
-        { time: '09:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—', previous: '—' },
-        { time: '11:30', currency: 'GBP', event: 'BoE Prezidentining nutqi', impact: 3, forecast: '—', previous: '—' },
-        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '220K', previous: '218K' },
-        { time: '15:00', currency: 'USD', event: 'Chakana savdo hajmi', impact: 3, forecast: '0.3%', previous: '0.2%' },
-        { time: '16:30', currency: 'USD', event: 'Xom neft zaxiralari', impact: 2, forecast: '-1.2M', previous: '+0.8M' },
-        { time: '18:00', currency: 'USD', event: 'FOMC majlisi bayonnomasi', impact: 3, forecast: '—', previous: '—' },
-        { time: '20:00', currency: 'EUR', event: 'ECB majlisi bayonnomasi', impact: 2, forecast: '—', previous: '—' },
-        
-        // Ertaga (Seshanba)
-        { time: '03:30', currency: 'AUD', event: 'RBA stavka qarori', impact: 3, forecast: '4.35%', previous: '4.35%' },
-        { time: '10:00', currency: 'EUR', event: 'Germaniya YaIM (choraklik)', impact: 3, forecast: '0.2%', previous: '0.1%' },
-        { time: '11:30', currency: 'GBP', event: 'Ishlab chiqarish PMI', impact: 2, forecast: '52.5', previous: '52.1' },
-        { time: '14:30', currency: 'CAD', event: 'YaIM (oylik)', impact: 3, forecast: '0.1%', previous: '0.2%' },
-        { time: '16:00', currency: 'USD', event: 'ISM xizmat ko\'rsatish PMI', impact: 3, forecast: '54.5', previous: '54.2' },
-        { time: '17:30', currency: 'USD', event: 'Tabiiy gaz zaxiralari', impact: 2, forecast: '+45B', previous: '+38B' },
-        
-        // Chorshanba
-        { time: '02:00', currency: 'NZD', event: 'RBNZ stavka qarori', impact: 3, forecast: '5.50%', previous: '5.50%' },
-        { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', impact: 3, forecast: '4.00%', previous: '4.00%' },
-        { time: '12:00', currency: 'USD', event: 'MBA ipoteka arizalari', impact: 1, forecast: '—', previous: '-2.5%' },
-        { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', impact: 3, forecast: '0.3%', previous: '0.2%' },
-        { time: '15:30', currency: 'USD', event: 'EIA xom neft zaxiralari', impact: 2, forecast: '-2.0M', previous: '-1.5M' },
-        { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%', previous: '5.50%' },
-        { time: '19:30', currency: 'USD', event: 'FOMC matbuot anjumani', impact: 3, forecast: '—', previous: '—' },
-        
-        // Payshanba
-        { time: '03:30', currency: 'AUD', event: 'Chakana savdo (oylik)', impact: 2, forecast: '0.4%', previous: '0.3%' },
-        { time: '10:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—', previous: '—' },
-        { time: '11:30', currency: 'GBP', event: 'Xizmat ko\'rsatish PMI', impact: 2, forecast: '53.5', previous: '53.2' },
-        { time: '13:00', currency: 'GBP', event: 'BoE stavka qarori', impact: 3, forecast: '5.25%', previous: '5.25%' },
-        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '225K', previous: '220K' },
-        { time: '14:30', currency: 'CAD', event: 'Savdo balansi', impact: 2, forecast: '-1.5B', previous: '-1.2B' },
-        { time: '16:00', currency: 'USD', event: 'Zavod buyurtmalari', impact: 2, forecast: '0.5%', previous: '0.3%' },
-        { time: '17:30', currency: 'USD', event: 'Tabiiy gaz zaxiralari', impact: 2, forecast: '+42B', previous: '+45B' },
-        
-        // Juma
-        { time: '02:30', currency: 'JPY', event: 'BoJ stavka qarori', impact: 3, forecast: '-0.10%', previous: '-0.10%' },
-        { time: '10:00', currency: 'EUR', event: 'Germaniya savdo balansi', impact: 2, forecast: '18.5B', previous: '17.9B' },
-        { time: '11:30', currency: 'GBP', event: 'YaIM (choraklik)', impact: 3, forecast: '0.3%', previous: '0.2%' },
-        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K', previous: '175K' },
-        { time: '14:30', currency: 'USD', event: 'Ishsizlik darajasi', impact: 3, forecast: '3.8%', previous: '3.8%' },
-        { time: '16:00', currency: 'USD', event: 'ISM xizmat ko\'rsatish PMI', impact: 3, forecast: '54.0', previous: '54.5' },
-        { time: '19:00', currency: 'USD', event: 'FOMC a\'zosi nutqi', impact: 2, forecast: '—', previous: '—' }
+        { time: '09:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—' },
+        { time: '11:30', currency: 'GBP', event: 'BoE Prezidentining nutqi', impact: 3, forecast: '—' },
+        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '220K' },
+        { time: '15:00', currency: 'USD', event: 'Chakana savdo hajmi', impact: 3, forecast: '0.3%' },
+        { time: '16:30', currency: 'USD', event: 'Xom neft zaxiralari', impact: 2, forecast: '-1.2M' },
+        { time: '18:00', currency: 'USD', event: 'FOMC majlisi bayonnomasi', impact: 3, forecast: '—' },
+        { time: '03:30', currency: 'AUD', event: 'RBA stavka qarori', impact: 3, forecast: '4.35%' },
+        { time: '10:00', currency: 'EUR', event: 'Germaniya YaIM', impact: 3, forecast: '0.2%' },
+        { time: '14:30', currency: 'CAD', event: 'YaIM (oylik)', impact: 3, forecast: '0.1%' },
+        { time: '16:00', currency: 'USD', event: 'ISM xizmat PMI', impact: 3, forecast: '54.5' },
+        { time: '02:00', currency: 'NZD', event: 'RBNZ stavka qarori', impact: 3, forecast: '5.50%' },
+        { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', impact: 3, forecast: '4.00%' },
+        { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', impact: 3, forecast: '0.3%' },
+        { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%' },
+        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K' },
+        { time: '14:30', currency: 'USD', event: 'Ishsizlik darajasi', impact: 3, forecast: '3.8%' }
     ];
 
     function getImpactStars(impact) {
         let stars = '';
         let color = '';
-        for (let i = 1; i <= 3; i++) {
-            if (i <= impact) {
-                stars += '★';
-            } else {
-                stars += '☆';
-            }
-        }
+        for (let i = 1; i <= 3; i++) stars += i <= impact ? '★' : '☆';
         if (impact === 3) color = 'impact-high';
         else if (impact === 2) color = 'impact-medium';
         else color = 'impact-low';
@@ -928,15 +1060,7 @@
 
     function renderNews() {
         const table = document.getElementById('newsTable');
-        let html = `
-            <div class="news-row header">
-                <div>Vaqt</div>
-                <div>Valyuta</div>
-                <div>Voqea</div>
-                <div>Ta'sir</div>
-                <div>Prognoz</div>
-            </div>
-        `;
+        let html = `<div class="news-row header"><div>Vaqt</div><div>Valyuta</div><div>Voqea</div><div>Ta'sir</div><div>Prognoz</div></div>`;
 
         const filtered = newsData.filter(item => {
             if (currentFilter === 'all') return true;
@@ -948,7 +1072,7 @@
 
         filtered.forEach(item => {
             html += `
-                <div class="news-row" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}', '${item.previous}')">
+                <div class="news-row" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}')">
                     <div class="news-time">${item.time}</div>
                     <div><span class="currency-badge currency-${item.currency}">${item.currency}</span></div>
                     <div class="news-event">${item.event}</div>
@@ -957,7 +1081,6 @@
                 </div>
             `;
         });
-
         table.innerHTML = html;
     }
 
@@ -970,51 +1093,32 @@
         });
     });
 
-    function openNewsDetail(time, currency, event, impact, forecast, previous) {
+    function openNewsDetail(time, currency, event, impact, forecast) {
         let impactText = impact === 3 ? '🔴 Yuqori' : (impact === 2 ? '🟡 O\'rta' : '🟠 Past');
         let impactColor = impact === 3 ? '#F44336' : (impact === 2 ? '#FFC107' : '#FFA726');
-        
         const body = `
-            <div class="news-detail-grid">
-                <div class="news-detail-item">
-                    <div class="news-detail-label">Vaqt</div>
-                    <div class="news-detail-value">${time}</div>
+            <div class="signal-detail-grid">
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Vaqt</div>
+                    <div class="signal-detail-value">${time}</div>
                 </div>
-                <div class="news-detail-item">
-                    <div class="news-detail-label">Valyuta</div>
-                    <div class="news-detail-value">${currency}</div>
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Valyuta</div>
+                    <div class="signal-detail-value">${currency}</div>
                 </div>
-                <div class="news-detail-item">
-                    <div class="news-detail-label">Ta'sir darajasi</div>
-                    <div class="news-detail-value" style="color:${impactColor};">${impactText} ${getImpactStars(impact)}</div>
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Ta'sir</div>
+                    <div class="signal-detail-value" style="color:${impactColor};">${impactText}</div>
                 </div>
-                <div class="news-detail-item">
-                    <div class="news-detail-label">Prognoz</div>
-                    <div class="news-detail-value">${forecast}</div>
-                </div>
-            </div>
-            <div class="modal-info">
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Voqea:</span>
-                    <span class="modal-info-value">${event}</span>
-                </div>
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Oldingi qiymat:</span>
-                    <span class="modal-info-value">${previous}</span>
-                </div>
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Prognoz:</span>
-                    <span class="modal-info-value">${forecast}</span>
+                <div class="signal-detail-item">
+                    <div class="signal-detail-label">Prognoz</div>
+                    <div class="signal-detail-value">${forecast}</div>
                 </div>
             </div>
             <div class="modal-desc">
                 <b>📊 Tahlil:</b><br>
-                Bu ${impact === 3 ? 'yuqori' : (impact === 2 ? 'o\'rta' : 'past')} ta'sirli yangilik. 
-                ${impact === 3 ? 'Bozorga kuchli ta\'sir qilishi mumkin — savdo qilishda ehtiyot bo\'ling.' : 
-                  (impact === 2 ? 'Bozorga o\'rtacha ta\'sir qilishi mumkin.' : 
-                  'Bozorga unchalik katta ta\'sir qilmaydi.')}
-                <br><br>
-                <b>⏰ Chiqish vaqti:</b> ${time} (Toshkent vaqti)
+                ${event}. Bu ${impact === 3 ? 'yuqori' : (impact === 2 ? 'o\'rta' : 'past')} ta'sirli yangilik.
+                <br><br><b>⏰ Chiqish vaqti:</b> ${time} (Toshkent vaqti)
             </div>
         `;
         openModal(`${currency} - ${event}`, body);
@@ -1049,7 +1153,6 @@
         if (!document.fullscreenElement) {
             if (el.requestFullscreen) el.requestFullscreen();
             else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
-            else if (el.msRequestFullscreen) el.msRequestFullscreen();
         } else {
             if (document.exitFullscreen) document.exitFullscreen();
         }
