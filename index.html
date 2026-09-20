@@ -10,7 +10,7 @@
             --bg: #0d0d0d; --bg-card: #1a1a1a; --bg-input: #2a2a2a;
             --border: #333; --text: #ffffff; --text-dim: #888;
             --green: #4CAF50; --red: #F44336; --yellow: #FFC107; --blue: #2196F3;
-            --sidebar-w: 70px;
+            --sidebar-w: 80px;
         }
         [data-theme="light"] {
             --bg: #f5f5f5; --bg-card: #ffffff; --bg-input: #f0f0f0;
@@ -30,41 +30,96 @@
             width: var(--sidebar-w); height: 100vh;
             background: var(--bg-card); border-left: 1px solid var(--border);
             display: flex; flex-direction: column; align-items: center;
-            padding: 15px 0; z-index: 100;
+            padding: 12px 0; z-index: 100;
         }
+
+        /* ===== GORIZONTAL LOGO (aylanuvchi va rang o'zgaruvchi) ===== */
         .sidebar-logo {
-            font-size: 11px; font-weight: bold; color: var(--green);
-            writing-mode: vertical-rl; text-orientation: mixed;
-            letter-spacing: 3px; margin-bottom: 25px; height: 120px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 8px 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
         }
-        .sidebar-menu { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 8px; flex: 1; overflow-y: auto; }
+
+        .logo-text {
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            animation: logoRotate 5s linear infinite;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FFC107, #F44336, #4CAF50);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        @keyframes logoRotate {
+            0% {
+                transform: rotate(0deg) scale(1);
+                filter: hue-rotate(0deg);
+            }
+            25% {
+                transform: rotate(0deg) scale(1.1);
+                filter: hue-rotate(90deg);
+            }
+            50% {
+                transform: rotate(0deg) scale(1);
+                filter: hue-rotate(180deg);
+            }
+            75% {
+                transform: rotate(0deg) scale(1.1);
+                filter: hue-rotate(270deg);
+            }
+            100% {
+                transform: rotate(0deg) scale(1);
+                filter: hue-rotate(360deg);
+            }
+        }
+
+        .logo-shine {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--green), transparent);
+            animation: shine 3s ease-in-out infinite;
+        }
+
+        @keyframes shine {
+            0%, 100% { opacity: 0; transform: translateX(-100%); }
+            50% { opacity: 1; transform: translateX(100%); }
+        }
+
+        .sidebar-menu { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 0 6px; flex: 1; overflow-y: auto; }
         .sidebar-btn {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 12px 5px; background: var(--bg-input); border: 1px solid var(--border);
-            border-radius: 10px; color: var(--text-dim); font-size: 18px;
+            padding: 10px 4px; background: var(--bg-input); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text-dim); font-size: 17px;
             cursor: pointer; transition: all 0.2s; position: relative;
         }
-        .sidebar-btn .label { font-size: 9px; margin-top: 4px; color: var(--text-dim); font-weight: 500; }
+        .sidebar-btn .label { font-size: 8px; margin-top: 3px; color: var(--text-dim); font-weight: 500; }
         .sidebar-btn:hover { color: var(--text); border-color: var(--green); transform: scale(1.05); }
         .sidebar-btn.active { background: var(--green); color: white; border-color: var(--green); }
         .sidebar-btn.active .label { color: white; }
 
-        /* Signal badge */
         .signal-badge {
-            position: absolute; top: -5px; right: -5px;
+            position: absolute; top: -4px; right: -4px;
             background: var(--red); color: white;
-            font-size: 10px; font-weight: bold;
-            padding: 2px 6px; border-radius: 10px;
-            min-width: 18px; text-align: center;
+            font-size: 9px; font-weight: bold;
+            padding: 2px 5px; border-radius: 10px;
+            min-width: 16px; text-align: center;
         }
 
         .sidebar-theme {
             background: var(--bg-input); border: 1px solid var(--border);
-            color: var(--text); width: 45px; height: 45px; border-radius: 50%;
-            cursor: pointer; font-size: 18px;
+            color: var(--text); width: 42px; height: 42px; border-radius: 50%;
+            cursor: pointer; font-size: 16px;
             display: flex; align-items: center; justify-content: center;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         /* ===== ASOSIY ===== */
@@ -101,117 +156,217 @@
         .negative { color: var(--red); }
         .loading { text-align: center; color: var(--text-dim); padding: 20px; font-size: 12px; }
 
-        /* ===== SIGNAL BO'LIMI ===== */
-        .signal-stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
+        /* ===== SIGNAL ===== */
+        .signal-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
         .signal-stat {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 15px; text-align: center;
         }
         .signal-stat-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; text-transform: uppercase; }
         .signal-stat-value { font-size: 22px; font-weight: bold; }
-
-        .signal-filters {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
+        .signal-filters { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .signal-filter {
-            padding: 7px 14px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            border-radius: 20px;
-            font-size: 12px;
-            cursor: pointer;
+            padding: 7px 14px; background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text-dim); border-radius: 20px; font-size: 12px; cursor: pointer;
         }
         .signal-filter.active { background: var(--green); color: white; border-color: var(--green); }
-
         .signal-list { display: flex; flex-direction: column; gap: 12px; }
-
         .signal-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-left: 4px solid var(--green);
-            border-radius: 10px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.2s;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-left: 4px solid var(--green); border-radius: 10px;
+            padding: 15px; cursor: pointer; transition: all 0.2s;
         }
         .signal-card:hover { transform: translateX(3px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
         .signal-card.buy { border-left-color: var(--green); }
         .signal-card.sell { border-left-color: var(--red); }
         .signal-card.active-signal { border-left-color: var(--yellow); animation: pulse 2s infinite; }
-
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4); }
             50% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
         }
-
-        .signal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .signal-pair {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--text);
-        }
-        .signal-type {
-            font-size: 11px;
-            font-weight: bold;
-            padding: 4px 10px;
-            border-radius: 15px;
-            text-transform: uppercase;
-        }
+        .signal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .signal-pair { font-size: 18px; font-weight: bold; color: var(--text); }
+        .signal-type { font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 15px; text-transform: uppercase; }
         .signal-type.buy { background: rgba(76, 175, 80, 0.2); color: var(--green); }
         .signal-type.sell { background: rgba(244, 67, 54, 0.2); color: var(--red); }
-        .signal-type.active { background: rgba(255, 193, 7, 0.2); color: var(--yellow); }
-
-        .signal-details {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+        .signal-details { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px; }
         .signal-detail {
-            background: var(--bg-input);
-            border-radius: 6px;
-            padding: 8px;
-            text-align: center;
+            background: var(--bg-input); border-radius: 6px; padding: 8px; text-align: center;
         }
         .signal-detail-label { font-size: 10px; color: var(--text-dim); margin-bottom: 3px; }
         .signal-detail-value { font-size: 13px; font-weight: bold; color: var(--text); }
-
         .signal-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 11px;
-            color: var(--text-dim);
-            padding-top: 10px;
-            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 11px; color: var(--text-dim); padding-top: 10px; border-top: 1px solid var(--border);
         }
-        .signal-status {
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: bold;
-        }
+        .signal-status { padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; }
         .signal-status.active { background: rgba(255, 193, 7, 0.2); color: var(--yellow); }
         .signal-status.tp { background: rgba(76, 175, 80, 0.2); color: var(--green); }
         .signal-status.sl { background: rgba(244, 67, 54, 0.2); color: var(--red); }
         .signal-status.pending { background: rgba(33, 150, 243, 0.2); color: var(--blue); }
+
+        /* ===== PROFIL (yangi bo'lim) ===== */
+        .profile-header {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-input));
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            margin: 0 auto 15px auto;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        .profile-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+        .profile-status {
+            font-size: 12px;
+            color: var(--text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulseDot 2s infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Profil statistikasi */
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .profile-stat {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .profile-stat-icon { font-size: 24px; margin-bottom: 5px; }
+        .profile-stat-value { font-size: 20px; font-weight: bold; color: var(--text); }
+        .profile-stat-label { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+        /* Foydalanuvchi ma'lumotlari */
+        .user-info-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .user-info-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--green);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .user-info-row:last-child { border-bottom: none; }
+        .user-info-label { color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
+        .user-info-value { color: var(--text); font-weight: bold; }
+
+        /* Hisob sozlamalari */
+        .profile-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .profile-action-btn {
+            padding: 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .profile-action-btn:hover {
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .profile-action-btn.danger:hover {
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        /* Foydalanuvchilar ro'yxati (admin uchun) */
+        .users-list {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .user-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .user-row:last-child { border-bottom: none; }
+        .user-row:hover { background: var(--bg-input); }
+        .user-row-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--green), var(--blue));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; color: white; font-size: 14px;
+            margin-right: 12px;
+        }
+        .user-row-info { flex: 1; }
+        .user-row-name { font-size: 14px; font-weight: bold; }
+        .user-row-email { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+        .user-row-status {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--green);
+            font-weight: bold;
+        }
 
         /* ===== RISK ===== */
         .risk-wrap {
@@ -319,12 +474,7 @@
         .modal-info-value { color: var(--text); font-weight: bold; }
         #modalChart { width: 100%; height: 350px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; background: var(--bg-input); }
         .modal-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; padding: 15px; background: var(--bg-input); border-radius: 10px; }
-
-        /* Signal detail modal */
-        .signal-detail-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr);
-            gap: 10px; margin-bottom: 15px;
-        }
+        .signal-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .signal-detail-item {
             background: var(--bg-input); padding: 12px;
             border-radius: 8px; text-align: center;
@@ -334,12 +484,12 @@
 
         /* ===== MOBIL ===== */
         @media (max-width: 600px) {
-            :root { --sidebar-w: 55px; }
+            :root { --sidebar-w: 65px; }
             .main-content { padding: 12px; }
             .asset-sections { grid-template-columns: 1fr; }
-            .sidebar-btn { padding: 10px 3px; font-size: 16px; }
-            .sidebar-btn .label { font-size: 8px; }
-            .sidebar-logo { font-size: 9px; }
+            .sidebar-btn { padding: 8px 3px; font-size: 15px; }
+            .sidebar-btn .label { font-size: 7px; }
+            .logo-text { font-size: 9px; letter-spacing: 0.5px; }
             #chartContainer { height: calc(100vh - 120px); min-height: 400px; }
             .risk-wrap { padding: 18px; }
             .modal-box { padding: 18px; }
@@ -349,6 +499,8 @@
             .signal-stats { grid-template-columns: repeat(2, 1fr); }
             .signal-details { grid-template-columns: repeat(2, 1fr); }
             .signal-detail-grid { grid-template-columns: 1fr; }
+            .profile-stats { grid-template-columns: 1fr; }
+            .profile-actions { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -356,7 +508,11 @@
 
     <!-- SIDEBAR -->
     <div class="sidebar">
-        <div class="sidebar-logo">ZA_ISLAMIC</div>
+        <!-- GORIZONTAL LOGO (aylanuvchi, rang o'zgaruvchi) -->
+        <div class="sidebar-logo">
+            <div class="logo-text">ZA_ISLAMIC</div>
+        </div>
+
         <div class="sidebar-menu">
             <button class="sidebar-btn active" data-tab="dashboard" title="Dashboard">
                 🏠<span class="label">Bosh</span>
@@ -373,6 +529,9 @@
             </button>
             <button class="sidebar-btn" data-tab="news" title="Yangiliklar">
                 📰<span class="label">Yangilik</span>
+            </button>
+            <button class="sidebar-btn" data-tab="profile" title="Profil">
+                👤<span class="label">Profil</span>
             </button>
         </div>
         <button class="sidebar-theme" id="themeToggle" title="Rejim">🌙</button>
@@ -404,14 +563,12 @@
             </div>
         </div>
 
-        <!-- SIGNAL BO'LIMI -->
+        <!-- SIGNAL -->
         <div class="tab-content" id="signal">
             <h2>🎯 Savdo Signallari</h2>
-            
-            <!-- Statistika -->
             <div class="signal-stats">
                 <div class="signal-stat">
-                    <div class="signal-stat-label">Jami signallar</div>
+                    <div class="signal-stat-label">Jami</div>
                     <div class="signal-stat-value" id="statTotal">0</div>
                 </div>
                 <div class="signal-stat">
@@ -427,8 +584,6 @@
                     <div class="signal-stat-value" style="color:var(--red);" id="statSL">0</div>
                 </div>
             </div>
-
-            <!-- Filtrlar -->
             <div class="signal-filters">
                 <button class="signal-filter active" data-filter="all">Barchasi</button>
                 <button class="signal-filter" data-filter="active">🟡 Faol</button>
@@ -437,8 +592,6 @@
                 <button class="signal-filter" data-filter="tp">✅ TP</button>
                 <button class="signal-filter" data-filter="sl">❌ SL</button>
             </div>
-
-            <!-- Signallar ro'yxati -->
             <div class="signal-list" id="signalList"></div>
         </div>
 
@@ -501,6 +654,94 @@
             <div class="news-table" id="newsTable"></div>
         </div>
 
+        <!-- PROFIL (yangi bo'lim) -->
+        <div class="tab-content" id="profile">
+            <h2>👤 Mening Profilim</h2>
+
+            <!-- Profil header -->
+            <div class="profile-header">
+                <div class="profile-avatar">ZI</div>
+                <div class="profile-name">ZA_ISLAMIC</div>
+                <div class="profile-status">
+                    <span class="status-dot"></span>
+                    Faol foydalanuvchi
+                </div>
+            </div>
+
+            <!-- Statistika -->
+            <div class="profile-stats">
+                <div class="profile-stat">
+                    <div class="profile-stat-icon">🎯</div>
+                    <div class="profile-stat-value" id="profileSignals">0</div>
+                    <div class="profile-stat-label">Signallar</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-icon">✅</div>
+                    <div class="profile-stat-value" style="color:var(--green);" id="profileWins">0</div>
+                    <div class="profile-stat-label">Foyda</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-icon">📈</div>
+                    <div class="profile-stat-value" style="color:var(--blue);" id="profileWinRate">0%</div>
+                    <div class="profile-stat-label">Win Rate</div>
+                </div>
+            </div>
+
+            <!-- Shaxsiy ma'lumotlar -->
+            <div class="user-info-card">
+                <div class="user-info-title">📋 Shaxsiy ma'lumotlar</div>
+                <div class="user-info-row">
+                    <span class="user-info-label">👤 To'liq ism:</span>
+                    <span class="user-info-value" id="userFullName">Islom Karimov</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">📧 Email:</span>
+                    <span class="user-info-value" id="userEmail">taraderuz@gmail.com</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">📱 Telefon:</span>
+                    <span class="user-info-value" id="userPhone">+998 90 123 45 67</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">🌍 Mamlakat:</span>
+                    <span class="user-info-value" id="userCountry">O'zbekiston</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">📅 Ro'yxatdan o'tgan:</span>
+                    <span class="user-info-value" id="userRegistered">2026-09-20</span>
+                </div>
+            </div>
+
+            <!-- Hisob ma'lumotlari -->
+            <div class="user-info-card">
+                <div class="user-info-title">💼 Hisob ma'lumotlari</div>
+                <div class="user-info-row">
+                    <span class="user-info-label">🆔 Foydalanuvchi ID:</span>
+                    <span class="user-info-value">#ZA-2026-001</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">💎 Tarif:</span>
+                    <span class="user-info-value" style="color:var(--yellow);">Premium</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">📊 Savdo balansi:</span>
+                    <span class="user-info-value" style="color:var(--green);">$10,000.00</span>
+                </div>
+                <div class="user-info-row">
+                    <span class="user-info-label">🎯 Jami signallar:</span>
+                    <span class="user-info-value" id="userTotalSignals">5</span>
+                </div>
+            </div>
+
+            <!-- Amallar -->
+            <div class="profile-actions">
+                <button class="profile-action-btn" onclick="editProfile()">✏️ Tahrirlash</button>
+                <button class="profile-action-btn" onclick="showAllUsers()">👥 Foydalanuvchilar</button>
+                <button class="profile-action-btn" onclick="exportData()">📤 Ma'lumotlar</button>
+                <button class="profile-action-btn danger" onclick="logoutUser()">🚪 Chiqish</button>
+            </div>
+        </div>
+
     </div>
 
     <!-- MODAL -->
@@ -523,6 +764,7 @@
             this.classList.add('active');
             document.getElementById(this.dataset.tab).classList.add('active');
             if (this.dataset.tab === 'chart') setTimeout(initChart, 100);
+            if (this.dataset.tab === 'profile') updateProfileStats();
         });
     });
 
@@ -551,6 +793,108 @@
     document.getElementById('modalOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
+
+    // ===== FOYDALANUVCHILAR MA'LUMOTLARI (mock) =====
+    const userData = {
+        fullName: 'Islom Karimov',
+        email: 'taraderuz@gmail.com',
+        phone: '+998 90 123 45 67',
+        country: 'O\'zbekiston',
+        registered: '2026-09-20',
+        userId: '#ZA-2026-001',
+        tier: 'Premium',
+        balance: 10000,
+        signals: 5
+    };
+
+    // Boshqa foydalanuvchilar ro'yxati (admin ko'rishi uchun)
+    const allUsers = [
+        { name: 'Islom Karimov', email: 'taraderuz@gmail.com', status: 'active', joined: '2026-09-20' },
+        { name: 'Aziz Rahimov', email: 'aziz@example.com', status: 'active', joined: '2026-09-19' },
+        { name: 'Dilshod Toshmatov', email: 'dilshod@example.com', status: 'active', joined: '2026-09-18' },
+        { name: 'Sardor Aliyev', email: 'sardor@example.com', status: 'inactive', joined: '2026-09-15' },
+        { name: 'Bobur Yusupov', email: 'bobur@example.com', status: 'active', joined: '2026-09-12' }
+    ];
+
+    function updateProfileStats() {
+        const total = signals.length;
+        const wins = signals.filter(s => s.status === 'tp').length;
+        const rate = total > 0 ? ((wins / total) * 100).toFixed(0) : 0;
+        
+        document.getElementById('profileSignals').textContent = total;
+        document.getElementById('profileWins').textContent = wins;
+        document.getElementById('profileWinRate').textContent = rate + '%';
+        document.getElementById('userTotalSignals').textContent = total;
+    }
+
+    function editProfile() {
+        const body = `
+            <div class="modal-info">
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:12px;color:var(--text-dim);">To'liq ism</label>
+                    <input type="text" value="${userData.fullName}" style="margin-bottom:10px;">
+                    <label style="font-size:12px;color:var(--text-dim);">Email</label>
+                    <input type="email" value="${userData.email}" style="margin-bottom:10px;">
+                    <label style="font-size:12px;color:var(--text-dim);">Telefon</label>
+                    <input type="text" value="${userData.phone}" style="margin-bottom:10px;">
+                </div>
+            </div>
+            <button onclick="closeModal()" style="width:100%;padding:12px;background:var(--green);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Saqlash</button>
+        `;
+        openModal('✏️ Profilni tahrirlash', body);
+    }
+
+    function showAllUsers() {
+        let html = '<div class="users-list">';
+        allUsers.forEach(u => {
+            const initials = u.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const statusColor = u.status === 'active' ? 'var(--green)' : 'var(--text-dim)';
+            const statusBg = u.status === 'active' ? 'rgba(76, 175, 80, 0.2)' : 'rgba(128, 128, 128, 0.2)';
+            html += `
+                <div class="user-row">
+                    <div class="user-row-avatar">${initials}</div>
+                    <div class="user-row-info">
+                        <div class="user-row-name">${u.name}</div>
+                        <div class="user-row-email">${u.email} • ${u.joined}</div>
+                    </div>
+                    <div class="user-row-status" style="background:${statusBg};color:${statusColor};">
+                        ${u.status === 'active' ? 'Faol' : 'Nofaol'}
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        openModal(`👥 Foydalanuvchilar (${allUsers.length})`, html);
+    }
+
+    function exportData() {
+        const dataStr = JSON.stringify({ user: userData, signals: signals }, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'za_islamic_data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        openModal('📤 Ma\'lumotlar eksport qilindi', `
+            <div class="modal-desc">
+                ✅ Barcha ma'lumotlar <b>za_islamic_data.json</b> faylga saqlandi.<br><br>
+                Fayl sizning qurilmangizga yuklandi. Uni istalgan joyda saqlashingiz mumkin.
+            </div>
+        `);
+    }
+
+    function logoutUser() {
+        if (confirm('Hisobdan chiqishni xohlaysizmi?')) {
+            openModal('🚪 Chiqish', `
+                <div class="modal-desc">
+                    Siz hisobdan muvaffaqiyatli chiqdingiz.<br><br>
+                    Qayta kirish uchun ilovani qaytadan oching.
+                </div>
+            `);
+        }
+    }
 
     // ===== RISK KALKULYATOR =====
     const symbolDatabase = {
@@ -818,66 +1162,35 @@
         });
     }
 
-    // ===== SIGNAL BO'LIMI =====
-    // Bu yerga signallarni qo'lda kiritasiz
+    // ===== SIGNAL =====
     const signals = [
         {
-            id: 1,
-            pair: 'EUR/USD',
-            type: 'BUY',
-            entry: '1.1485',
-            sl: '1.1465',
-            tp: '1.1545',
-            status: 'active',
-            time: '2026-09-20 10:30',
+            id: 1, pair: 'EUR/USD', type: 'BUY', entry: '1.1485', sl: '1.1465', tp: '1.1545',
+            status: 'active', time: '2026-09-20 10:30',
             note: 'Kuchli qo\'llab-quvvatlash darajasidan qaytish. 4H grafikda bullish pattern.',
             tvSymbol: 'FX:EURUSD'
         },
         {
-            id: 2,
-            pair: 'XAU/USD',
-            type: 'SELL',
-            entry: '2048.50',
-            sl: '2055.00',
-            tp: '2035.00',
-            status: 'active',
-            time: '2026-09-20 09:15',
+            id: 2, pair: 'XAU/USD', type: 'SELL', entry: '2048.50', sl: '2055.00', tp: '2035.00',
+            status: 'active', time: '2026-09-20 09:15',
             note: 'Qarshilik darajasidan rad etish. Kunlik grafikda bearish divergence.',
             tvSymbol: 'OANDA:XAUUSD'
         },
         {
-            id: 3,
-            pair: 'BTC/USDT',
-            type: 'BUY',
-            entry: '80473',
-            sl: '79000',
-            tp: '83000',
-            status: 'tp',
-            time: '2026-09-19 14:20',
+            id: 3, pair: 'BTC/USDT', type: 'BUY', entry: '80473', sl: '79000', tp: '83000',
+            status: 'tp', time: '2026-09-19 14:20',
             note: 'Kuchli xarid zonasidan kirish. Take Profitga yetdi.',
             tvSymbol: 'BINANCE:BTCUSDT'
         },
         {
-            id: 4,
-            pair: 'GBP/JPY',
-            type: 'SELL',
-            entry: '188.50',
-            sl: '189.80',
-            tp: '186.00',
-            status: 'sl',
-            time: '2026-09-19 11:00',
+            id: 4, pair: 'GBP/JPY', type: 'SELL', entry: '188.50', sl: '189.80', tp: '186.00',
+            status: 'sl', time: '2026-09-19 11:00',
             note: 'Stop Lossga yetdi. Bozor kutilmagan tomonga ketdi.',
             tvSymbol: 'FX:GBPJPY'
         },
         {
-            id: 5,
-            pair: 'NAS100',
-            type: 'BUY',
-            entry: '15315',
-            sl: '15200',
-            tp: '15500',
-            status: 'pending',
-            time: '2026-09-20 11:00',
+            id: 5, pair: 'NAS100', type: 'BUY', entry: '15315', sl: '15200', tp: '15500',
+            status: 'pending', time: '2026-09-20 11:00',
             note: 'Kutilayotgan signal. Narx entry darajasiga yetganda faollashadi.',
             tvSymbol: 'CAPITALCOM:US100'
         }
@@ -894,13 +1207,11 @@
             return s.status === currentSignalFilter;
         });
 
-        // Statistika
         document.getElementById('statTotal').textContent = signals.length;
         document.getElementById('statActive').textContent = signals.filter(s => s.status === 'active').length;
         document.getElementById('statTP').textContent = signals.filter(s => s.status === 'tp').length;
         document.getElementById('statSL').textContent = signals.filter(s => s.status === 'sl').length;
 
-        // Badge
         const activeCount = signals.filter(s => s.status === 'active').length;
         document.getElementById('signalBadge').textContent = activeCount;
         document.getElementById('signalBadge').style.display = activeCount > 0 ? 'block' : 'none';
@@ -914,39 +1225,20 @@
         filtered.forEach(s => {
             const typeClass = s.type === 'BUY' ? 'buy' : 'sell';
             const statusText = {
-                'active': '🟡 Faol',
-                'tp': '✅ TP',
-                'sl': '❌ SL',
-                'pending': '🔵 Kutilmoqda'
+                'active': '🟡 Faol', 'tp': '✅ TP', 'sl': '❌ SL', 'pending': '🔵 Kutilmoqda'
             }[s.status];
-            
             const cardClass = s.status === 'active' ? 'active-signal' : typeClass;
-
             html += `
                 <div class="signal-card ${cardClass}" onclick="openSignalDetail(${s.id})">
                     <div class="signal-header">
                         <div class="signal-pair">${s.pair}</div>
-                        <div>
-                            <span class="signal-type ${typeClass}">${s.type}</span>
-                        </div>
+                        <div><span class="signal-type ${typeClass}">${s.type}</span></div>
                     </div>
                     <div class="signal-details">
-                        <div class="signal-detail">
-                            <div class="signal-detail-label">Entry</div>
-                            <div class="signal-detail-value">${s.entry}</div>
-                        </div>
-                        <div class="signal-detail">
-                            <div class="signal-detail-label">Stop Loss</div>
-                            <div class="signal-detail-value" style="color:var(--red);">${s.sl}</div>
-                        </div>
-                        <div class="signal-detail">
-                            <div class="signal-detail-label">Take Profit</div>
-                            <div class="signal-detail-value" style="color:var(--green);">${s.tp}</div>
-                        </div>
-                        <div class="signal-detail">
-                            <div class="signal-detail-label">Holat</div>
-                            <div class="signal-detail-value" style="font-size:11px;">${statusText}</div>
-                        </div>
+                        <div class="signal-detail"><div class="signal-detail-label">Entry</div><div class="signal-detail-value">${s.entry}</div></div>
+                        <div class="signal-detail"><div class="signal-detail-label">Stop Loss</div><div class="signal-detail-value" style="color:var(--red);">${s.sl}</div></div>
+                        <div class="signal-detail"><div class="signal-detail-label">Take Profit</div><div class="signal-detail-value" style="color:var(--green);">${s.tp}</div></div>
+                        <div class="signal-detail"><div class="signal-detail-label">Holat</div><div class="signal-detail-value" style="font-size:11px;">${statusText}</div></div>
                     </div>
                     <div class="signal-meta">
                         <span>🕐 ${s.time}</span>
@@ -970,15 +1262,10 @@
     function openSignalDetail(id) {
         const s = signals.find(x => x.id === id);
         if (!s) return;
-        
         const isBuy = s.type === 'BUY';
         const statusText = {
-            'active': '🟡 Faol',
-            'tp': '✅ Take Profit',
-            'sl': '❌ Stop Loss',
-            'pending': '🔵 Kutilmoqda'
+            'active': '🟡 Faol', 'tp': '✅ Take Profit', 'sl': '❌ Stop Loss', 'pending': '🔵 Kutilmoqda'
         }[s.status];
-
         const body = `
             <div style="text-align:center;margin-bottom:20px;">
                 <div style="font-size:32px;font-weight:bold;color:${isBuy ? 'var(--green)' : 'var(--red)'};">
@@ -988,37 +1275,16 @@
             </div>
             <div id="modalChart"></div>
             <div class="signal-detail-grid">
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Entry narxi</div>
-                    <div class="signal-detail-value">${s.entry}</div>
-                </div>
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Signal turi</div>
-                    <div class="signal-detail-value" style="color:${isBuy ? 'var(--green)' : 'var(--red)'};">${s.type}</div>
-                </div>
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Stop Loss</div>
-                    <div class="signal-detail-value" style="color:var(--red);">${s.sl}</div>
-                </div>
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Take Profit</div>
-                    <div class="signal-detail-value" style="color:var(--green);">${s.tp}</div>
-                </div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Entry narxi</div><div class="signal-detail-value">${s.entry}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Signal turi</div><div class="signal-detail-value" style="color:${isBuy ? 'var(--green)' : 'var(--red)'};">${s.type}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Stop Loss</div><div class="signal-detail-value" style="color:var(--red);">${s.sl}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Take Profit</div><div class="signal-detail-value" style="color:var(--green);">${s.tp}</div></div>
             </div>
             <div class="modal-info">
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Holat:</span>
-                    <span class="modal-info-value">${statusText}</span>
-                </div>
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Vaqt:</span>
-                    <span class="modal-info-value">${s.time}</span>
-                </div>
+                <div class="modal-info-row"><span class="modal-info-label">Holat:</span><span class="modal-info-value">${statusText}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Vaqt:</span><span class="modal-info-value">${s.time}</span></div>
             </div>
-            <div class="modal-desc">
-                <b>📝 Izoh:</b><br>
-                ${s.note}
-            </div>
+            <div class="modal-desc"><b>📝 Izoh:</b><br>${s.note}</div>
         `;
         openModal(`${s.pair} - ${s.type} Signal`, body);
         setTimeout(() => initModalChart(s.tvSymbol), 200);
@@ -1042,8 +1308,7 @@
         { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', impact: 3, forecast: '4.00%' },
         { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', impact: 3, forecast: '0.3%' },
         { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%' },
-        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K' },
-        { time: '14:30', currency: 'USD', event: 'Ishsizlik darajasi', impact: 3, forecast: '3.8%' }
+        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K' }
     ];
 
     function getImpactStars(impact) {
@@ -1061,7 +1326,6 @@
     function renderNews() {
         const table = document.getElementById('newsTable');
         let html = `<div class="news-row header"><div>Vaqt</div><div>Valyuta</div><div>Voqea</div><div>Ta'sir</div><div>Prognoz</div></div>`;
-
         const filtered = newsData.filter(item => {
             if (currentFilter === 'all') return true;
             if (currentFilter === 'high') return item.impact === 3;
@@ -1069,7 +1333,6 @@
             if (currentFilter === 'low') return item.impact === 1;
             return true;
         });
-
         filtered.forEach(item => {
             html += `
                 <div class="news-row" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}')">
@@ -1098,22 +1361,10 @@
         let impactColor = impact === 3 ? '#F44336' : (impact === 2 ? '#FFC107' : '#FFA726');
         const body = `
             <div class="signal-detail-grid">
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Vaqt</div>
-                    <div class="signal-detail-value">${time}</div>
-                </div>
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Valyuta</div>
-                    <div class="signal-detail-value">${currency}</div>
-                </div>
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Ta'sir</div>
-                    <div class="signal-detail-value" style="color:${impactColor};">${impactText}</div>
-                </div>
-                <div class="signal-detail-item">
-                    <div class="signal-detail-label">Prognoz</div>
-                    <div class="signal-detail-value">${forecast}</div>
-                </div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Vaqt</div><div class="signal-detail-value">${time}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Valyuta</div><div class="signal-detail-value">${currency}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Ta'sir</div><div class="signal-detail-value" style="color:${impactColor};">${impactText}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Prognoz</div><div class="signal-detail-value">${forecast}</div></div>
             </div>
             <div class="modal-desc">
                 <b>📊 Tahlil:</b><br>
@@ -1161,6 +1412,7 @@
     // Boshlang'ich
     loadDashboard();
     renderNews();
+    updateProfileStats();
     setInterval(loadDashboard, 60000);
     </script>
 </body>
