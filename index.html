@@ -49,25 +49,13 @@
             z-index: 100;
         }
 
-        /* ===== ANIMATSIYALI LOGO ===== */
-        .logo-wrap {
-            overflow: hidden;
-            width: 220px;
-            height: 30px;
-            position: relative;
-        }
-
+        .logo-wrap { overflow: hidden; width: 220px; height: 30px; position: relative; }
         .logo {
-            font-size: 20px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            white-space: nowrap;
-            position: absolute;
+            font-size: 20px; font-weight: bold; letter-spacing: 3px;
+            white-space: nowrap; position: absolute;
             animation: slideLogo 6s ease-in-out infinite;
         }
-
         .logo span { color: var(--green); transition: color 0.5s; }
-
         @keyframes slideLogo {
             0%   { transform: translateX(0);      color: #ffffff; }
             25%  { transform: translateX(60px);   color: #4CAF50; }
@@ -77,16 +65,14 @@
         }
 
         .theme-toggle {
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text); width: 40px; height: 40px; border-radius: 50%;
             cursor: pointer; font-size: 18px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
 
-        /* ===== MENU (o'ngga surilgan) ===== */
+        /* ===== MENU (o'ngdan chapga) ===== */
         .menu {
             display: flex;
             background: var(--bg-card);
@@ -98,23 +84,20 @@
             padding-right: 20px;
             gap: 5px;
             overflow-x: auto;
+            direction: rtl; /* O'ngdan chapga tartiblash */
         }
         .menu-btn {
             padding: 12px 18px; background: none; border: none;
             color: var(--text-dim); font-size: 13px; cursor: pointer;
             border-bottom: 2px solid transparent; white-space: nowrap;
             transition: all 0.2s;
+            direction: ltr; /* Matn o'zgarishsiz qolsin */
         }
         .menu-btn.active { color: var(--text); border-bottom-color: var(--green); font-weight: bold; }
         .menu-btn:hover { color: var(--text); }
 
         /* ===== CONTENT ===== */
-        .content {
-            padding: 20px;
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+        .content { padding: 20px; width: 100%; max-width: 1400px; margin: 0 auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -129,20 +112,18 @@
         }
         .asset-tab.active { background: var(--green); color: white; border-color: var(--green); }
 
-        /* RESPONSIVE GRID */
         .market-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 15px;
         }
-
         .market-card {
             background: var(--bg-card); border: 1px solid var(--border);
             border-radius: 12px; padding: 15px;
             transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
         }
         .market-card:hover { transform: translateY(-3px); border-color: var(--green); }
-
         .market-name { font-size: 13px; color: var(--text-dim); margin-bottom: 8px; font-weight: 500; }
         .market-price { font-size: 22px; font-weight: bold; color: var(--text); }
         .market-change { font-size: 12px; margin-top: 6px; font-weight: bold; }
@@ -150,7 +131,15 @@
         .negative { color: var(--red); }
         .loading { text-align: center; color: var(--text-dim); padding: 30px; grid-column: 1/-1; }
 
-        /* ===== RISK ===== */
+        /* ===== RISK (o'rtada) ===== */
+        .risk-wrap {
+            max-width: 500px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+        }
         label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--text-dim); }
         input, select {
             width: 100%; padding: 11px; margin-bottom: 12px; background: var(--bg-input);
@@ -163,7 +152,7 @@
         .result-box { margin-top: 15px; padding: 15px; background: var(--bg-input); border-radius: 8px; font-size: 14px; line-height: 1.8; }
         .result-row { display: flex; justify-content: space-between; }
 
-        /* ===== GRAFIK (to'liq ekran) ===== */
+        /* ===== GRAFIK ===== */
         #chartContainer {
             width: 100%;
             height: calc(100vh - 160px);
@@ -174,43 +163,137 @@
             border: 1px solid var(--border);
         }
         #tvchart { width: 100%; height: 100%; }
-
         .chart-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            gap: 10px;
-            flex-wrap: wrap;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; gap: 10px; flex-wrap: wrap;
         }
         .chart-controls select { margin-bottom: 0; max-width: 250px; }
         .fullscreen-btn {
-            padding: 10px 18px;
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text);
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            white-space: nowrap;
+            padding: 10px 18px; background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text); border-radius: 6px; cursor: pointer;
+            font-size: 13px; white-space: nowrap;
         }
         .fullscreen-btn:hover { background: var(--green); color: white; border-color: var(--green); }
 
         /* ===== YANGILIKLAR ===== */
-        .news-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 15px; margin-bottom: 10px; }
+        .news-item {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 15px; margin-bottom: 10px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .news-item:hover { border-color: var(--green); transform: translateY(-2px); }
         .news-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; }
         .news-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
         .news-date { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
 
-        /* ===== MOBIL MOSLASHISH ===== */
+        /* ===== MODAL (ma'lumot oynasi) ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 25px;
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--green);
+        }
+        .modal-close {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover { background: var(--red); color: white; border-color: var(--red); }
+
+        .modal-price {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--text);
+            text-align: center;
+            margin: 15px 0;
+        }
+        .modal-change {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .modal-info {
+            background: var(--bg-input);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .modal-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .modal-info-row:last-child { border-bottom: none; }
+        .modal-info-label { color: var(--text-dim); }
+        .modal-info-value { color: var(--text); font-weight: bold; }
+
+        .modal-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.6;
+            padding: 15px;
+            background: var(--bg-input);
+            border-radius: 10px;
+        }
+
+        /* ===== MOBIL ===== */
         @media (max-width: 600px) {
             .content { padding: 15px; }
-            .menu { justify-content: flex-start; padding-right: 0; }
+            .menu { padding-right: 10px; }
             .menu-btn { padding: 10px 12px; font-size: 12px; }
             .market-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
             .market-price { font-size: 16px; }
             .logo-wrap { width: 160px; }
             #chartContainer { height: calc(100vh - 180px); min-height: 400px; }
+            .risk-wrap { padding: 18px; }
+            .modal-box { padding: 20px; }
+            .modal-price { font-size: 28px; }
         }
     </style>
 </head>
@@ -224,10 +307,10 @@
     </div>
 
     <div class="menu">
-        <button class="menu-btn active" data-tab="dashboard">🏠 Dashboard</button>
-        <button class="menu-btn" data-tab="risk">📊 Risk</button>
-        <button class="menu-btn" data-tab="chart">📈 Grafik</button>
         <button class="menu-btn" data-tab="news">📰 Yangiliklar</button>
+        <button class="menu-btn" data-tab="chart">📈 Grafik</button>
+        <button class="menu-btn" data-tab="risk">📊 Risk</button>
+        <button class="menu-btn active" data-tab="dashboard">🏠 Dashboard</button>
     </div>
 
     <div class="content">
@@ -249,29 +332,31 @@
 
         <!-- RISK -->
         <div class="tab-content" id="risk">
-            <h2>Risk Kalkulyator</h2>
-            <label>Aktiv nomi:</label>
-            <input id="rc-symbol" type="text" value="EURUSD" style="text-transform:uppercase;">
-            <div id="rc-symbol-info" class="symbol-info">Aktiv turi: <b>Forex</b></div>
-            <label>Balans ($):</label>
-            <input id="rc-balance" type="number" value="1000">
-            <div class="section-title">📊 SETIV (Lot hajmi)</div>
-            <label>Lot hajmini tanlang:</label>
-            <select id="rc-lot-select">
-                <option value="0.01">0.01 (Mikro lot)</option>
-                <option value="0.10">0.10 (Mini lot)</option>
-                <option value="1.00" selected>1.00 (Standart lot)</option>
-                <option value="2.00">2.00</option>
-                <option value="5.00">5.00</option>
-                <option value="10.00">10.00</option>
-                <option value="custom">— Boshqa —</option>
-            </select>
-            <input id="rc-lot-manual" type="number" value="1.00" step="0.01" style="display:none;" placeholder="Lot hajmini yozing...">
-            <label>Stop Loss (Pips/Punktlar):</label>
-            <input id="rc-sl" type="number" value="20">
-            <label>Take Profit (Pips/Punktlar):</label>
-            <input id="rc-tp" type="number" value="40">
-            <div id="rc-result" class="result-box"></div>
+            <h2 style="text-align:center;">Risk Kalkulyator</h2>
+            <div class="risk-wrap">
+                <label>Aktiv nomi:</label>
+                <input id="rc-symbol" type="text" value="EURUSD" style="text-transform:uppercase;">
+                <div id="rc-symbol-info" class="symbol-info">Aktiv turi: <b>Forex</b></div>
+                <label>Balans ($):</label>
+                <input id="rc-balance" type="number" value="1000">
+                <div class="section-title">📊 SETIV (Lot hajmi)</div>
+                <label>Lot hajmini tanlang:</label>
+                <select id="rc-lot-select">
+                    <option value="0.01">0.01 (Mikro lot)</option>
+                    <option value="0.10">0.10 (Mini lot)</option>
+                    <option value="1.00" selected>1.00 (Standart lot)</option>
+                    <option value="2.00">2.00</option>
+                    <option value="5.00">5.00</option>
+                    <option value="10.00">10.00</option>
+                    <option value="custom">— Boshqa —</option>
+                </select>
+                <input id="rc-lot-manual" type="number" value="1.00" step="0.01" style="display:none;" placeholder="Lot hajmini yozing...">
+                <label>Stop Loss (Pips/Punktlar):</label>
+                <input id="rc-sl" type="number" value="20">
+                <label>Take Profit (Pips/Punktlar):</label>
+                <input id="rc-tp" type="number" value="40">
+                <div id="rc-result" class="result-box"></div>
+            </div>
         </div>
 
         <!-- GRAFIK -->
@@ -298,13 +383,35 @@
         <div class="tab-content" id="news">
             <h2>Yangiliklar</h2>
             <div id="newsList">
-                <div class="news-item">
-                    <div class="news-title">📰 Yangiliklar yuklanmoqda...</div>
-                    <div class="news-desc">Tez orada ma'lumotlar paydo bo'ladi.</div>
+                <div class="news-item" onclick="openNewsModal('Bozor yangiliklari', 'Forex va kripto bozoridagi so\'nggi o\'zgarishlar. Bu bo\'limda siz kunlik yangiliklar, tahlillar va bozor hisobotlarini topasiz.', '2026-09-20')">
+                    <div class="news-title">📈 Bozor yangiliklari</div>
+                    <div class="news-desc">Forex va kripto bozoridagi so'nggi o'zgarishlar...</div>
+                    <div class="news-date">2026-09-20</div>
+                </div>
+                <div class="news-item" onclick="openNewsModal('Forex tahlili', 'Bugungi kunda EUR/USD juftligi 1.1485 darajasida savdo qilinmoqda. Texnik tahlilga ko\'ra, narx 1.1500 qarshilik darajasini buzsa, 1.1550 ga ko\'tarilishi mumkin.', '2026-09-20')">
+                    <div class="news-title">💱 Forex tahlili</div>
+                    <div class="news-desc">EUR/USD juftligi bo'yicha kunlik tahlil...</div>
+                    <div class="news-date">2026-09-20</div>
+                </div>
+                <div class="news-item" onclick="openNewsModal('Kripto bozori', 'Bitcoin narxi bugun $80,000 atrofida. Ethereum $2,500 darajasida. Kripto bozorida umumiy kapitalizatsiya $2.5 trillionni tashkil qilmoqda.', '2026-09-20')">
+                    <div class="news-title">🪙 Kripto bozori</div>
+                    <div class="news-desc">Bitcoin va Ethereum bo'yicha so'nggi ma'lumotlar...</div>
+                    <div class="news-date">2026-09-20</div>
                 </div>
             </div>
         </div>
 
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Sarlavha</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
     </div>
 
     <script>
@@ -315,10 +422,7 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
             document.getElementById(this.dataset.tab).classList.add('active');
-
-            if (this.dataset.tab === 'chart') {
-                setTimeout(initChart, 100);
-            }
+            if (this.dataset.tab === 'chart') setTimeout(initChart, 100);
         });
     });
 
@@ -329,11 +433,22 @@
         currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', currentTheme === 'light' ? 'light' : '');
         this.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
-        if (chartInitialized) {
-            chartInitialized = false;
-            document.getElementById('tvchart').innerHTML = '';
-            initChart();
-        }
+        if (chartInitialized) { chartInitialized = false; document.getElementById('tvchart').innerHTML = ''; initChart(); }
+    });
+
+    // ===== MODAL =====
+    function openModal(title, body) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalBody').innerHTML = body;
+        document.getElementById('modalOverlay').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
     });
 
     // ===== RISK KALKULYATOR =====
@@ -457,8 +572,9 @@
         if (currentCategory === 'crypto') {
             try {
                 const ids = list.map(i => i.symbol.replace('USDT','').toLowerCase()).join(',');
-                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true`);
+                const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true&include_market_cap=true`);
                 const data = await res.json();
+                window.cryptoData = data;
                 let html = '';
                 list.forEach(item => {
                     const coinId = item.symbol.replace('USDT','').toLowerCase();
@@ -466,7 +582,7 @@
                     if (info) {
                         const isPositive = info.usd_24h_change >= 0;
                         html += `
-                            <div class="market-card">
+                            <div class="market-card" onclick="openCryptoModal('${item.name}', '${coinId}')">
                                 <div class="market-name">${item.name}</div>
                                 <div class="market-price">$${info.usd.toLocaleString()}</div>
                                 <div class="market-change ${isPositive ? 'positive' : 'negative'}">
@@ -490,7 +606,7 @@
             const change = (Math.random() * 3 - 1.5).toFixed(2);
             const isPositive = change >= 0;
             html += `
-                <div class="market-card">
+                <div class="market-card" onclick="openAssetModal('${item.name}', '${currentCategory}', ${price}, ${change})">
                     <div class="market-name">${item.name}</div>
                     <div class="market-price">${currentCategory === 'stocks' ? '$' : ''}${price}</div>
                     <div class="market-change ${isPositive ? 'positive' : 'negative'}">
@@ -501,32 +617,116 @@
         grid.innerHTML = html;
     }
 
-    // ===== TRADINGVIEW GRAFIK =====
+    // ===== MODAL MA'LUMOTLARI =====
+    function openCryptoModal(name, coinId) {
+        const info = window.cryptoData[coinId];
+        if (!info) return;
+        const isPositive = info.usd_24h_change >= 0;
+        const body = `
+            <div class="modal-price">$${info.usd.toLocaleString()}</div>
+            <div class="modal-change ${isPositive ? 'positive' : 'negative'}">
+                ${isPositive ? '▲' : '▼'} ${Math.abs(info.usd_24h_change).toFixed(2)}% (24 soat)
+            </div>
+            <div class="modal-info">
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Aktiv:</span>
+                    <span class="modal-info-value">${name}</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Joriy narx:</span>
+                    <span class="modal-info-value">$${info.usd.toLocaleString()}</span>
+                </div>
+                ${info.usd_market_cap ? `
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Bozor kapitallashuvi:</span>
+                    <span class="modal-info-value">$${(info.usd_market_cap / 1e9).toFixed(2)} mlrd</span>
+                </div>` : ''}
+                ${info.usd_24h_vol ? `
+                <div class="modal-info-row">
+                    <span class="modal-info-label">24 soatlik hajm:</span>
+                    <span class="modal-info-value">$${(info.usd_24h_vol / 1e9).toFixed(2)} mlrd</span>
+                </div>` : ''}
+                <div class="modal-info-row">
+                    <span class="modal-info-label">24 soatlik o'zgarish:</span>
+                    <span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span>
+                </div>
+            </div>
+            <div class="modal-desc">
+                <b>📊 Tahlil:</b><br>
+                ${name} hozirda $${info.usd.toLocaleString()} darajasida savdo qilinmoqda. 
+                24 soatlik o'zgarish ${isPositive ? 'ijobiy' : 'salbiy'} bo'lib, ${Math.abs(info.usd_24h_change).toFixed(2)}% ni tashkil qilmoqda. 
+                ${isPositive ? 'Narx o\'sish tendentsiyasida.' : 'Narx pasayish tendentsiyasida.'}
+            </div>
+        `;
+        openModal(name, body);
+    }
+
+    function openAssetModal(name, category, price, change) {
+        const isPositive = change >= 0;
+        const categoryNames = { forex: 'Forex', indices: 'Indeks', stocks: 'Aksiya' };
+        const body = `
+            <div class="modal-price">${category === 'stocks' ? '$' : ''}${price}</div>
+            <div class="modal-change ${isPositive ? 'positive' : 'negative'}">
+                ${isPositive ? '▲' : '▼'} ${Math.abs(change)}% (kunlik)
+            </div>
+            <div class="modal-info">
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Aktiv:</span>
+                    <span class="modal-info-value">${name}</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Turi:</span>
+                    <span class="modal-info-value">${categoryNames[category]}</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Joriy narx:</span>
+                    <span class="modal-info-value">${category === 'stocks' ? '$' : ''}${price}</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Kunlik o'zgarish:</span>
+                    <span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${change}%</span>
+                </div>
+            </div>
+            <div class="modal-desc">
+                <b>📊 Tahlil:</b><br>
+                ${name} aktivning joriy narxi ${category === 'stocks' ? '$' : ''}${price}. 
+                Kunlik o'zgarish ${isPositive ? 'ijobiy' : 'salbiy'} bo'lib, ${Math.abs(change)}% ni tashkil qilmoqda.
+            </div>
+        `;
+        openModal(name, body);
+    }
+
+    function openNewsModal(title, desc, date) {
+        const body = `
+            <div class="modal-info">
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Sana:</span>
+                    <span class="modal-info-value">${date}</span>
+                </div>
+            </div>
+            <div class="modal-desc">
+                ${desc}
+            </div>
+        `;
+        openModal(title, body);
+    }
+
+    // ===== GRAFIK =====
     let chartInitialized = false;
     function initChart() {
         if (chartInitialized) return;
         const symbol = document.getElementById('chart-symbol').value;
         document.getElementById('tvchart').innerHTML = '';
         new TradingView.widget({
-            "container_id": "tvchart",
-            "autosize": true,
-            "symbol": symbol,
-            "interval": "D",
-            "timezone": "Asia/Tashkent",
+            "container_id": "tvchart", "autosize": true, "symbol": symbol,
+            "interval": "D", "timezone": "Asia/Tashkent",
             "theme": currentTheme === 'dark' ? 'dark' : 'light',
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#f1f3f6",
-            "enable_publishing": false,
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "details": true,
-            "withdateranges": true,
-            "save_image": true,
+            "style": "1", "locale": "en", "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false, "hide_side_toolbar": false,
+            "allow_symbol_change": true, "details": true,
+            "withdateranges": true, "save_image": true,
             "studies": ["MASimple@tv-basicstudies"],
-            "show_popup_button": true,
-            "popup_width": "1000",
-            "popup_height": "650"
+            "show_popup_button": true, "popup_width": "1000", "popup_height": "650"
         });
         chartInitialized = true;
     }
@@ -536,7 +736,6 @@
         initChart();
     });
 
-    // To'liq ekran tugmasi
     document.getElementById('fullscreenBtn').addEventListener('click', function() {
         const el = document.getElementById('chartContainer');
         if (!document.fullscreenElement) {
@@ -548,20 +747,8 @@
         }
     });
 
-    // ===== YANGILIKLAR =====
-    function loadNews() {
-        document.getElementById('newsList').innerHTML = `
-            <div class="news-item">
-                <div class="news-title">📈 Bozor yangiliklari</div>
-                <div class="news-desc">Forex va kripto bozoridagi so'nggi o'zgarishlar tez orada shu yerda ko'rinadi.</div>
-                <div class="news-date">Tez orada...</div>
-            </div>
-        `;
-    }
-
-    // Boshlang'ich yuklash
+    // Boshlang'ich
     loadMarketData();
-    loadNews();
     setInterval(loadMarketData, 60000);
     </script>
 </body>
