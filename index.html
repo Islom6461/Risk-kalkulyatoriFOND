@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Risk Kalkulyator</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #121212;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        h1 {
+            margin: 0 0 15px 0;
+            color: #4CAF50;
+            font-size: 22px;
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+            color: #ccc;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 12px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 15px;
+            outline: none;
+        }
+        input:focus, select:focus {
+            border-color: #4CAF50;
+        }
+        .symbol-info {
+            font-size: 12px;
+            color: #FFC107;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #252525;
+            border-radius: 6px;
+        }
+        .section-title {
+            color: #4CAF50;
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            font-size: 14px;
+            border-top: 1px solid #333;
+            padding-top: 12px;
+        }
+        #rc-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #252525;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .result-header {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+        .result-header b { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Risk Kalkulyator</h1>
+        
+        <label>Aktiv nomi:</label>
+        <input id="rc-symbol" type="text" value="EURUSD" placeholder="EURUSD, BTCUSDT, AAPL..." style="text-transform:uppercase;">
+        
+        <div id="rc-symbol-info" class="symbol-info">Aktiv turi: <b>Forex</b></div>
+
+        <label>Balans ($):</label>
+        <input id="rc-balance" type="number" value="1000">
+
+        <div class="section-title">📊 SETIV (Lot hajmi)</div>
+        
+        <label>Lot hajmini tanlang yoki yozing:</label>
+        <select id="rc-lot-select">
+            <option value="0.01">0.01 (Mikro lot)</option>
+            <option value="0.02">0.02</option>
+            <option value="0.05">0.05</option>
+            <option value="0.10">0.10 (Mini lot)</option>
+            <option value="0.20">0.20</option>
+            <option value="0.50">0.50</option>
+            <option value="1.00" selected>1.00 (Standart lot)</option>
+            <option value="1.02">1.02</option>
+            <option value="1.50">1.50</option>
+            <option value="1.90">1.90</option>
+            <option value="2.00">2.00</option>
+            <option value="3.00">3.00</option>
+            <option value="5.00">5.00</option>
+            <option value="9.00">9.00</option>
+            <option value="10.00">10.00</option>
+            <option value="custom">— Boshqa (qo'lda yozish) —</option>
+        </select>
+        
+        <input id="rc-lot-manual" type="number" value="1.00" step="0.01" style="display:none;" placeholder="Lot hajmini yozing...">
+        
+        <label>Stop Loss (Pips/Punktlar):</label>
+        <input id="rc-sl" type="number" value="20">
+        
+        <label>Take Profit (Pips/Punktlar):</label>
+        <input id="rc-tp" type="number" value="40">
+        
+        <div id="rc-result"></div>
+    </div>
+
+    <script>
+    (function() {
+        // ===== Aktiv ma'lumotlar bazasi =====
+        const symbolDatabase = {
+            'EURUSD': { type: 'Forex', pipValue: 10 },
+            'GBPUSD': { type: 'Forex', pipValue: 10 },
+            'USDJPY': { type: 'Forex', pipValue: 6.7 },
+            'USDCHF': { type: 'Forex', pipValue: 11 },
+            'AUDUSD': { type: 'Forex', pipValue: 10 },
+            'NZDUSD': { type: 'Forex', pipValue: 10 },
+            'USDCAD': { type: 'Forex', pipValue: 7.5 },
+            'EURGBP': { type: 'Forex Cross', pipValue: 13 },
+            'EURJPY': { type: 'Forex Cross', pipValue: 6.7 },
+            'GBPJPY': { type: 'Forex Cross', pipValue: 6.7 },
+            'XAUUSD': { type: 'Oltin', pipValue: 1 },
+            'XAGUSD': { type: 'Kumush', pipValue: 1 },
+            'USOIL': { type: 'Neft', pipValue: 1 },
+            'UKOIL': { type: 'Neft', pipValue: 1 },
+            'US30': { type: 'Indeks', pipValue: 1 },
+            'NAS100': { type: 'Indeks', pipValue: 1 },
+            'SPX500': { type: 'Indeks', pipValue: 1 },
+            'BTCUSDT': { type: 'Kripto', pipValue: 1 },
+            'ETHUSDT': { type: 'Kripto', pipValue: 1 },
+            'BNBUSDT': { type: 'Kripto', pipValue: 1 },
+            'SOLUSDT': { type: 'Kripto', pipValue: 1 },
+            'XRPUSDT': { type: 'Kripto', pipValue: 1 },
+            'BTCUSD': { type: 'Kripto', pipValue: 1 },
+            'ETHUSD': { type: 'Kripto', pipValue: 1 },
+            'AAPL': { type: 'Aksiya', pipValue: 1 },
+            'TSLA': { type: 'Aksiya', pipValue: 1 },
+            'MSFT': { type: 'Aksiya', pipValue: 1 },
+            'GOOGL': { type: 'Aksiya', pipValue: 1 },
+            'AMZN': { type: 'Aksiya', pipValue: 1 },
+            'META': { type: 'Aksiya', pipValue: 1 },
+            'NVDA': { type: 'Aksiya', pipValue: 1 },
+            'NFLX': { type: 'Aksiya', pipValue: 1 }
+        };
+
+        // ===== Elementlar =====
+        const symbolInput = document.getElementById('rc-symbol');
+        const symbolInfo = document.getElementById('rc-symbol-info');
+        const balanceInput = document.getElementById('rc-balance');
+        const lotSelect = document.getElementById('rc-lot-select');
+        const lotManual = document.getElementById('rc-lot-manual');
+        const slInput = document.getElementById('rc-sl');
+        const tpInput = document.getElementById('rc-tp');
+        const resultDiv = document.getElementById('rc-result');
+
+        let hiddenPipValue = 10;
+
+        // ===== Aktiv nomini aniqlash =====
+        function detectSymbol() {
+            const symbol = symbolInput.value.trim().toUpperCase();
+            
+            if (symbolDatabase[symbol]) {
+                const data = symbolDatabase[symbol];
+                symbolInfo.innerHTML = `Aktiv turi: <b>${data.type}</b>`;
+                hiddenPipValue = data.pipValue;
+            } else if (symbol.length > 0) {
+                let estimatedType = 'Noma\'lum';
+                let estimatedPip = 1;
+                
+                if (symbol.includes('USDT') || symbol.includes('BTC') || symbol.includes('ETH')) {
+                    estimatedType = 'Kripto (taxminiy)';
+                    estimatedPip = 1;
+                } else if (symbol.length === 6 && /^[A-Z]{6}$/.test(symbol)) {
+                    estimatedType = 'Forex (taxminiy)';
+                    estimatedPip = symbol.includes('JPY') ? 6.7 : 10;
+                } else if (symbol.includes('XAU') || symbol.includes('XAG')) {
+                    estimatedType = 'Metall (taxminiy)';
+                    estimatedPip = 1;
+                } else {
+                    estimatedType = 'Aksiya (taxminiy)';
+                    estimatedPip = 1;
+                }
+                
+                symbolInfo.innerHTML = `Aktiv turi: <b>${estimatedType}</b> <span style="color:#FF9800;">⚠</span>`;
+                hiddenPipValue = estimatedPip;
+            } else {
+                symbolInfo.innerHTML = `Aktiv nomini yozing...`;
+                hiddenPipValue = 1;
+            }
+            calculate();
+        }
+
+        // ===== Lot hajmini olish =====
+        function getLotSize() {
+            if (lotSelect.value === 'custom') {
+                return parseFloat(lotManual.value) || 0.01;
+            }
+            return parseFloat(lotSelect.value) || 0.01;
+        }
+
+        // ===== Lot selektori =====
+        lotSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                lotManual.style.display = 'block';
+                lotManual.focus();
+            } else {
+                lotManual.style.display = 'none';
+            }
+            calculate();
+        });
+
+        // ===== Hisoblash =====
+        function calculate() {
+            const symbol = symbolInput.value.trim().toUpperCase() || 'AKTIV';
+            const balance = parseFloat(balanceInput.value) || 0;
+            const pipVal = hiddenPipValue;
+            const lot = getLotSize();
+            const slPoints = parseFloat(slInput.value) || 0;
+            const tpPoints = parseFloat(tpInput.value) || 0;
+
+            const slDollar = lot * slPoints * pipVal;
+            const tpDollar = lot * tpPoints * pipVal;
+            const riskPct = balance > 0 ? (slDollar / balance) * 100 : 0;
+            const rr = slDollar > 0 ? (tpDollar / slDollar) : 0;
+
+            let riskColor = '#4CAF50';
+            if (riskPct > 2) riskColor = '#FFC107';
+            if (riskPct > 5) riskColor = '#F44336';
+
+            let rrColor = '#F44336';
+            if (rr >= 1) rrColor = '#FFC107';
+            if (rr >= 2) rrColor = '#4CAF50';
+
+            resultDiv.innerHTML = `
+                <div class="result-header">Aktiv: <b>${symbol}</b> | Lot: <b>${lot}</b></div>
+                <div class="result-row">
+                    <span>💵 Balans:</span>
+                    <span>$${balance.toFixed(2)}</span>
+                </div>
+                <div class="result-row" style="color:${riskColor};">
+                    <span>🔴 Xavf (SL):</span>
+                    <span>$${slDollar.toFixed(2)} (${riskPct.toFixed(2)}%)</span>
+                </div>
+                <div class="result-row" style="color:#2196F3;">
+                    <span>🟢 Foyda (TP):</span>
+                    <span>$${tpDollar.toFixed(2)}</span>
+                </div>
+                <div class="result-row" style="color:${rrColor}; border-top:1px solid #333; margin-top:5px; padding-top:5px;">
+                    <span>⚖️ Risk/Reward:</span>
+                    <span>1 : ${rr.toFixed(2)}</span>
+                </div>
+            `;
+        }
+
+        // ===== Hodisalar =====
+        symbolInput.addEventListener('input', detectSymbol);
+        symbolInput.addEventListener('change', detectSymbol);
+        balanceInput.addEventListener('input', calculate);
+        lotManual.addEventListener('input', calculate);
+        slInput.addEventListener('input', calculate);
+        tpInput.addEventListener('input', calculate);
+
+        // ===== Boshlang'ich =====
+        detectSymbol();
+    })();
+    </script>
+</body>
+</html>
