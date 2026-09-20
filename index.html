@@ -17,6 +17,7 @@
             --red: #F44336;
             --yellow: #FFC107;
             --blue: #2196F3;
+            --sidebar-w: 70px;
         }
         [data-theme="light"] {
             --bg: #f5f5f5;
@@ -34,78 +35,106 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh;
             transition: background 0.3s, color 0.3s;
+            display: flex;
         }
 
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
+        /* ===== SIDEBAR (o'ng tomonda) ===== */
+        .sidebar {
+            position: fixed;
             top: 0;
-            z-index: 100;
-        }
-
-        .logo-wrap { overflow: hidden; width: 220px; height: 30px; position: relative; }
-        .logo {
-            font-size: 20px; font-weight: bold; letter-spacing: 3px;
-            white-space: nowrap; position: absolute;
-            animation: slideLogo 6s ease-in-out infinite;
-        }
-        .logo span { color: var(--green); transition: color 0.5s; }
-        @keyframes slideLogo {
-            0%   { transform: translateX(0);      color: #ffffff; }
-            25%  { transform: translateX(60px);   color: #4CAF50; }
-            50%  { transform: translateX(120px);  color: #2196F3; }
-            75%  { transform: translateX(60px);   color: #FFC107; }
-            100% { transform: translateX(0);      color: #ffffff; }
-        }
-
-        .theme-toggle {
-            background: var(--bg-input); border: 1px solid var(--border);
-            color: var(--text); width: 40px; height: 40px; border-radius: 50%;
-            cursor: pointer; font-size: 18px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-
-        /* ===== VERTIKAL MENYU (ustun) ===== */
-        .menu {
-            display: flex;
-            flex-direction: column; /* USTUN qilib joylashtirish */
+            right: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
             background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            padding: 8px 20px;
-            gap: 5px;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            z-index: 100;
+            transition: width 0.3s;
         }
-        .menu-btn {
+
+        .sidebar-logo {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--green);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 3px;
+            margin-bottom: 25px;
+            height: 120px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 18px;
+            justify-content: center;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            width: 100%;
+            padding: 0 8px;
+            flex: 1;
+        }
+
+        .sidebar-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 5px;
             background: var(--bg-input);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--text-dim);
-            font-size: 14px;
+            font-size: 18px;
             cursor: pointer;
-            text-align: left;
             transition: all 0.2s;
-            width: 100%;
+            position: relative;
         }
-        .menu-btn:hover { color: var(--text); border-color: var(--green); }
-        .menu-btn.active {
+        .sidebar-btn .label {
+            font-size: 9px;
+            margin-top: 4px;
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+        .sidebar-btn:hover {
+            color: var(--text);
+            border-color: var(--green);
+            transform: scale(1.05);
+        }
+        .sidebar-btn.active {
             background: var(--green);
             color: white;
             border-color: var(--green);
-            font-weight: bold;
+        }
+        .sidebar-btn.active .label { color: white; }
+
+        .sidebar-theme {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
         }
 
-        /* ===== CONTENT ===== */
-        .content { padding: 20px; width: 100%; max-width: 1400px; margin: 0 auto; }
+        /* ===== ASOSIY KONTENT ===== */
+        .main-content {
+            flex: 1;
+            margin-right: var(--sidebar-w);
+            padding: 20px;
+            width: calc(100% - var(--sidebar-w));
+            max-width: calc(100% - var(--sidebar-w));
+        }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -115,9 +144,9 @@
         .asset-sections {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
+            gap: 15px;
         }
-        @media (min-width: 1100px) {
+        @media (min-width: 1200px) {
             .asset-sections { grid-template-columns: repeat(4, 1fr); }
         }
 
@@ -127,7 +156,6 @@
             border-radius: 12px;
             padding: 15px;
         }
-
         .asset-section-title {
             color: var(--green);
             font-size: 15px;
@@ -135,19 +163,15 @@
             margin-bottom: 12px;
             padding-bottom: 8px;
             border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-
         .asset-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            max-height: 500px;
+            gap: 6px;
+            max-height: 520px;
             overflow-y: auto;
+            padding-right: 3px;
         }
-
         .asset-item {
             display: flex;
             justify-content: space-between;
@@ -163,11 +187,9 @@
             border-color: var(--green);
             transform: translateX(3px);
         }
-
         .asset-item-name { font-size: 12px; color: var(--text); font-weight: 500; }
         .asset-item-price { font-size: 12px; color: var(--text); font-weight: bold; }
         .asset-item-change { font-size: 10px; margin-top: 2px; }
-
         .positive { color: var(--green); }
         .negative { color: var(--red); }
         .loading { text-align: center; color: var(--text-dim); padding: 20px; font-size: 12px; }
@@ -196,7 +218,7 @@
         /* ===== GRAFIK ===== */
         #chartContainer {
             width: 100%;
-            height: calc(100vh - 260px);
+            height: calc(100vh - 100px);
             min-height: 500px;
             border-radius: 10px;
             overflow: hidden;
@@ -216,16 +238,90 @@
         }
         .fullscreen-btn:hover { background: var(--green); color: white; border-color: var(--green); }
 
-        /* ===== YANGILIKLAR ===== */
-        .news-item {
-            background: var(--bg-card); border: 1px solid var(--border);
-            border-radius: 10px; padding: 15px; margin-bottom: 10px;
-            cursor: pointer; transition: all 0.2s;
+        /* ===== YANGILIKLAR (Forex Factory uslubi) ===== */
+        .news-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
-        .news-item:hover { border-color: var(--green); transform: translateY(-2px); }
-        .news-title { font-size: 14px; font-weight: bold; margin-bottom: 5px; }
-        .news-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
-        .news-date { font-size: 11px; color: var(--text-dim); margin-top: 8px; }
+        .news-filter {
+            padding: 7px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .news-filter.active { background: var(--green); color: white; border-color: var(--green); }
+
+        .news-table {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .news-row {
+            display: grid;
+            grid-template-columns: 80px 70px 1fr 100px 90px;
+            gap: 10px;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 13px;
+        }
+        .news-row:hover { background: var(--bg-input); }
+        .news-row:last-child { border-bottom: none; }
+        .news-row.header {
+            background: var(--bg-input);
+            font-weight: bold;
+            font-size: 11px;
+            color: var(--text-dim);
+            cursor: default;
+            text-transform: uppercase;
+        }
+        .news-row.header:hover { background: var(--bg-input); }
+
+        .news-time { font-size: 12px; color: var(--text-dim); }
+        .news-currency {
+            font-weight: bold;
+            font-size: 13px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: var(--bg-input);
+            text-align: center;
+        }
+        .news-event { font-size: 13px; color: var(--text); }
+        .news-impact { display: flex; gap: 2px; justify-content: center; }
+        .news-impact .star { font-size: 14px; }
+        .news-actual { text-align: right; font-size: 13px; font-weight: bold; }
+        .news-forecast { text-align: right; font-size: 12px; color: var(--text-dim); }
+
+        /* Impact ranglari */
+        .impact-high { color: #F44336; }
+        .impact-medium { color: #FFC107; }
+        .impact-low { color: #FFA726; }
+
+        .currency-badge {
+            display: inline-block;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            background: var(--bg-input);
+        }
+        .currency-USD { background: #1e88e5; color: white; }
+        .currency-EUR { background: #43a047; color: white; }
+        .currency-GBP { background: #e53935; color: white; }
+        .currency-JPY { background: #fb8c00; color: white; }
+        .currency-AUD { background: #8e24aa; color: white; }
+        .currency-CAD { background: #d32f2f; color: white; }
+        .currency-CHF { background: #c62828; color: white; }
+        .currency-CNY { background: #fbc02d; color: #000; }
+        .currency-NZD { background: #00897b; color: white; }
 
         /* ===== MODAL ===== */
         .modal-overlay {
@@ -255,147 +351,125 @@
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
-
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border);
         }
-        .modal-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--green);
-        }
+        .modal-title { font-size: 22px; font-weight: bold; color: var(--green); }
         .modal-close {
-            background: var(--bg-input);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 35px; height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--bg-input); border: 1px solid var(--border);
+            color: var(--text); width: 35px; height: 35px; border-radius: 50%;
+            cursor: pointer; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
         }
         .modal-close:hover { background: var(--red); color: white; border-color: var(--red); }
-
-        .modal-price {
-            font-size: 36px;
-            font-weight: bold;
-            text-align: center;
-            margin: 15px 0 5px 0;
-        }
-        .modal-change {
-            text-align: center;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .modal-info {
-            background: var(--bg-input);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
+        .modal-price { font-size: 36px; font-weight: bold; text-align: center; margin: 15px 0 5px 0; }
+        .modal-change { text-align: center; font-size: 16px; font-weight: bold; margin-bottom: 20px; }
+        .modal-info { background: var(--bg-input); border-radius: 10px; padding: 15px; margin-bottom: 15px; }
         .modal-info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
+            display: flex; justify-content: space-between;
+            padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;
         }
         .modal-info-row:last-child { border-bottom: none; }
         .modal-info-label { color: var(--text-dim); }
         .modal-info-value { color: var(--text); font-weight: bold; }
-
         #modalChart {
-            width: 100%;
-            height: 350px;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            background: var(--bg-input);
+            width: 100%; height: 350px; border-radius: 10px;
+            overflow: hidden; margin-bottom: 15px; background: var(--bg-input);
+        }
+        .modal-desc {
+            font-size: 13px; color: var(--text-dim); line-height: 1.6;
+            padding: 15px; background: var(--bg-input); border-radius: 10px;
         }
 
-        .modal-desc {
-            font-size: 13px;
-            color: var(--text-dim);
-            line-height: 1.6;
-            padding: 15px;
-            background: var(--bg-input);
-            border-radius: 10px;
+        /* Yangilik modal tafsiloti */
+        .news-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
         }
+        .news-detail-item {
+            background: var(--bg-input);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .news-detail-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; }
+        .news-detail-value { font-size: 16px; font-weight: bold; }
 
         /* ===== MOBIL ===== */
         @media (max-width: 600px) {
-            .content { padding: 15px; }
-            .menu { padding: 8px 15px; }
-            .menu-btn { padding: 10px 14px; font-size: 13px; }
+            :root { --sidebar-w: 55px; }
+            .main-content { padding: 12px; }
             .asset-sections { grid-template-columns: 1fr; }
-            .logo-wrap { width: 160px; }
-            #chartContainer { height: calc(100vh - 300px); min-height: 400px; }
+            .sidebar-btn { padding: 10px 3px; font-size: 16px; }
+            .sidebar-btn .label { font-size: 8px; }
+            .sidebar-logo { font-size: 9px; }
+            #chartContainer { height: calc(100vh - 120px); min-height: 400px; }
             .risk-wrap { padding: 18px; }
             .modal-box { padding: 18px; }
             .modal-price { font-size: 28px; }
             #modalChart { height: 250px; }
+            .news-row {
+                grid-template-columns: 60px 50px 1fr 60px;
+                font-size: 11px;
+                padding: 10px;
+            }
+            .news-forecast { display: none; }
+            .news-row.header { font-size: 9px; }
+            .news-detail-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo-wrap">
-            <div class="logo">ZA<span>_</span>ISLAMIC</div>
+    <!-- SIDEBAR (o'ng tomonda) -->
+    <div class="sidebar">
+        <div class="sidebar-logo">ZA_ISLAMIC</div>
+        <div class="sidebar-menu">
+            <button class="sidebar-btn active" data-tab="dashboard" title="Dashboard">
+                🏠
+                <span class="label">Bosh</span>
+            </button>
+            <button class="sidebar-btn" data-tab="chart" title="Grafik">
+                📈
+                <span class="label">Grafik</span>
+            </button>
+            <button class="sidebar-btn" data-tab="risk" title="Risk">
+                📊
+                <span class="label">Risk</span>
+            </button>
+            <button class="sidebar-btn" data-tab="news" title="Yangiliklar">
+                📰
+                <span class="label">Yangilik</span>
+            </button>
         </div>
-        <button class="theme-toggle" id="themeToggle">🌙</button>
+        <button class="sidebar-theme" id="themeToggle" title="Rejim">🌙</button>
     </div>
 
-    <!-- VERTIKAL MENYU -->
-    <div class="menu">
-        <button class="menu-btn active" data-tab="dashboard">🏠 Dashboard</button>
-        <button class="menu-btn" data-tab="chart">📈 Grafik</button>
-        <button class="menu-btn" data-tab="risk">📊 Risk</button>
-        <button class="menu-btn" data-tab="news">📰 Yangiliklar</button>
-    </div>
+    <!-- ASOSIY KONTENT -->
+    <div class="main-content">
 
-    <div class="content">
-
-        <!-- DASHBOARD (4 bo'lim birga) -->
+        <!-- DASHBOARD -->
         <div class="tab-content active" id="dashboard">
             <h2>Bozor holati</h2>
             <div class="asset-sections">
-                <!-- FOREX -->
                 <div class="asset-section">
                     <div class="asset-section-title">💱 Forex</div>
-                    <div class="asset-list" id="forexList">
-                        <div class="loading">⏳ Yuklanmoqda...</div>
-                    </div>
+                    <div class="asset-list" id="forexList"><div class="loading">⏳ Yuklanmoqda...</div></div>
                 </div>
-                <!-- KRIPTO -->
                 <div class="asset-section">
                     <div class="asset-section-title">🪙 Kripto</div>
-                    <div class="asset-list" id="cryptoList">
-                        <div class="loading">⏳ Yuklanmoqda...</div>
-                    </div>
+                    <div class="asset-list" id="cryptoList"><div class="loading">⏳ Yuklanmoqda...</div></div>
                 </div>
-                <!-- INDEKSLAR -->
                 <div class="asset-section">
                     <div class="asset-section-title">📈 Indekslar</div>
-                    <div class="asset-list" id="indicesList">
-                        <div class="loading">⏳ Yuklanmoqda...</div>
-                    </div>
+                    <div class="asset-list" id="indicesList"><div class="loading">⏳ Yuklanmoqda...</div></div>
                 </div>
-                <!-- AKSIYALAR -->
                 <div class="asset-section">
                     <div class="asset-section-title">📊 Aksiyalar</div>
-                    <div class="asset-list" id="stocksList">
-                        <div class="loading">⏳ Yuklanmoqda...</div>
-                    </div>
+                    <div class="asset-list" id="stocksList"><div class="loading">⏳ Yuklanmoqda...</div></div>
                 </div>
             </div>
         </div>
@@ -415,9 +489,7 @@
                 </select>
                 <button class="fullscreen-btn" id="fullscreenBtn">⛶ To'liq ekran</button>
             </div>
-            <div id="chartContainer">
-                <div id="tvchart"></div>
-            </div>
+            <div id="chartContainer"><div id="tvchart"></div></div>
         </div>
 
         <!-- RISK -->
@@ -449,24 +521,22 @@
             </div>
         </div>
 
-        <!-- YANGILIKLAR -->
+        <!-- YANGILIKLAR (Forex Factory uslubi) -->
         <div class="tab-content" id="news">
-            <h2>Yangiliklar</h2>
-            <div id="newsList">
-                <div class="news-item" onclick="openNewsModal('Bozor yangiliklari', 'Forex va kripto bozoridagi so\'nggi o\'zgarishlar. Bu bo\'limda siz kunlik yangiliklar, tahlillar va bozor hisobotlarini topasiz.', '2026-09-20')">
-                    <div class="news-title">📈 Bozor yangiliklari</div>
-                    <div class="news-desc">Forex va kripto bozoridagi so'nggi o'zgarishlar...</div>
-                    <div class="news-date">2026-09-20</div>
-                </div>
-                <div class="news-item" onclick="openNewsModal('Forex tahlili', 'Bugungi kunda EUR/USD juftligi 1.1485 darajasida savdo qilinmoqda. Texnik tahlilga ko\'ra, narx 1.1500 qarshilik darajasini buzsa, 1.1550 ga ko\'tarilishi mumkin.', '2026-09-20')">
-                    <div class="news-title">💱 Forex tahlili</div>
-                    <div class="news-desc">EUR/USD juftligi bo'yicha kunlik tahlil...</div>
-                    <div class="news-date">2026-09-20</div>
-                </div>
-                <div class="news-item" onclick="openNewsModal('Kripto bozori', 'Bitcoin narxi bugun $80,000 atrofida. Ethereum $2,500 darajasida. Kripto bozorida umumiy kapitalizatsiya $2.5 trillionni tashkil qilmoqda.', '2026-09-20')">
-                    <div class="news-title">🪙 Kripto bozori</div>
-                    <div class="news-desc">Bitcoin va Ethereum bo'yicha so'nggi ma'lumotlar...</div>
-                    <div class="news-date">2026-09-20</div>
+            <h2>📰 Iqtisodiy Kalendar</h2>
+            <div class="news-filters">
+                <button class="news-filter active" data-filter="all">Barchasi</button>
+                <button class="news-filter" data-filter="high">🔴 Yuqori</button>
+                <button class="news-filter" data-filter="medium">🟡 O'rta</button>
+                <button class="news-filter" data-filter="low">🟠 Past</button>
+            </div>
+            <div class="news-table" id="newsTable">
+                <div class="news-row header">
+                    <div>Vaqt</div>
+                    <div>Valyuta</div>
+                    <div>Voqea</div>
+                    <div>Ta'sir</div>
+                    <div>Prognoz</div>
                 </div>
             </div>
         </div>
@@ -485,10 +555,10 @@
     </div>
 
     <script>
-    // ===== MENYU =====
-    document.querySelectorAll('.menu-btn').forEach(btn => {
+    // ===== SIDEBAR MENYU =====
+    document.querySelectorAll('.sidebar-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            document.querySelectorAll('.menu-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
             document.getElementById(this.dataset.tab).classList.add('active');
@@ -602,19 +672,14 @@
     tpInput.addEventListener('input', calculate);
     detectSymbol();
 
-    // ===== DASHBOARD MA'LUMOTLARI =====
+    // ===== DASHBOARD =====
     const assets = {
         forex: [
-            { name: 'EUR/USD', symbol: 'EURUSD', tv: 'FX:EURUSD' },
-            { name: 'GBP/USD', symbol: 'GBPUSD', tv: 'FX:GBPUSD' },
-            { name: 'USD/JPY', symbol: 'USDJPY', tv: 'FX:USDJPY' },
-            { name: 'AUD/USD', symbol: 'AUDUSD', tv: 'FX:AUDUSD' },
-            { name: 'USD/CAD', symbol: 'USDCAD', tv: 'FX:USDCAD' },
-            { name: 'USD/CHF', symbol: 'USDCHF', tv: 'FX:USDCHF' },
-            { name: 'NZD/USD', symbol: 'NZDUSD', tv: 'FX:NZDUSD' },
-            { name: 'EUR/GBP', symbol: 'EURGBP', tv: 'FX:EURGBP' },
-            { name: 'XAU/USD', symbol: 'XAUUSD', tv: 'OANDA:XAUUSD' },
-            { name: 'XAG/USD', symbol: 'XAGUSD', tv: 'OANDA:XAGUSD' }
+            { name: 'EUR/USD', symbol: 'EURUSD', tv: 'FX:EURUSD' }, { name: 'GBP/USD', symbol: 'GBPUSD', tv: 'FX:GBPUSD' },
+            { name: 'USD/JPY', symbol: 'USDJPY', tv: 'FX:USDJPY' }, { name: 'AUD/USD', symbol: 'AUDUSD', tv: 'FX:AUDUSD' },
+            { name: 'USD/CAD', symbol: 'USDCAD', tv: 'FX:USDCAD' }, { name: 'USD/CHF', symbol: 'USDCHF', tv: 'FX:USDCHF' },
+            { name: 'NZD/USD', symbol: 'NZDUSD', tv: 'FX:NZDUSD' }, { name: 'EUR/GBP', symbol: 'EURGBP', tv: 'FX:EURGBP' },
+            { name: 'XAU/USD', symbol: 'XAUUSD', tv: 'OANDA:XAUUSD' }, { name: 'XAG/USD', symbol: 'XAGUSD', tv: 'OANDA:XAGUSD' }
         ],
         crypto: [
             { name: 'BTC/USDT', symbol: 'BTCUSDT' }, { name: 'ETH/USDT', symbol: 'ETHUSDT' },
@@ -624,46 +689,33 @@
             { name: 'MATIC/USDT', symbol: 'MATICUSDT' }, { name: 'LINK/USDT', symbol: 'LINKUSDT' }
         ],
         indices: [
-            { name: 'US30', symbol: 'US30', tv: 'CAPITALCOM:US30' },
-            { name: 'NAS100', symbol: 'NAS100', tv: 'CAPITALCOM:US100' },
-            { name: 'SPX500', symbol: 'SPX500', tv: 'SP:SPX' },
-            { name: 'GER40', symbol: 'GER40', tv: 'XETR:DAX' },
-            { name: 'UK100', symbol: 'UK100', tv: 'SPREADEX:FTSE' },
-            { name: 'JP225', symbol: 'JP225', tv: 'SPREADEX:NI225' },
-            { name: 'HK50', symbol: 'HK50', tv: 'SPREADEX:HSI' },
-            { name: 'AUS200', symbol: 'AUS200', tv: 'SPREADEX:ASX' },
-            { name: 'FRA40', symbol: 'FRA40', tv: 'SPREADEX:CAC' },
-            { name: 'EU50', symbol: 'EU50', tv: 'SPREADEX:STOXX50' }
+            { name: 'US30', symbol: 'US30', tv: 'CAPITALCOM:US30' }, { name: 'NAS100', symbol: 'NAS100', tv: 'CAPITALCOM:US100' },
+            { name: 'SPX500', symbol: 'SPX500', tv: 'SP:SPX' }, { name: 'GER40', symbol: 'GER40', tv: 'XETR:DAX' },
+            { name: 'UK100', symbol: 'UK100', tv: 'SPREADEX:FTSE' }, { name: 'JP225', symbol: 'JP225', tv: 'SPREADEX:NI225' },
+            { name: 'HK50', symbol: 'HK50', tv: 'SPREADEX:HSI' }, { name: 'AUS200', symbol: 'AUS200', tv: 'SPREADEX:ASX' },
+            { name: 'FRA40', symbol: 'FRA40', tv: 'SPREADEX:CAC' }, { name: 'EU50', symbol: 'EU50', tv: 'SPREADEX:STOXX50' }
         ],
         stocks: [
-            { name: 'AAPL', symbol: 'AAPL', tv: 'NASDAQ:AAPL' },
-            { name: 'TSLA', symbol: 'TSLA', tv: 'NASDAQ:TSLA' },
-            { name: 'MSFT', symbol: 'MSFT', tv: 'NASDAQ:MSFT' },
-            { name: 'GOOGL', symbol: 'GOOGL', tv: 'NASDAQ:GOOGL' },
-            { name: 'AMZN', symbol: 'AMZN', tv: 'NASDAQ:AMZN' },
-            { name: 'META', symbol: 'META', tv: 'NASDAQ:META' },
-            { name: 'NVDA', symbol: 'NVDA', tv: 'NASDAQ:NVDA' },
-            { name: 'NFLX', symbol: 'NFLX', tv: 'NASDAQ:NFLX' },
-            { name: 'AMD', symbol: 'AMD', tv: 'NASDAQ:AMD' },
-            { name: 'INTC', symbol: 'INTC', tv: 'NASDAQ:INTC' }
+            { name: 'AAPL', symbol: 'AAPL', tv: 'NASDAQ:AAPL' }, { name: 'TSLA', symbol: 'TSLA', tv: 'NASDAQ:TSLA' },
+            { name: 'MSFT', symbol: 'MSFT', tv: 'NASDAQ:MSFT' }, { name: 'GOOGL', symbol: 'GOOGL', tv: 'NASDAQ:GOOGL' },
+            { name: 'AMZN', symbol: 'AMZN', tv: 'NASDAQ:AMZN' }, { name: 'META', symbol: 'META', tv: 'NASDAQ:META' },
+            { name: 'NVDA', symbol: 'NVDA', tv: 'NASDAQ:NVDA' }, { name: 'NFLX', symbol: 'NFLX', tv: 'NASDAQ:NFLX' },
+            { name: 'AMD', symbol: 'AMD', tv: 'NASDAQ:AMD' }, { name: 'INTC', symbol: 'INTC', tv: 'NASDAQ:INTC' }
         ]
     };
 
-    // Mock narxlar (har bir aktiv uchun barqaror)
     function getMockPrice(symbol, basePrice) {
         let hash = 0;
         for (let i = 0; i < symbol.length; i++) hash += symbol.charCodeAt(i);
         const variation = (hash % 100) / 100;
         return (basePrice * (0.95 + variation * 0.1));
     }
-
     function getMockChange(symbol) {
         let hash = 0;
         for (let i = 0; i < symbol.length; i++) hash += symbol.charCodeAt(i) * (i + 1);
-        return ((hash % 400) - 200) / 100; // -2% dan +2% gacha
+        return ((hash % 400) - 200) / 100;
     }
 
-    // ===== DASHBOARD YUKLASH =====
     async function loadDashboard() {
         // Forex
         let forexHtml = '';
@@ -673,7 +725,7 @@
             const change = getMockChange(item.symbol).toFixed(2);
             const isPositive = change >= 0;
             forexHtml += `
-                <div class="asset-item" onclick="openAssetModal('${item.name}', 'forex', '${price}', ${change}, '${item.tv || 'FX:EURUSD'}')">
+                <div class="asset-item" onclick="openAssetModal('${item.name}', 'forex', '${price}', ${change}, '${item.tv}')">
                     <div>
                         <div class="asset-item-name">${item.name}</div>
                         <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
@@ -752,7 +804,6 @@
         if (!info) return;
         const isPositive = info.usd_24h_change >= 0;
         const tvSymbol = `BINANCE:${coinId.toUpperCase()}USDT`;
-        
         const body = `
             <div class="modal-price">$${info.usd.toLocaleString()}</div>
             <div class="modal-change ${isPositive ? 'positive' : 'negative'}">
@@ -760,28 +811,12 @@
             </div>
             <div id="modalChart"></div>
             <div class="modal-info">
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Aktiv:</span>
-                    <span class="modal-info-value">${name}</span>
-                </div>
-                ${info.usd_market_cap ? `<div class="modal-info-row">
-                    <span class="modal-info-label">Bozor kapitallashuvi:</span>
-                    <span class="modal-info-value">$${(info.usd_market_cap / 1e9).toFixed(2)} mlrd</span>
-                </div>` : ''}
-                ${info.usd_24h_vol ? `<div class="modal-info-row">
-                    <span class="modal-info-label">24 soatlik hajm:</span>
-                    <span class="modal-info-value">$${(info.usd_24h_vol / 1e9).toFixed(2)} mlrd</span>
-                </div>` : ''}
-                <div class="modal-info-row">
-                    <span class="modal-info-label">24 soatlik o'zgarish:</span>
-                    <span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span>
-                </div>
+                <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
+                ${info.usd_market_cap ? `<div class="modal-info-row"><span class="modal-info-label">Bozor kapitallashuvi:</span><span class="modal-info-value">$${(info.usd_market_cap / 1e9).toFixed(2)} mlrd</span></div>` : ''}
+                ${info.usd_24h_vol ? `<div class="modal-info-row"><span class="modal-info-label">24 soatlik hajm:</span><span class="modal-info-value">$${(info.usd_24h_vol / 1e9).toFixed(2)} mlrd</span></div>` : ''}
+                <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span></div>
             </div>
-            <div class="modal-desc">
-                <b>📊 Tahlil:</b><br>
-                ${name} hozirda $${info.usd.toLocaleString()} darajasida savdo qilinmoqda.
-                24 soatlik o'zgarish ${isPositive ? 'ijobiy' : 'salbiy'} bo'lib, ${Math.abs(info.usd_24h_change).toFixed(2)}% ni tashkil qilmoqda.
-            </div>
+            <div class="modal-desc"><b>📊 Tahlil:</b><br>${name} hozirda $${info.usd.toLocaleString()} darajasida savdo qilinmoqda.</div>
         `;
         openModal(name, body);
         setTimeout(() => initModalChart(tvSymbol), 200);
@@ -791,7 +826,6 @@
         const isPositive = change >= 0;
         const categoryNames = { forex: 'Forex', indices: 'Indeks', stocks: 'Aksiya' };
         const isStock = category === 'stocks';
-        
         const body = `
             <div class="modal-price">${isStock ? '$' : ''}${price}</div>
             <div class="modal-change ${isPositive ? 'positive' : 'negative'}">
@@ -799,47 +833,17 @@
             </div>
             <div id="modalChart"></div>
             <div class="modal-info">
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Aktiv:</span>
-                    <span class="modal-info-value">${name}</span>
-                </div>
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Turi:</span>
-                    <span class="modal-info-value">${categoryNames[category]}</span>
-                </div>
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Joriy narx:</span>
-                    <span class="modal-info-value">${isStock ? '$' : ''}${price}</span>
-                </div>
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Kunlik o'zgarish:</span>
-                    <span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${change}%</span>
-                </div>
+                <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Turi:</span><span class="modal-info-value">${categoryNames[category]}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Joriy narx:</span><span class="modal-info-value">${isStock ? '$' : ''}${price}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Kunlik o'zgarish:</span><span class="modal-info-value ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${change}%</span></div>
             </div>
-            <div class="modal-desc">
-                <b>📊 Tahlil:</b><br>
-                ${name} aktivning joriy narxi ${isStock ? '$' : ''}${price}.
-                Kunlik o'zgarish ${isPositive ? 'ijobiy' : 'salbiy'} bo'lib, ${Math.abs(change)}% ni tashkil qilmoqda.
-            </div>
+            <div class="modal-desc"><b>📊 Tahlil:</b><br>${name} aktivning joriy narxi ${isStock ? '$' : ''}${price}.</div>
         `;
         openModal(name, body);
         setTimeout(() => initModalChart(tvSymbol), 200);
     }
 
-    function openNewsModal(title, desc, date) {
-        const body = `
-            <div class="modal-info">
-                <div class="modal-info-row">
-                    <span class="modal-info-label">Sana:</span>
-                    <span class="modal-info-value">${date}</span>
-                </div>
-            </div>
-            <div class="modal-desc">${desc}</div>
-        `;
-        openModal(title, body);
-    }
-
-    // Modal ichidagi grafik
     function initModalChart(symbol) {
         const container = document.getElementById('modalChart');
         if (!container) return;
@@ -847,19 +851,173 @@
         const chartId = 'modal_chart_' + Date.now();
         container.id = chartId;
         new TradingView.widget({
-            "container_id": chartId,
-            "autosize": true,
-            "symbol": symbol,
-            "interval": "D",
-            "timezone": "Asia/Tashkent",
+            "container_id": chartId, "autosize": true, "symbol": symbol,
+            "interval": "D", "timezone": "Asia/Tashkent",
             "theme": currentTheme === 'dark' ? 'dark' : 'light',
-            "style": "1",
-            "locale": "en",
-            "hide_side_toolbar": true,
-            "allow_symbol_change": false,
-            "save_image": false,
-            "withdateranges": true
+            "style": "1", "locale": "en",
+            "hide_side_toolbar": true, "allow_symbol_change": false,
+            "save_image": false, "withdateranges": true
         });
+    }
+
+    // ===== YANGILIKLAR (Forex Factory uslubi) =====
+    const newsData = [
+        // Bugun (Dushanba)
+        { time: '09:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—', previous: '—' },
+        { time: '11:30', currency: 'GBP', event: 'BoE Prezidentining nutqi', impact: 3, forecast: '—', previous: '—' },
+        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '220K', previous: '218K' },
+        { time: '15:00', currency: 'USD', event: 'Chakana savdo hajmi', impact: 3, forecast: '0.3%', previous: '0.2%' },
+        { time: '16:30', currency: 'USD', event: 'Xom neft zaxiralari', impact: 2, forecast: '-1.2M', previous: '+0.8M' },
+        { time: '18:00', currency: 'USD', event: 'FOMC majlisi bayonnomasi', impact: 3, forecast: '—', previous: '—' },
+        { time: '20:00', currency: 'EUR', event: 'ECB majlisi bayonnomasi', impact: 2, forecast: '—', previous: '—' },
+        
+        // Ertaga (Seshanba)
+        { time: '03:30', currency: 'AUD', event: 'RBA stavka qarori', impact: 3, forecast: '4.35%', previous: '4.35%' },
+        { time: '10:00', currency: 'EUR', event: 'Germaniya YaIM (choraklik)', impact: 3, forecast: '0.2%', previous: '0.1%' },
+        { time: '11:30', currency: 'GBP', event: 'Ishlab chiqarish PMI', impact: 2, forecast: '52.5', previous: '52.1' },
+        { time: '14:30', currency: 'CAD', event: 'YaIM (oylik)', impact: 3, forecast: '0.1%', previous: '0.2%' },
+        { time: '16:00', currency: 'USD', event: 'ISM xizmat ko\'rsatish PMI', impact: 3, forecast: '54.5', previous: '54.2' },
+        { time: '17:30', currency: 'USD', event: 'Tabiiy gaz zaxiralari', impact: 2, forecast: '+45B', previous: '+38B' },
+        
+        // Chorshanba
+        { time: '02:00', currency: 'NZD', event: 'RBNZ stavka qarori', impact: 3, forecast: '5.50%', previous: '5.50%' },
+        { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', impact: 3, forecast: '4.00%', previous: '4.00%' },
+        { time: '12:00', currency: 'USD', event: 'MBA ipoteka arizalari', impact: 1, forecast: '—', previous: '-2.5%' },
+        { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', impact: 3, forecast: '0.3%', previous: '0.2%' },
+        { time: '15:30', currency: 'USD', event: 'EIA xom neft zaxiralari', impact: 2, forecast: '-2.0M', previous: '-1.5M' },
+        { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%', previous: '5.50%' },
+        { time: '19:30', currency: 'USD', event: 'FOMC matbuot anjumani', impact: 3, forecast: '—', previous: '—' },
+        
+        // Payshanba
+        { time: '03:30', currency: 'AUD', event: 'Chakana savdo (oylik)', impact: 2, forecast: '0.4%', previous: '0.3%' },
+        { time: '10:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—', previous: '—' },
+        { time: '11:30', currency: 'GBP', event: 'Xizmat ko\'rsatish PMI', impact: 2, forecast: '53.5', previous: '53.2' },
+        { time: '13:00', currency: 'GBP', event: 'BoE stavka qarori', impact: 3, forecast: '5.25%', previous: '5.25%' },
+        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '225K', previous: '220K' },
+        { time: '14:30', currency: 'CAD', event: 'Savdo balansi', impact: 2, forecast: '-1.5B', previous: '-1.2B' },
+        { time: '16:00', currency: 'USD', event: 'Zavod buyurtmalari', impact: 2, forecast: '0.5%', previous: '0.3%' },
+        { time: '17:30', currency: 'USD', event: 'Tabiiy gaz zaxiralari', impact: 2, forecast: '+42B', previous: '+45B' },
+        
+        // Juma
+        { time: '02:30', currency: 'JPY', event: 'BoJ stavka qarori', impact: 3, forecast: '-0.10%', previous: '-0.10%' },
+        { time: '10:00', currency: 'EUR', event: 'Germaniya savdo balansi', impact: 2, forecast: '18.5B', previous: '17.9B' },
+        { time: '11:30', currency: 'GBP', event: 'YaIM (choraklik)', impact: 3, forecast: '0.3%', previous: '0.2%' },
+        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K', previous: '175K' },
+        { time: '14:30', currency: 'USD', event: 'Ishsizlik darajasi', impact: 3, forecast: '3.8%', previous: '3.8%' },
+        { time: '16:00', currency: 'USD', event: 'ISM xizmat ko\'rsatish PMI', impact: 3, forecast: '54.0', previous: '54.5' },
+        { time: '19:00', currency: 'USD', event: 'FOMC a\'zosi nutqi', impact: 2, forecast: '—', previous: '—' }
+    ];
+
+    function getImpactStars(impact) {
+        let stars = '';
+        let color = '';
+        for (let i = 1; i <= 3; i++) {
+            if (i <= impact) {
+                stars += '★';
+            } else {
+                stars += '☆';
+            }
+        }
+        if (impact === 3) color = 'impact-high';
+        else if (impact === 2) color = 'impact-medium';
+        else color = 'impact-low';
+        return `<span class="${color}">${stars}</span>`;
+    }
+
+    let currentFilter = 'all';
+
+    function renderNews() {
+        const table = document.getElementById('newsTable');
+        let html = `
+            <div class="news-row header">
+                <div>Vaqt</div>
+                <div>Valyuta</div>
+                <div>Voqea</div>
+                <div>Ta'sir</div>
+                <div>Prognoz</div>
+            </div>
+        `;
+
+        const filtered = newsData.filter(item => {
+            if (currentFilter === 'all') return true;
+            if (currentFilter === 'high') return item.impact === 3;
+            if (currentFilter === 'medium') return item.impact === 2;
+            if (currentFilter === 'low') return item.impact === 1;
+            return true;
+        });
+
+        filtered.forEach(item => {
+            html += `
+                <div class="news-row" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}', '${item.previous}')">
+                    <div class="news-time">${item.time}</div>
+                    <div><span class="currency-badge currency-${item.currency}">${item.currency}</span></div>
+                    <div class="news-event">${item.event}</div>
+                    <div class="news-impact">${getImpactStars(item.impact)}</div>
+                    <div class="news-forecast">${item.forecast}</div>
+                </div>
+            `;
+        });
+
+        table.innerHTML = html;
+    }
+
+    document.querySelectorAll('.news-filter').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.news-filter').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFilter = this.dataset.filter;
+            renderNews();
+        });
+    });
+
+    function openNewsDetail(time, currency, event, impact, forecast, previous) {
+        let impactText = impact === 3 ? '🔴 Yuqori' : (impact === 2 ? '🟡 O\'rta' : '🟠 Past');
+        let impactColor = impact === 3 ? '#F44336' : (impact === 2 ? '#FFC107' : '#FFA726');
+        
+        const body = `
+            <div class="news-detail-grid">
+                <div class="news-detail-item">
+                    <div class="news-detail-label">Vaqt</div>
+                    <div class="news-detail-value">${time}</div>
+                </div>
+                <div class="news-detail-item">
+                    <div class="news-detail-label">Valyuta</div>
+                    <div class="news-detail-value">${currency}</div>
+                </div>
+                <div class="news-detail-item">
+                    <div class="news-detail-label">Ta'sir darajasi</div>
+                    <div class="news-detail-value" style="color:${impactColor};">${impactText} ${getImpactStars(impact)}</div>
+                </div>
+                <div class="news-detail-item">
+                    <div class="news-detail-label">Prognoz</div>
+                    <div class="news-detail-value">${forecast}</div>
+                </div>
+            </div>
+            <div class="modal-info">
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Voqea:</span>
+                    <span class="modal-info-value">${event}</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Oldingi qiymat:</span>
+                    <span class="modal-info-value">${previous}</span>
+                </div>
+                <div class="modal-info-row">
+                    <span class="modal-info-label">Prognoz:</span>
+                    <span class="modal-info-value">${forecast}</span>
+                </div>
+            </div>
+            <div class="modal-desc">
+                <b>📊 Tahlil:</b><br>
+                Bu ${impact === 3 ? 'yuqori' : (impact === 2 ? 'o\'rta' : 'past')} ta'sirli yangilik. 
+                ${impact === 3 ? 'Bozorga kuchli ta\'sir qilishi mumkin — savdo qilishda ehtiyot bo\'ling.' : 
+                  (impact === 2 ? 'Bozorga o\'rtacha ta\'sir qilishi mumkin.' : 
+                  'Bozorga unchalik katta ta\'sir qilmaydi.')}
+                <br><br>
+                <b>⏰ Chiqish vaqti:</b> ${time} (Toshkent vaqti)
+            </div>
+        `;
+        openModal(`${currency} - ${event}`, body);
     }
 
     // ===== GRAFIK =====
@@ -876,8 +1034,7 @@
             "enable_publishing": false, "hide_side_toolbar": false,
             "allow_symbol_change": true, "details": true,
             "withdateranges": true, "save_image": true,
-            "studies": ["MASimple@tv-basicstudies"],
-            "show_popup_button": true, "popup_width": "1000", "popup_height": "650"
+            "studies": ["MASimple@tv-basicstudies"]
         });
         chartInitialized = true;
     }
@@ -900,6 +1057,7 @@
 
     // Boshlang'ich
     loadDashboard();
+    renderNews();
     setInterval(loadDashboard, 60000);
     </script>
 </body>
