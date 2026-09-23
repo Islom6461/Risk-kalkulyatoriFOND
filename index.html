@@ -1199,13 +1199,14 @@
     };
 
     // ===== BIQUOTE API YORDAMCHI FUNKSIYASI =====
-    async function fetchBiquote(symbols) {
-        const url = `https://biquote.io/api/latest?symbols=${symbols.join(',')}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Biquote API xatosi');
-        return await res.json();
-    }
-
+   async function fetchBiquote(symbols) {
+    // symbols massivini to'g'ri birlashtirish (vergul bilan)
+    const url = `https://biquote.io/api/latest?symbols=${symbols.join(',')}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Biquote API xatosi');
+    return await res.json();
+}
+        
     // ===== REAL VAQT MA'LUMOTLARINI YUKLASH =====
     async function loadDashboard() {
         // ===== FOREX (Biquote) =====
