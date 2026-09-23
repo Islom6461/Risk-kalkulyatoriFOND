@@ -626,7 +626,7 @@
     <div class="main-content">
         <!-- DASHBOARD -->
         <div class="tab-content active" id="dashboard">
-            <h2>Bozor holati <span style="font-size:12px;color:var(--text-dim);font-weight:normal;">(har 60 soniyada yangilanadi)</span></h2>
+            <h2>Bozor holati <span style="font-size:12px;color:var(--text-dim);font-weight:normal;">(har 12 soatda yangilanadi)</span></h2>
             <div class="asset-sections">
                 <div class="asset-section forex-section">
                     <div class="asset-section-title">💱 Forex</div>
@@ -835,6 +835,9 @@
     </div>
 
     <script>
+    // ===== FCS API KALITI =====
+    const FCS_API_KEY = 'yrubfboqyCGC7V278s2nCKGdr';
+
     // ===== AUTH TIZIMI =====
     let currentUser = null;
     const USERS_KEY = 'za_islamic_users';
@@ -1155,31 +1158,13 @@
     tpInput.addEventListener('input', calculate);
     detectSymbol();
 
-    // ===== BIQUOTE API =====
-    // Live aktivlar ro'yxatini olish (faqat hozir real vaqtda kotirovka qilinayotganlar)
-    let liveSymbols = null;
-    async function getLiveSymbols() {
-        if (liveSymbols) return liveSymbols;
-        try {
-            const res = await fetch('https://biquote.io/api/symbols?liveOnly=true');
-            if (!res.ok) throw new Error('Symbols API xatosi');
-            const data = await res.json();
-            // API turli formatlarda qaytarishi mumkin
-            liveSymbols = Array.isArray(data) ? data : (data.symbols || data.data || []);
-            console.log('Live aktivlar soni:', liveSymbols.length);
-            return liveSymbols;
-        } catch (e) {
-            console.error('Live symbols yuklanmadi:', e);
-            return [];
-        }
-    }
-
-    // Biquote'dan narxlarni olish (mid maydonidan)
-    async function fetchBiquote(symbols) {
-        const symbolString = symbols.map(s => s.trim()).join(',');
-        const url = `https://biquote.io/api/latest?symbols=${encodeURIComponent(symbolString)}`;
+    // ===== FCS API YORDAMCHI FUNKSIYASI =====
+    async function fetchFCS(endpoint, params = {}) {
+        const baseUrl = 'https://api-v4.fcsapi.com';
+        const query = new URLSearchParams({ access_key: FCS_API_KEY, ...params });
+        const url = `${baseUrl}${endpoint}?${query.toString()}`;
         const res = await fetch(url);
-        if (!res.ok) throw new Error('Biquote API xatosi');
+        if (!res.ok) throw new Error(`FCS API xatosi: ${res.status}`);
         return await res.json();
     }
 
@@ -1216,25 +1201,20 @@
     };
 
     async function loadDashboard() {
-        const live = await getLiveSymbols();
-        const useFilter = live.length > 0;
-
         // ===== FOREX =====
         try {
-            let symbolsToFetch = assets.forex.map(i => i.symbol);
-            if (useFilter) symbolsToFetch = symbolsToFetch.filter(s => live.includes(s));
-            if (symbolsToFetch.length === 0) symbolsToFetch = assets.forex.map(i => i.symbol);
-
-            const forexData = await fetchBiquote(symbolsToFetch);
-            let forexHtml = '';
+            const symbols = assets.forex.map(i => i.symbol).join(',');
+            const data = await fetchFCS('/forex/latest', { symbol: symbols });
+            let html = '';
+            const response = data.response || [];
             assets.forex.forEach(item => {
-                const info = forexData[item.symbol];
-                if (info && info.mid) {
-                    const price = item.symbol.includes('JPY') ? info.mid.toFixed(2) :
-                                  (item.symbol.includes('XAU') ? info.mid.toFixed(2) : info.mid.toFixed(4));
-                    const change = info.dayDiffPercent ? info.dayDiffPercent.toFixed(2) : '0.00';
+                const info = response.find(r => r.symbol === item.symbol);
+                if (info && info.active) {
+                    const price = item.symbol.includes('JPY') ? info.active.c.toFixed(2) :
+                                  (item.symbol.includes('XAU') ? info.active.c.toFixed(2) : info.active.c.toFixed(4));
+                    const change = info.active.chp ? parseFloat(info.active.chp).toFixed(2) : '0.00';
                     const isPositive = parseFloat(change) >= 0;
-                    forexHtml += `
+                    html += `
                         <div class="asset-item" onclick="openAssetModal('${item.name}', 'forex', '${price}', ${change})">
                             <div>
                                 <div class="asset-item-name">${item.name}</div>
@@ -1243,43 +1223,48 @@
                             <div class="asset-item-price">${price}</div>
                         </div>`;
                 } else {
-                    forexHtml += `
+                    html += `
                         <div class="asset-item" style="opacity:0.5;">
                             <div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div>
                             <div class="asset-item-price">N/A</div>
                         </div>`;
                 }
             });
-            document.getElementById('forexList').innerHTML = forexHtml;
+            document.getElementById('forexList').innerHTML = html;
         } catch (e) {
             console.error('Forex error:', e);
             document.getElementById('forexList').innerHTML = '<div class="loading">⚠️ Forex yuklanmadi</div>';
         }
 
-        // ===== KRIPTO (CoinGecko) =====
+        // ===== KRIPTO =====
         try {
-            const cryptoList = assets.crypto;
-            const ids = cryptoList.map(i => i.symbol.replace('USDT','').toLowerCase()).join(',');
-            const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`);
-            const data = await res.json();
-            window.cryptoData = data;
-            let cryptoHtml = '';
-            cryptoList.forEach(item => {
-                const coinId = item.symbol.replace('USDT','').toLowerCase();
-                const info = data[coinId];
+            const symbols = assets.crypto.map(i => i.symbol).join(',');
+            const data = await fetchFCS('/crypto/latest', { symbol: symbols });
+            let html = '';
+            const response = data.response || [];
+            assets.crypto.forEach(item => {
+                const info = response.find(r => r.symbol === item.symbol);
                 if (info) {
-                    const isPositive = info.usd_24h_change >= 0;
-                    cryptoHtml += `
-                        <div class="asset-item" onclick="openCryptoModal('${item.name}', '${coinId}')">
+                    const price = parseFloat(info.price).toLocaleString();
+                    const change = parseFloat(info.change).toFixed(2);
+                    const isPositive = parseFloat(change) >= 0;
+                    html += `
+                        <div class="asset-item" onclick="openCryptoModal('${item.name}', '${item.symbol}', ${info.price}, ${change})">
                             <div>
                                 <div class="asset-item-name">${item.name}</div>
-                                <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(info.usd_24h_change).toFixed(2)}%</div>
+                                <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
                             </div>
-                            <div class="asset-item-price">$${info.usd.toLocaleString()}</div>
+                            <div class="asset-item-price">$${price}</div>
+                        </div>`;
+                } else {
+                    html += `
+                        <div class="asset-item" style="opacity:0.5;">
+                            <div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div>
+                            <div class="asset-item-price">N/A</div>
                         </div>`;
                 }
             });
-            document.getElementById('cryptoList').innerHTML = cryptoHtml || '<div class="loading">⚠️ Ma\'lumot yo\'q</div>';
+            document.getElementById('cryptoList').innerHTML = html;
         } catch (e) {
             console.error('Crypto error:', e);
             document.getElementById('cryptoList').innerHTML = '<div class="loading">⚠️ Kripto yuklanmadi</div>';
@@ -1287,19 +1272,16 @@
 
         // ===== INDEKSLAR =====
         try {
-            let symbolsToFetch = assets.indices.map(i => i.symbol);
-            if (useFilter) symbolsToFetch = symbolsToFetch.filter(s => live.includes(s));
-            if (symbolsToFetch.length === 0) symbolsToFetch = assets.indices.map(i => i.symbol);
-
-            const indicesData = await fetchBiquote(symbolsToFetch);
-            let indicesHtml = '';
+            const data = await fetchFCS('/stock/indices', { country: 'united-states' });
+            let html = '';
+            const response = data.response || [];
             assets.indices.forEach(item => {
-                const info = indicesData[item.symbol];
-                if (info && info.mid) {
-                    const price = info.mid.toFixed(0);
-                    const change = info.dayDiffPercent ? info.dayDiffPercent.toFixed(2) : '0.00';
+                const info = response.find(r => r.ticker === item.symbol || r.symbol === item.symbol);
+                if (info && info.active) {
+                    const price = info.active.c.toFixed(0);
+                    const change = info.active.chp ? parseFloat(info.active.chp).toFixed(2) : '0.00';
                     const isPositive = parseFloat(change) >= 0;
-                    indicesHtml += `
+                    html += `
                         <div class="asset-item" onclick="openAssetModal('${item.name}', 'indices', '${price}', ${change})">
                             <div>
                                 <div class="asset-item-name">${item.name}</div>
@@ -1308,14 +1290,14 @@
                             <div class="asset-item-price">${price}</div>
                         </div>`;
                 } else {
-                    indicesHtml += `
+                    html += `
                         <div class="asset-item" style="opacity:0.5;">
                             <div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div>
                             <div class="asset-item-price">N/A</div>
                         </div>`;
                 }
             });
-            document.getElementById('indicesList').innerHTML = indicesHtml;
+            document.getElementById('indicesList').innerHTML = html;
         } catch (e) {
             console.error('Indices error:', e);
             document.getElementById('indicesList').innerHTML = '<div class="loading">⚠️ Indekslar yuklanmadi</div>';
@@ -1323,19 +1305,17 @@
 
         // ===== AKSIYALAR =====
         try {
-            let symbolsToFetch = assets.stocks.map(i => i.symbol);
-            if (useFilter) symbolsToFetch = symbolsToFetch.filter(s => live.includes(s));
-            if (symbolsToFetch.length === 0) symbolsToFetch = assets.stocks.map(i => i.symbol);
-
-            const stocksData = await fetchBiquote(symbolsToFetch);
-            let stocksHtml = '';
+            const symbols = assets.stocks.map(i => i.symbol).join(',');
+            const data = await fetchFCS('/stock/latest', { symbol: symbols });
+            let html = '';
+            const response = data.response || [];
             assets.stocks.forEach(item => {
-                const info = stocksData[item.symbol];
-                if (info && info.mid) {
-                    const price = info.mid.toFixed(2);
-                    const change = info.dayDiffPercent ? info.dayDiffPercent.toFixed(2) : '0.00';
+                const info = response.find(r => r.symbol === item.symbol);
+                if (info && info.active) {
+                    const price = info.active.c.toFixed(2);
+                    const change = info.active.chp ? parseFloat(info.active.chp).toFixed(2) : '0.00';
                     const isPositive = parseFloat(change) >= 0;
-                    stocksHtml += `
+                    html += `
                         <div class="asset-item" onclick="openAssetModal('${item.name}', 'stocks', '${price}', ${change})">
                             <div>
                                 <div class="asset-item-name">${item.name}</div>
@@ -1344,14 +1324,14 @@
                             <div class="asset-item-price">$${price}</div>
                         </div>`;
                 } else {
-                    stocksHtml += `
+                    html += `
                         <div class="asset-item" style="opacity:0.5;">
                             <div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div>
                             <div class="asset-item-price">N/A</div>
                         </div>`;
                 }
             });
-            document.getElementById('stocksList').innerHTML = stocksHtml;
+            document.getElementById('stocksList').innerHTML = html;
         } catch (e) {
             console.error('Stocks error:', e);
             document.getElementById('stocksList').innerHTML = '<div class="loading">⚠️ Aksiyalar yuklanmadi</div>';
@@ -1359,31 +1339,28 @@
     }
 
     // ===== MODAL MA'LUMOTLARI =====
-    function openCryptoModal(name, coinId) {
-        const info = window.cryptoData[coinId];
-        if (!info) return;
-        const isPositive = info.usd_24h_change >= 0;
-        const tvSymbol = `BINANCE:${coinId.toUpperCase()}USDT`;
+    function openCryptoModal(name, symbol, price, change) {
+        const isPositive = change >= 0;
+        const tvSymbol = `BINANCE:${symbol}`;
         const body = `
             <div style="text-align:center;margin-bottom:15px;">
-                <div style="font-size:36px;font-weight:bold;">$${info.usd.toLocaleString()}</div>
+                <div style="font-size:36px;font-weight:bold;">$${parseFloat(price).toLocaleString()}</div>
                 <div style="font-size:16px;font-weight:bold;color:${isPositive ? 'var(--green)' : 'var(--red)'};">
-                    ${isPositive ? '▲' : '▼'} ${Math.abs(info.usd_24h_change).toFixed(2)}% (24 soat)
+                    ${isPositive ? '▲' : '▼'} ${Math.abs(change)}% (24 soat)
                 </div>
             </div>
             <div id="modalChart"></div>
             <div class="modal-info">
                 <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
-                ${info.usd_market_cap ? `<div class="modal-info-row"><span class="modal-info-label">Bozor kapitallashuvi:</span><span class="modal-info-value">$${(info.usd_market_cap / 1e9).toFixed(2)} mlrd</span></div>` : ''}
-                ${info.usd_24h_vol ? `<div class="modal-info-row"><span class="modal-info-label">24 soatlik hajm:</span><span class="modal-info-value">$${(info.usd_24h_vol / 1e9).toFixed(2)} mlrd</span></div>` : ''}
-                <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value" style="color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Joriy narx:</span><span class="modal-info-value">$${parseFloat(price).toLocaleString()}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value" style="color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '+' : ''}${change}%</span></div>
             </div>
         `;
         openModal(name, body);
         setTimeout(() => initModalChart(tvSymbol), 200);
     }
 
-    function openAssetModal(name, category, price, change, tvSymbol) {
+    function openAssetModal(name, category, price, change) {
         const isPositive = change >= 0;
         const categoryNames = { forex: 'Forex', indices: 'Indeks', stocks: 'Aksiya' };
         const isStock = category === 'stocks';
@@ -1544,23 +1521,23 @@
     }
     renderSignals();
 
-    // ===== YANGILIKLAR =====
+    // ===== YANGILIKLAR (SANA QO'SHILGAN) =====
     const newsData = [
-        { time: '09:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—' },
-        { time: '11:30', currency: 'GBP', event: 'BoE Prezidentining nutqi', impact: 3, forecast: '—' },
-        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '220K' },
-        { time: '15:00', currency: 'USD', event: 'Chakana savdo hajmi', impact: 3, forecast: '0.3%' },
-        { time: '16:30', currency: 'USD', event: 'Xom neft zaxiralari', impact: 2, forecast: '-1.2M' },
-        { time: '18:00', currency: 'USD', event: 'FOMC majlisi bayonnomasi', impact: 3, forecast: '—' },
-        { time: '03:30', currency: 'AUD', event: 'RBA stavka qarori', impact: 3, forecast: '4.35%' },
-        { time: '10:00', currency: 'EUR', event: 'Germaniya YaIM', impact: 3, forecast: '0.2%' },
-        { time: '14:30', currency: 'CAD', event: 'YaIM (oylik)', impact: 3, forecast: '0.1%' },
-        { time: '16:00', currency: 'USD', event: 'ISM xizmat PMI', impact: 3, forecast: '54.5' },
-        { time: '02:00', currency: 'NZD', event: 'RBNZ stavka qarori', impact: 3, forecast: '5.50%' },
-        { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', impact: 3, forecast: '4.00%' },
-        { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', impact: 3, forecast: '0.3%' },
-        { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%' },
-        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K' }
+        { time: '09:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—', date: '2026-09-23' },
+        { time: '11:30', currency: 'GBP', event: 'BoE Prezidentining nutqi', impact: 3, forecast: '—', date: '2026-09-23' },
+        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '220K', date: '2026-09-23' },
+        { time: '15:00', currency: 'USD', event: 'Chakana savdo hajmi', impact: 3, forecast: '0.3%', date: '2026-09-23' },
+        { time: '16:30', currency: 'USD', event: 'Xom neft zaxiralari', impact: 2, forecast: '-1.2M', date: '2026-09-23' },
+        { time: '18:00', currency: 'USD', event: 'FOMC majlisi bayonnomasi', impact: 3, forecast: '—', date: '2026-09-23' },
+        { time: '03:30', currency: 'AUD', event: 'RBA stavka qarori', impact: 3, forecast: '4.35%', date: '2026-09-24' },
+        { time: '10:00', currency: 'EUR', event: 'Germaniya YaIM', impact: 3, forecast: '0.2%', date: '2026-09-24' },
+        { time: '14:30', currency: 'CAD', event: 'YaIM (oylik)', impact: 3, forecast: '0.1%', date: '2026-09-24' },
+        { time: '16:00', currency: 'USD', event: 'ISM xizmat PMI', impact: 3, forecast: '54.5', date: '2026-09-24' },
+        { time: '02:00', currency: 'NZD', event: 'RBNZ stavka qarori', impact: 3, forecast: '5.50%', date: '2026-09-25' },
+        { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', impact: 3, forecast: '4.00%', date: '2026-09-25' },
+        { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', impact: 3, forecast: '0.3%', date: '2026-09-25' },
+        { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%', date: '2026-09-25' },
+        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K', date: '2026-09-26' }
     ];
     function getImpactStars(impact) {
         let stars = '';
@@ -1574,7 +1551,7 @@
     let currentFilter = 'all';
     function renderNews() {
         const table = document.getElementById('newsTable');
-        let html = `<div class="news-row header"><div>Vaqt</div><div>Valyuta</div><div>Voqea</div><div>Ta'sir</div><div>Prognoz</div></div>`;
+        let html = `<div class="news-row header"><div>Vaqt</div><div>Valyuta</div><div>Voqea</div><div>Ta'sir</div><div>Sana</div></div>`;
         const filtered = newsData.filter(item => {
             if (currentFilter === 'all') return true;
             if (currentFilter === 'high') return item.impact === 3;
@@ -1584,12 +1561,12 @@
         });
         filtered.forEach(item => {
             html += `
-                <div class="news-row" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}')">
+                <div class="news-row" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}', '${item.date}')">
                     <div class="news-time">${item.time}</div>
                     <div><span class="currency-badge currency-${item.currency}">${item.currency}</span></div>
                     <div class="news-event">${item.event}</div>
                     <div class="news-impact">${getImpactStars(item.impact)}</div>
-                    <div class="news-forecast">${item.forecast}</div>
+                    <div class="news-forecast">${item.date}</div>
                 </div>
             `;
         });
@@ -1603,20 +1580,20 @@
             renderNews();
         });
     });
-    function openNewsDetail(time, currency, event, impact, forecast) {
+    function openNewsDetail(time, currency, event, impact, forecast, date) {
         let impactText = impact === 3 ? '🔴 Yuqori' : (impact === 2 ? '🟡 O\'rta' : '🟠 Past');
         let impactColor = impact === 3 ? '#F44336' : (impact === 2 ? '#FFC107' : '#FFA726');
         const body = `
             <div class="signal-detail-grid">
                 <div class="signal-detail-item"><div class="signal-detail-label">Vaqt</div><div class="signal-detail-value">${time}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">Sana</div><div class="signal-detail-value">${date}</div></div>
                 <div class="signal-detail-item"><div class="signal-detail-label">Valyuta</div><div class="signal-detail-value">${currency}</div></div>
                 <div class="signal-detail-item"><div class="signal-detail-label">Ta'sir</div><div class="signal-detail-value" style="color:${impactColor};">${impactText}</div></div>
-                <div class="signal-detail-item"><div class="signal-detail-label">Prognoz</div><div class="signal-detail-value">${forecast}</div></div>
             </div>
             <div class="modal-desc">
                 <b>📊 Tahlil:</b><br>
                 ${event}. Bu ${impact === 3 ? 'yuqori' : (impact === 2 ? 'o\'rta' : 'past')} ta'sirli yangilik.
-                <br><br><b>⏰ Chiqish vaqti:</b> ${time} (Toshkent vaqti)
+                <br><br><b>📅 Sana:</b> ${date}<br><b>⏰ Chiqish vaqti:</b> ${time} (Toshkent vaqti)
             </div>
         `;
         openModal(`${currency} - ${event}`, body);
@@ -1658,7 +1635,7 @@
     loadDashboard();
     renderNews();
     checkSession();
-    setInterval(loadDashboard, 60000);
+    setInterval(loadDashboard, 43200000); // 12 soat = 43,200,000 ms
     </script>
 </body>
 </html>
