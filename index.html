@@ -11,7 +11,6 @@
             --border: #333; --text: #ffffff; --text-dim: #888;
             --green: #4CAF50; --red: #F44336; --yellow: #FFC107; --blue: #2196F3;
             --sidebar-w: 110px;
-            /* Dashboard bo'limlar ranglari */
             --forex-color: #2196F3;
             --crypto-color: #FF9800;
             --indices-color: #9C27B0;
@@ -37,13 +36,11 @@
             display: flex; flex-direction: column; align-items: center;
             padding: 15px 0; z-index: 100;
         }
-
         .sidebar-logo {
             display: flex; align-items: center; justify-content: center;
             width: 100%; padding: 12px 5px; margin-bottom: 20px;
             border-bottom: 1px solid var(--border); overflow: hidden;
         }
-
         .logo-text {
             font-size: 14px; font-weight: 900; letter-spacing: 1px;
             white-space: nowrap; animation: logoGlow 4s ease-in-out infinite;
@@ -57,7 +54,6 @@
             50%  { filter: hue-rotate(180deg) brightness(1.3); }
             100% { filter: hue-rotate(360deg) brightness(1);   }
         }
-
         .sidebar-menu {
             display: flex; flex-direction: column; gap: 8px;
             width: 100%; padding: 0 10px; flex: 1;
@@ -76,7 +72,6 @@
         .sidebar-btn:hover { color: var(--text); border-color: var(--green); transform: scale(1.05); }
         .sidebar-btn.active { background: var(--green); color: white; border-color: var(--green); }
         .sidebar-btn.active .label { color: white; }
-
         .sidebar-btn.profile-btn {
             background: linear-gradient(135deg, var(--bg-input), rgba(76, 175, 80, 0.15));
             border-color: var(--green); margin-bottom: 8px;
@@ -84,20 +79,10 @@
         .sidebar-btn.profile-btn.active {
             background: linear-gradient(135deg, var(--green), #2E7D32);
         }
-
-        /* Bloklangan tugma (mehmon uchun) */
-        .sidebar-btn.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        .sidebar-btn.locked { opacity: 0.5; cursor: not-allowed; }
         .sidebar-btn.locked::after {
-            content: '🔒';
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            font-size: 12px;
+            content: '🔒'; position: absolute; top: 5px; right: 5px; font-size: 12px;
         }
-
         .signal-badge {
             position: absolute; top: -4px; right: -4px;
             background: var(--red); color: white;
@@ -105,7 +90,6 @@
             padding: 2px 6px; border-radius: 10px;
             min-width: 18px; text-align: center;
         }
-
         .sidebar-theme {
             background: var(--bg-input); border: 1px solid var(--border);
             color: var(--text); width: 45px; height: 45px; border-radius: 50%;
@@ -123,10 +107,9 @@
         .tab-content.active { display: block; }
         h2 { font-size: 20px; margin-bottom: 15px; color: var(--text); }
 
-        /* ===== DASHBOARD (rangli bo'limlar) ===== */
+        /* ===== DASHBOARD ===== */
         .asset-sections { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         @media (min-width: 1200px) { .asset-sections { grid-template-columns: repeat(4, 1fr); } }
-
         .asset-section {
             border-radius: 12px; padding: 15px;
             border: 1px solid var(--border);
@@ -135,46 +118,33 @@
             overflow: hidden;
         }
         .asset-section::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 100px;
-            opacity: 0.06;
-            pointer-events: none;
+            content: ''; position: absolute; top: 0; left: 0; right: 0;
+            height: 100px; opacity: 0.06; pointer-events: none;
         }
-
-        /* Forex - Ko'k */
         .asset-section.forex-section {
             border-top-color: var(--forex-color);
             background: linear-gradient(180deg, rgba(33, 150, 243, 0.08), var(--bg-card));
         }
         .asset-section.forex-section::before { background: var(--forex-color); }
         .asset-section.forex-section .asset-section-title { color: var(--forex-color); }
-
-        /* Kripto - To'q sariq */
         .asset-section.crypto-section {
             border-top-color: var(--crypto-color);
             background: linear-gradient(180deg, rgba(255, 152, 0, 0.08), var(--bg-card));
         }
         .asset-section.crypto-section::before { background: var(--crypto-color); }
         .asset-section.crypto-section .asset-section-title { color: var(--crypto-color); }
-
-        /* Indekslar - Binafsha */
         .asset-section.indices-section {
             border-top-color: var(--indices-color);
             background: linear-gradient(180deg, rgba(156, 39, 176, 0.08), var(--bg-card));
         }
         .asset-section.indices-section::before { background: var(--indices-color); }
         .asset-section.indices-section .asset-section-title { color: var(--indices-color); }
-
-        /* Aksiyalar - Yashil */
         .asset-section.stocks-section {
             border-top-color: var(--stocks-color);
             background: linear-gradient(180deg, rgba(76, 175, 80, 0.08), var(--bg-card));
         }
         .asset-section.stocks-section::before { background: var(--stocks-color); }
         .asset-section.stocks-section .asset-section-title { color: var(--stocks-color); }
-
         .asset-section-title {
             font-size: 15px; font-weight: bold;
             margin-bottom: 12px; padding-bottom: 8px;
@@ -201,64 +171,33 @@
 
         /* ===== SIGNAL ===== */
         .signal-locked {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 50px 30px;
-            text-align: center;
-            max-width: 500px;
-            margin: 40px auto;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 15px; padding: 50px 30px;
+            text-align: center; max-width: 500px; margin: 40px auto;
         }
         .signal-locked-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
+            font-size: 64px; margin-bottom: 20px;
             animation: lockPulse 2s infinite;
         }
-        @keyframes lockPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-        .signal-locked-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: var(--text);
-            margin-bottom: 10px;
-        }
-        .signal-locked-desc {
-            font-size: 14px;
-            color: var(--text-dim);
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
+        @keyframes lockPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        .signal-locked-title { font-size: 22px; font-weight: bold; color: var(--text); margin-bottom: 10px; }
+        .signal-locked-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 25px; }
         .signal-locked-btn {
-            padding: 14px 30px;
-            background: var(--green);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin: 5px;
+            padding: 14px 30px; background: var(--green); color: white;
+            border: none; border-radius: 10px; font-size: 15px; font-weight: bold;
+            cursor: pointer; transition: all 0.2s; margin: 5px;
         }
         .signal-locked-btn:hover {
-            background: #388E3C;
-            transform: translateY(-2px);
+            background: #388E3C; transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
         }
         .signal-locked-btn.secondary {
-            background: var(--bg-input);
-            color: var(--text);
-            border: 1px solid var(--border);
+            background: var(--bg-input); color: var(--text); border: 1px solid var(--border);
         }
         .signal-locked-btn.secondary:hover {
-            background: var(--bg-card);
-            box-shadow: none;
-            border-color: var(--green);
-            color: var(--green);
+            background: var(--bg-card); box-shadow: none;
+            border-color: var(--green); color: var(--green);
         }
-
         .signal-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
         .signal-stat {
             background: var(--bg-card); border: 1px solid var(--border);
@@ -365,7 +304,6 @@
         }
         .profile-action-btn:hover { border-color: var(--green); color: var(--green); }
         .profile-action-btn.danger:hover { border-color: var(--red); color: var(--red); }
-
         .users-list { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
         .user-row {
             display: flex; align-items: center; padding: 12px 15px;
@@ -395,18 +333,13 @@
             padding: 20px; overflow-y: auto;
         }
         .auth-overlay.active { display: flex; }
-
         .auth-box {
             background: var(--bg-card); border: 1px solid var(--border);
             border-radius: 20px; padding: 30px 25px;
             max-width: 400px; width: 100%;
             animation: authIn 0.4s ease;
         }
-        @keyframes authIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
+        @keyframes authIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         .auth-logo {
             text-align: center; font-size: 26px; font-weight: 900;
             letter-spacing: 2px; margin-bottom: 8px;
@@ -416,12 +349,7 @@
             -webkit-text-fill-color: transparent;
             animation: logoGlow 4s ease-in-out infinite;
         }
-
-        .auth-subtitle {
-            text-align: center; font-size: 13px;
-            color: var(--text-dim); margin-bottom: 25px;
-        }
-
+        .auth-subtitle { text-align: center; font-size: 13px; color: var(--text-dim); margin-bottom: 25px; }
         .auth-tabs {
             display: flex; gap: 5px; margin-bottom: 20px;
             background: var(--bg-input); padding: 5px; border-radius: 10px;
@@ -432,10 +360,8 @@
             cursor: pointer; border-radius: 8px; transition: all 0.2s;
         }
         .auth-tab.active { background: var(--green); color: white; }
-
         .auth-form { display: none; }
         .auth-form.active { display: block; }
-
         .auth-input-group { margin-bottom: 15px; }
         .auth-input-group label {
             display: block; font-size: 12px; color: var(--text-dim);
@@ -449,34 +375,18 @@
             margin-bottom: 0; transition: border-color 0.2s;
         }
         .auth-input-group input:focus { border-color: var(--green); }
-
-        /* Parol maydoni (ko'z belgisi bilan) */
-        .password-wrap {
-            position: relative;
-        }
-        .password-wrap input {
-            padding-right: 45px !important;
-        }
+        .password-wrap { position: relative; }
+        .password-wrap input { padding-right: 45px !important; }
         .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 50%;
+            position: absolute; right: 12px; top: 50%;
             transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--text-dim);
-            font-size: 18px;
-            cursor: pointer;
-            padding: 5px;
+            background: none; border: none;
+            color: var(--text-dim); font-size: 18px;
+            cursor: pointer; padding: 5px;
             transition: color 0.2s;
-            width: auto;
-            margin: 0;
-            line-height: 1;
+            width: auto; margin: 0; line-height: 1;
         }
-        .password-toggle:hover {
-            color: var(--green);
-        }
-
+        .password-toggle:hover { color: var(--green); }
         .auth-btn {
             width: 100%; padding: 14px;
             background: var(--green); color: white;
@@ -488,7 +398,6 @@
             background: #388E3C; transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
         }
-
         .auth-error {
             background: rgba(244, 67, 54, 0.15);
             border: 1px solid rgba(244, 67, 54, 0.3);
@@ -497,11 +406,7 @@
             margin-bottom: 15px; display: none;
         }
         .auth-error.active { display: block; }
-
-        .auth-guest {
-            text-align: center; color: var(--text-dim);
-            font-size: 13px; margin-top: 15px; cursor: pointer;
-        }
+        .auth-guest { text-align: center; color: var(--text-dim); font-size: 13px; margin-top: 15px; cursor: pointer; }
         .auth-guest:hover { color: var(--green); }
 
         /* ===== RISK ===== */
@@ -647,15 +552,11 @@
         <div class="auth-box">
             <div class="auth-logo">ZA_ISLAMIC</div>
             <div class="auth-subtitle">Trading va Signallar Platformasi</div>
-
             <div class="auth-tabs">
                 <button class="auth-tab active" data-auth="login">Kirish</button>
                 <button class="auth-tab" data-auth="register">Ro'yxatdan o'tish</button>
             </div>
-
             <div class="auth-error" id="authError"></div>
-
-            <!-- LOGIN FORMASI -->
             <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
                 <div class="auth-input-group">
                     <label>📧 Email</label>
@@ -671,8 +572,6 @@
                 <button type="submit" class="auth-btn">Kirish</button>
                 <div class="auth-guest" onclick="loginAsGuest()">Mehmon sifatida kirish →</div>
             </form>
-
-            <!-- REGISTR FORMASI -->
             <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
                 <div class="auth-input-group">
                     <label>👤 To'liq ism</label>
@@ -710,7 +609,6 @@
         <div class="sidebar-logo">
             <div class="logo-text">ZA_ISLAMIC</div>
         </div>
-
         <div class="sidebar-menu">
             <button class="sidebar-btn profile-btn" data-tab="profile" title="Profil">
                 👤<span class="label">Profil</span>
@@ -737,10 +635,9 @@
 
     <!-- ASOSIY KONTENT -->
     <div class="main-content">
-
         <!-- DASHBOARD -->
         <div class="tab-content active" id="dashboard">
-            <h2>Bozor holati</h2>
+            <h2>Bozor holati <span style="font-size:12px;color:var(--text-dim);font-weight:normal;">(har 60 soniyada yangilanadi)</span></h2>
             <div class="asset-sections">
                 <div class="asset-section forex-section">
                     <div class="asset-section-title">💱 Forex</div>
@@ -763,7 +660,6 @@
 
         <!-- SIGNAL -->
         <div class="tab-content" id="signal">
-            <!-- Locked view (mehmon uchun) -->
             <div id="signalLocked" style="display:none;">
                 <div class="signal-locked">
                     <div class="signal-locked-icon">🔒</div>
@@ -776,8 +672,6 @@
                     <button class="signal-locked-btn secondary" onclick="loginAsGuest()">👤 Mehmon sifatida davom etish</button>
                 </div>
             </div>
-
-            <!-- Active view (ro'yxatdan o'tgan uchun) -->
             <div id="signalContent">
                 <h2>🎯 Savdo Signallari</h2>
                 <div class="signal-stats">
@@ -872,7 +766,6 @@
         <!-- PROFIL -->
         <div class="tab-content" id="profile">
             <h2>👤 Mening Profilim</h2>
-
             <div class="profile-header">
                 <div class="profile-avatar" id="profileAvatar">ZI</div>
                 <div class="profile-name" id="profileName">Foydalanuvchi</div>
@@ -881,7 +774,6 @@
                     <span id="profileStatus">Faol foydalanuvchi</span>
                 </div>
             </div>
-
             <div class="profile-stats">
                 <div class="profile-stat">
                     <div class="profile-stat-icon">🎯</div>
@@ -899,7 +791,6 @@
                     <div class="profile-stat-label">Win Rate</div>
                 </div>
             </div>
-
             <div class="user-info-card">
                 <div class="user-info-title">📋 Shaxsiy ma'lumotlar</div>
                 <div class="user-info-row">
@@ -919,7 +810,6 @@
                     <span class="user-info-value" id="userRegistered">—</span>
                 </div>
             </div>
-
             <div class="user-info-card">
                 <div class="user-info-title">💼 Hisob ma'lumotlari</div>
                 <div class="user-info-row">
@@ -935,7 +825,6 @@
                     <span class="user-info-value" style="color:var(--green);">$0.00</span>
                 </div>
             </div>
-
             <div class="profile-actions">
                 <button class="profile-action-btn" onclick="editProfile()">✏️ Tahrirlash</button>
                 <button class="profile-action-btn" onclick="showAllUsers()">👥 Foydalanuvchilar</button>
@@ -943,7 +832,6 @@
                 <button class="profile-action-btn danger" onclick="logoutUser()">🚪 Chiqish</button>
             </div>
         </div>
-
     </div>
 
     <!-- MODAL -->
@@ -968,15 +856,12 @@
         catch (e) { return []; }
     }
     function saveUsers(users) { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
-
     function showAuthError(msg) {
         const el = document.getElementById('authError');
         el.textContent = msg;
         el.classList.add('active');
         setTimeout(() => el.classList.remove('active'), 5000);
     }
-
-    // PAROLNI KO'RISH/YASHIRISH
     function togglePassword(inputId, btn) {
         const input = document.getElementById(inputId);
         if (input.type === 'password') {
@@ -987,8 +872,6 @@
             btn.textContent = '👁️';
         }
     }
-
-    // AUTH TABS
     document.querySelectorAll('.auth-tab').forEach(tab => {
         tab.addEventListener('click', function() {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -998,29 +881,17 @@
             document.getElementById('authError').classList.remove('active');
         });
     });
-
-    // LOGIN
     function handleLogin(e) {
         e.preventDefault();
         const email = document.getElementById('loginEmail').value.trim();
         const password = document.getElementById('loginPassword').value;
-
         const users = getUsers();
         const user = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.password === password);
-
-        if (!user) {
-            showAuthError('❌ Email yoki parol noto\'g\'ri!');
-            return;
-        }
-
+        if (!user) { showAuthError('❌ Email yoki parol noto\'g\'ri!'); return; }
         currentUser = user;
         localStorage.setItem(SESSION_KEY, JSON.stringify(user));
-        closeAuth();
-        loadProfile();
-        updateSignalAccess();
+        closeAuth(); loadProfile(); updateSignalAccess();
     }
-
-    // REGISTER
     function handleRegister(e) {
         e.preventDefault();
         const name = document.getElementById('regName').value.trim();
@@ -1028,60 +899,33 @@
         const phone = document.getElementById('regPhone').value.trim();
         const password = document.getElementById('regPassword').value;
         const password2 = document.getElementById('regPassword2').value;
-
-        if (password !== password2) {
-            showAuthError('❌ Parollar mos kelmadi!');
-            return;
-        }
-        if (password.length < 6) {
-            showAuthError('❌ Parol kamida 6 belgidan iborat bo\'lishi kerak!');
-            return;
-        }
-
+        if (password !== password2) { showAuthError('❌ Parollar mos kelmadi!'); return; }
+        if (password.length < 6) { showAuthError('❌ Parol kamida 6 belgidan iborat bo\'lishi kerak!'); return; }
         const users = getUsers();
-        if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-            showAuthError('❌ Bu email allaqachon ro\'yxatdan o\'tgan!');
-            return;
-        }
-
+        if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) { showAuthError('❌ Bu email allaqachon ro\'yxatdan o\'tgan!'); return; }
         const newUser = {
             id: '#ZA-' + Date.now().toString().slice(-6),
             name: name, email: email, phone: phone || '—', password: password,
             registered: new Date().toISOString().split('T')[0],
             tier: 'Bepul', balance: 0
         };
-
-        users.push(newUser);
-        saveUsers(users);
+        users.push(newUser); saveUsers(users);
         currentUser = newUser;
         localStorage.setItem(SESSION_KEY, JSON.stringify(newUser));
-        closeAuth();
-        loadProfile();
-        updateSignalAccess();
+        closeAuth(); loadProfile(); updateSignalAccess();
     }
-
-    // MEHMON
     function loginAsGuest() {
         currentUser = {
             id: '#GUEST-' + Date.now().toString().slice(-4),
-            name: 'Mehmon',
-            email: 'guest@za_islamic.uz',
-            phone: '—',
+            name: 'Mehmon', email: 'guest@za_islamic.uz', phone: '—',
             registered: new Date().toISOString().split('T')[0],
-            tier: 'Mehmon',
-            balance: 0,
-            isGuest: true
+            tier: 'Mehmon', balance: 0, isGuest: true
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
-        closeAuth();
-        loadProfile();
-        updateSignalAccess();
+        closeAuth(); loadProfile(); updateSignalAccess();
     }
-
     function closeAuth() { document.getElementById('authOverlay').classList.remove('active'); }
     function openAuth() { document.getElementById('authOverlay').classList.add('active'); }
-
-    // PROFILNI YUKLASH
     function loadProfile() {
         if (!currentUser) return;
         const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -1096,14 +940,11 @@
         document.getElementById('userTier').textContent = currentUser.tier;
         updateProfileStats();
     }
-
-    // SIGNAL BO'LIMIGA KIRISHNI TEKSHIRISH
     function updateSignalAccess() {
         const isGuest = !currentUser || currentUser.isGuest || currentUser.tier === 'Mehmon';
         const lockedView = document.getElementById('signalLocked');
         const contentView = document.getElementById('signalContent');
         const signalBtn = document.getElementById('signalBtn');
-
         if (isGuest) {
             lockedView.style.display = 'block';
             contentView.style.display = 'none';
@@ -1114,40 +955,26 @@
             signalBtn.classList.remove('locked');
         }
     }
-
-    // SESSIYANI TEKSHIRISH
     function checkSession() {
         try {
             const session = localStorage.getItem(SESSION_KEY);
-            if (session) {
-                currentUser = JSON.parse(session);
-                closeAuth();
-                loadProfile();
-            }
+            if (session) { currentUser = JSON.parse(session); closeAuth(); loadProfile(); }
         } catch (e) {}
         updateSignalAccess();
     }
-
-    // CHIQISH
     function logoutUser() {
         if (confirm('Hisobdan chiqishni xohlaysizmi?')) {
             localStorage.removeItem(SESSION_KEY);
-            currentUser = null;
-            openAuth();
+            currentUser = null; openAuth();
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
             updateSignalAccess();
         }
     }
-
-    // ===== SIDEBAR MENYU =====
     document.querySelectorAll('.sidebar-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const tab = this.dataset.tab;
-            
-            // Mehmon uchun signal bloklangan
             if (tab === 'signal' && (!currentUser || currentUser.isGuest || currentUser.tier === 'Mehmon')) {
-                // Boshqa tabga o'tkazish va ogohlantirish ko'rsatish
                 document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
                 this.classList.add('active');
@@ -1155,7 +982,6 @@
                 updateSignalAccess();
                 return;
             }
-
             document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
@@ -1164,8 +990,6 @@
             if (tab === 'profile') updateProfileStats();
         });
     });
-
-    // ===== REJIM =====
     const themeToggle = document.getElementById('themeToggle');
     let currentTheme = 'dark';
     themeToggle.addEventListener('click', function() {
@@ -1174,8 +998,6 @@
         this.textContent = currentTheme === 'dark' ? '🌙' : '☀️';
         if (chartInitialized) { chartInitialized = false; document.getElementById('tvchart').innerHTML = ''; initChart(); }
     });
-
-    // ===== MODAL =====
     function openModal(title, body) {
         document.getElementById('modalTitle').textContent = title;
         document.getElementById('modalBody').innerHTML = body;
@@ -1190,16 +1012,11 @@
     document.getElementById('modalOverlay').addEventListener('click', function(e) {
         if (e.target === this) closeModal();
     });
-
-    // ===== BARCHA FOYDALANUVCHILAR =====
     function getAllUsersList() {
         const users = getUsers();
-        if (currentUser && !currentUser.isGuest && !users.find(u => u.email === currentUser.email)) {
-            users.push(currentUser);
-        }
+        if (currentUser && !currentUser.isGuest && !users.find(u => u.email === currentUser.email)) users.push(currentUser);
         return users;
     }
-
     function updateProfileStats() {
         const total = signals.length;
         const wins = signals.filter(s => s.status === 'tp').length;
@@ -1208,7 +1025,6 @@
         document.getElementById('profileWins').textContent = wins;
         document.getElementById('profileWinRate').textContent = rate + '%';
     }
-
     function editProfile() {
         if (!currentUser) return;
         const body = `
@@ -1228,13 +1044,11 @@
         `;
         openModal('✏️ Profilni tahrirlash', body);
     }
-
     function saveProfile() {
         if (!currentUser) return;
         currentUser.name = document.getElementById('editName').value.trim();
         currentUser.email = document.getElementById('editEmail').value.trim();
         currentUser.phone = document.getElementById('editPhone').value.trim();
-        
         if (!currentUser.isGuest) {
             const users = getUsers();
             const idx = users.findIndex(u => u.id === currentUser.id);
@@ -1242,10 +1056,8 @@
             saveUsers(users);
         }
         localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
-        loadProfile();
-        closeModal();
+        loadProfile(); closeModal();
     }
-
     function showAllUsers() {
         const users = getAllUsersList();
         let html = '<div class="users-list">';
@@ -1269,16 +1081,13 @@
         html += '</div>';
         openModal(`👥 Foydalanuvchilar (${users.length})`, html);
     }
-
     function exportData() {
         if (!currentUser) return;
         const dataStr = JSON.stringify({ user: currentUser, signals: signals }, null, 2);
         const blob = new Blob([dataStr], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url;
-        a.download = 'za_islamic_data.json';
-        a.click();
+        a.href = url; a.download = 'za_islamic_data.json'; a.click();
         URL.revokeObjectURL(url);
         openModal('📤 Ma\'lumotlar eksport qilindi', `
             <div class="modal-desc">✅ Barcha ma'lumotlar <b>za_islamic_data.json</b> faylga saqlandi.</div>
@@ -1294,7 +1103,6 @@
         'AAPL': { type: 'Aksiya', pipValue: 1 }, 'TSLA': { type: 'Aksiya', pipValue: 1 },
         'US30': { type: 'Indeks', pipValue: 1 }, 'NAS100': { type: 'Indeks', pipValue: 1 }
     };
-
     const symbolInput = document.getElementById('rc-symbol');
     const symbolInfo = document.getElementById('rc-symbol-info');
     const balanceInput = document.getElementById('rc-balance');
@@ -1304,7 +1112,6 @@
     const tpInput = document.getElementById('rc-tp');
     const resultDiv = document.getElementById('rc-result');
     let hiddenPipValue = 10;
-
     function detectSymbol() {
         const symbol = symbolInput.value.trim().toUpperCase();
         if (symbolDatabase[symbol]) {
@@ -1326,18 +1133,15 @@
         }
         calculate();
     }
-
     function getLotSize() {
         if (lotSelect.value === 'custom') return parseFloat(lotManual.value) || 0.01;
         return parseFloat(lotSelect.value) || 0.01;
     }
-
     lotSelect.addEventListener('change', function() {
         if (this.value === 'custom') { lotManual.style.display = 'block'; lotManual.focus(); }
         else { lotManual.style.display = 'none'; }
         calculate();
     });
-
     function calculate() {
         const balance = parseFloat(balanceInput.value) || 0;
         const lot = getLotSize();
@@ -1347,17 +1151,14 @@
         const tpDollar = lot * tp * hiddenPipValue;
         const riskPct = balance > 0 ? (slDollar / balance) * 100 : 0;
         const rr = slDollar > 0 ? (tpDollar / slDollar) : 0;
-
         let riskColor = riskPct > 5 ? '#F44336' : (riskPct > 2 ? '#FFC107' : '#4CAF50');
         let rrColor = rr >= 2 ? '#4CAF50' : (rr >= 1 ? '#FFC107' : '#F44336');
-
         resultDiv.innerHTML = `
             <div class="result-row" style="color:${riskColor};"><span>🔴 Xavf (SL):</span><span>$${slDollar.toFixed(2)} (${riskPct.toFixed(2)}%)</span></div>
             <div class="result-row" style="color:#2196F3;"><span>🟢 Foyda (TP):</span><span>$${tpDollar.toFixed(2)}</span></div>
             <div class="result-row" style="color:${rrColor}; border-top:1px solid var(--border); margin-top:5px; padding-top:5px;"><span>⚖️ Risk/Reward:</span><span>1 : ${rr.toFixed(2)}</span></div>
         `;
     }
-
     symbolInput.addEventListener('input', detectSymbol);
     balanceInput.addEventListener('input', calculate);
     lotManual.addEventListener('input', calculate);
@@ -1365,14 +1166,14 @@
     tpInput.addEventListener('input', calculate);
     detectSymbol();
 
-    // ===== DASHBOARD =====
+    // ===== DASHBOARD (BIQUOTE + COINGECKO) =====
     const assets = {
         forex: [
-            { name: 'EUR/USD', symbol: 'EURUSD', tv: 'FX:EURUSD' }, { name: 'GBP/USD', symbol: 'GBPUSD', tv: 'FX:GBPUSD' },
-            { name: 'USD/JPY', symbol: 'USDJPY', tv: 'FX:USDJPY' }, { name: 'AUD/USD', symbol: 'AUDUSD', tv: 'FX:AUDUSD' },
-            { name: 'USD/CAD', symbol: 'USDCAD', tv: 'FX:USDCAD' }, { name: 'USD/CHF', symbol: 'USDCHF', tv: 'FX:USDCHF' },
-            { name: 'NZD/USD', symbol: 'NZDUSD', tv: 'FX:NZDUSD' }, { name: 'EUR/GBP', symbol: 'EURGBP', tv: 'FX:EURGBP' },
-            { name: 'XAU/USD', symbol: 'XAUUSD', tv: 'OANDA:XAUUSD' }, { name: 'XAG/USD', symbol: 'XAGUSD', tv: 'OANDA:XAGUSD' }
+            { name: 'EUR/USD', symbol: 'EURUSD' }, { name: 'GBP/USD', symbol: 'GBPUSD' },
+            { name: 'USD/JPY', symbol: 'USDJPY' }, { name: 'AUD/USD', symbol: 'AUDUSD' },
+            { name: 'USD/CAD', symbol: 'USDCAD' }, { name: 'USD/CHF', symbol: 'USDCHF' },
+            { name: 'NZD/USD', symbol: 'NZDUSD' }, { name: 'EUR/GBP', symbol: 'EURGBP' },
+            { name: 'XAU/USD', symbol: 'XAUUSD' }, { name: 'XAG/USD', symbol: 'XAGUSD' }
         ],
         crypto: [
             { name: 'BTC/USDT', symbol: 'BTCUSDT' }, { name: 'ETH/USDT', symbol: 'ETHUSDT' },
@@ -1382,51 +1183,65 @@
             { name: 'MATIC/USDT', symbol: 'MATICUSDT' }, { name: 'LINK/USDT', symbol: 'LINKUSDT' }
         ],
         indices: [
-            { name: 'US30', symbol: 'US30', tv: 'CAPITALCOM:US30' }, { name: 'NAS100', symbol: 'NAS100', tv: 'CAPITALCOM:US100' },
-            { name: 'SPX500', symbol: 'SPX500', tv: 'SP:SPX' }, { name: 'GER40', symbol: 'GER40', tv: 'XETR:DAX' },
-            { name: 'UK100', symbol: 'UK100', tv: 'SPREADEX:FTSE' }, { name: 'JP225', symbol: 'JP225', tv: 'SPREADEX:NI225' },
-            { name: 'HK50', symbol: 'HK50', tv: 'SPREADEX:HSI' }, { name: 'AUS200', symbol: 'AUS200', tv: 'SPREADEX:ASX' },
-            { name: 'FRA40', symbol: 'FRA40', tv: 'SPREADEX:CAC' }, { name: 'EU50', symbol: 'EU50', tv: 'SPREADEX:STOXX50' }
+            { name: 'US30', symbol: 'US30' }, { name: 'NAS100', symbol: 'NAS100' },
+            { name: 'SPX500', symbol: 'SPX500' }, { name: 'GER40', symbol: 'GER40' },
+            { name: 'UK100', symbol: 'UK100' }, { name: 'JP225', symbol: 'JP225' },
+            { name: 'HK50', symbol: 'HK50' }, { name: 'AUS200', symbol: 'AUS200' },
+            { name: 'FRA40', symbol: 'FRA40' }, { name: 'EU50', symbol: 'EU50' }
         ],
         stocks: [
-            { name: 'AAPL', symbol: 'AAPL', tv: 'NASDAQ:AAPL' }, { name: 'TSLA', symbol: 'TSLA', tv: 'NASDAQ:TSLA' },
-            { name: 'MSFT', symbol: 'MSFT', tv: 'NASDAQ:MSFT' }, { name: 'GOOGL', symbol: 'GOOGL', tv: 'NASDAQ:GOOGL' },
-            { name: 'AMZN', symbol: 'AMZN', tv: 'NASDAQ:AMZN' }, { name: 'META', symbol: 'META', tv: 'NASDAQ:META' },
-            { name: 'NVDA', symbol: 'NVDA', tv: 'NASDAQ:NVDA' }, { name: 'NFLX', symbol: 'NFLX', tv: 'NASDAQ:NFLX' },
-            { name: 'AMD', symbol: 'AMD', tv: 'NASDAQ:AMD' }, { name: 'INTC', symbol: 'INTC', tv: 'NASDAQ:INTC' }
+            { name: 'AAPL', symbol: 'AAPL' }, { name: 'TSLA', symbol: 'TSLA' },
+            { name: 'MSFT', symbol: 'MSFT' }, { name: 'GOOGL', symbol: 'GOOGL' },
+            { name: 'AMZN', symbol: 'AMZN' }, { name: 'META', symbol: 'META' },
+            { name: 'NVDA', symbol: 'NVDA' }, { name: 'NFLX', symbol: 'NFLX' },
+            { name: 'AMD', symbol: 'AMD' }, { name: 'INTC', symbol: 'INTC' }
         ]
     };
 
-    function getMockPrice(symbol, basePrice) {
-        let hash = 0;
-        for (let i = 0; i < symbol.length; i++) hash += symbol.charCodeAt(i);
-        const variation = (hash % 100) / 100;
-        return (basePrice * (0.95 + variation * 0.1));
-    }
-    function getMockChange(symbol) {
-        let hash = 0;
-        for (let i = 0; i < symbol.length; i++) hash += symbol.charCodeAt(i) * (i + 1);
-        return ((hash % 400) - 200) / 100;
+    // ===== BIQUOTE API YORDAMCHI FUNKSIYASI =====
+    async function fetchBiquote(symbols) {
+        const url = `https://biquote.io/api/latest?symbols=${symbols.join(',')}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Biquote API xatosi');
+        return await res.json();
     }
 
+    // ===== REAL VAQT MA'LUMOTLARINI YUKLASH =====
     async function loadDashboard() {
-        let forexHtml = '';
-        assets.forex.forEach(item => {
-            const basePrice = item.symbol.includes('JPY') ? 150 : (item.symbol.includes('XAU') ? 2000 : (item.symbol.includes('XAG') ? 25 : 1.1));
-            const price = getMockPrice(item.symbol, basePrice).toFixed(item.symbol.includes('JPY') || item.symbol.includes('XAU') ? 2 : 4);
-            const change = getMockChange(item.symbol).toFixed(2);
-            const isPositive = change >= 0;
-            forexHtml += `
-                <div class="asset-item" onclick="openAssetModal('${item.name}', 'forex', '${price}', ${change}, '${item.tv}')">
-                    <div>
-                        <div class="asset-item-name">${item.name}</div>
-                        <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
-                    </div>
-                    <div class="asset-item-price">${price}</div>
-                </div>`;
-        });
-        document.getElementById('forexList').innerHTML = forexHtml;
+        // ===== FOREX (Biquote) =====
+        try {
+            const forexData = await fetchBiquote(assets.forex.map(i => i.symbol));
+            let forexHtml = '';
+            assets.forex.forEach(item => {
+                const info = forexData[item.symbol];
+                if (info && info.mid) {
+                    const price = item.symbol.includes('JPY') ? info.mid.toFixed(2) :
+                                  (item.symbol.includes('XAU') ? info.mid.toFixed(2) : info.mid.toFixed(4));
+                    const change = info.dayDiffPercent ? info.dayDiffPercent.toFixed(2) : '0.00';
+                    const isPositive = parseFloat(change) >= 0;
+                    forexHtml += `
+                        <div class="asset-item" onclick="openAssetModal('${item.name}', 'forex', '${price}', ${change})">
+                            <div>
+                                <div class="asset-item-name">${item.name}</div>
+                                <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
+                            </div>
+                            <div class="asset-item-price">${price}</div>
+                        </div>`;
+                } else {
+                    forexHtml += `
+                        <div class="asset-item" style="opacity:0.5;">
+                            <div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div>
+                            <div class="asset-item-price">N/A</div>
+                        </div>`;
+                }
+            });
+            document.getElementById('forexList').innerHTML = forexHtml;
+        } catch (e) {
+            console.error('Forex error:', e);
+            document.getElementById('forexList').innerHTML = '<div class="loading">⚠️ Forex yuklanmadi</div>';
+        }
 
+        // ===== KRIPTO (CoinGecko) =====
         try {
             const cryptoList = assets.crypto;
             const ids = cryptoList.map(i => i.symbol.replace('USDT','').toLowerCase()).join(',');
@@ -1449,42 +1264,75 @@
                         </div>`;
                 }
             });
-            document.getElementById('cryptoList').innerHTML = cryptoHtml;
+            document.getElementById('cryptoList').innerHTML = cryptoHtml || '<div class="loading">⚠️ Ma\'lumot yo\'q</div>';
         } catch (e) {
-            document.getElementById('cryptoList').innerHTML = '<div class="loading">⚠️ Yuklanmadi</div>';
+            console.error('Crypto error:', e);
+            document.getElementById('cryptoList').innerHTML = '<div class="loading">⚠️ Kripto yuklanmadi</div>';
         }
 
-        let indicesHtml = '';
-        assets.indices.forEach(item => {
-            const price = getMockPrice(item.symbol, 15000).toFixed(0);
-            const change = getMockChange(item.symbol).toFixed(2);
-            const isPositive = change >= 0;
-            indicesHtml += `
-                <div class="asset-item" onclick="openAssetModal('${item.name}', 'indices', '${price}', ${change}, '${item.tv}')">
-                    <div>
-                        <div class="asset-item-name">${item.name}</div>
-                        <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
-                    </div>
-                    <div class="asset-item-price">${price}</div>
-                </div>`;
-        });
-        document.getElementById('indicesList').innerHTML = indicesHtml;
+        // ===== INDEKSLAR (Biquote) =====
+        try {
+            const indicesData = await fetchBiquote(assets.indices.map(i => i.symbol));
+            let indicesHtml = '';
+            assets.indices.forEach(item => {
+                const info = indicesData[item.symbol];
+                if (info && info.mid) {
+                    const price = info.mid.toFixed(0);
+                    const change = info.dayDiffPercent ? info.dayDiffPercent.toFixed(2) : '0.00';
+                    const isPositive = parseFloat(change) >= 0;
+                    indicesHtml += `
+                        <div class="asset-item" onclick="openAssetModal('${item.name}', 'indices', '${price}', ${change})">
+                            <div>
+                                <div class="asset-item-name">${item.name}</div>
+                                <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
+                            </div>
+                            <div class="asset-item-price">${price}</div>
+                        </div>`;
+                } else {
+                    indicesHtml += `
+                        <div class="asset-item" style="opacity:0.5;">
+                            <div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div>
+                            <div class="asset-item-price">N/A</div>
+                        </div>`;
+                }
+            });
+            document.getElementById('indicesList').innerHTML = indicesHtml;
+        } catch (e) {
+            console.error('Indices error:', e);
+            document.getElementById('indicesList').innerHTML = '<div class="loading">⚠️ Indekslar yuklanmadi</div>';
+        }
 
-        let stocksHtml = '';
-        assets.stocks.forEach(item => {
-            const price = getMockPrice(item.symbol, 150).toFixed(2);
-            const change = getMockChange(item.symbol).toFixed(2);
-            const isPositive = change >= 0;
-            stocksHtml += `
-                <div class="asset-item" onclick="openAssetModal('${item.name}', 'stocks', '${price}', ${change}, '${item.tv}')">
-                    <div>
-                        <div class="asset-item-name">${item.name}</div>
-                        <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
-                    </div>
-                    <div class="asset-item-price">$${price}</div>
-                </div>`;
-        });
-        document.getElementById('stocksList').innerHTML = stocksHtml;
+        // ===== AKSIYALAR (Biquote) =====
+        try {
+            const stocksData = await fetchBiquote(assets.stocks.map(i => i.symbol));
+            let stocksHtml = '';
+            assets.stocks.forEach(item => {
+                const info = stocksData[item.symbol];
+                if (info && info.mid) {
+                    const price = info.mid.toFixed(2);
+                    const change = info.dayDiffPercent ? info.dayDiffPercent.toFixed(2) : '0.00';
+                    const isPositive = parseFloat(change) >= 0;
+                    stocksHtml += `
+                        <div class="asset-item" onclick="openAssetModal('${item.name}', 'stocks', '${price}', ${change})">
+                            <div>
+                                <div class="asset-item-name">${item.name}</div>
+                                <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
+                            </div>
+                            <div class="asset-item-price">$${price}</div>
+                        </div>`;
+                } else {
+                    stocksHtml += `
+                        <div class="asset-item" style="opacity:0.5;">
+                            <div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div>
+                            <div class="asset-item-price">N/A</div>
+                        </div>`;
+                }
+            });
+            document.getElementById('stocksList').innerHTML = stocksHtml;
+        } catch (e) {
+            console.error('Stocks error:', e);
+            document.getElementById('stocksList').innerHTML = '<div class="loading">⚠️ Aksiyalar yuklanmadi</div>';
+        }
     }
 
     // ===== MODAL MA'LUMOTLARI =====
@@ -1586,7 +1434,6 @@
     ];
 
     let currentSignalFilter = 'all';
-
     function renderSignals() {
         const list = document.getElementById('signalList');
         const filtered = signals.filter(s => {
@@ -1595,21 +1442,17 @@
             if (currentSignalFilter === 'sell') return s.type === 'SELL';
             return s.status === currentSignalFilter;
         });
-
         document.getElementById('statTotal').textContent = signals.length;
         document.getElementById('statActive').textContent = signals.filter(s => s.status === 'active').length;
         document.getElementById('statTP').textContent = signals.filter(s => s.status === 'tp').length;
         document.getElementById('statSL').textContent = signals.filter(s => s.status === 'sl').length;
-
         const activeCount = signals.filter(s => s.status === 'active').length;
         document.getElementById('signalBadge').textContent = activeCount;
         document.getElementById('signalBadge').style.display = activeCount > 0 ? 'block' : 'none';
-
         if (filtered.length === 0) {
             list.innerHTML = '<div class="loading">📭 Bu filtrda signallar yo\'q</div>';
             return;
         }
-
         let html = '';
         filtered.forEach(s => {
             const typeClass = s.type === 'BUY' ? 'buy' : 'sell';
@@ -1638,7 +1481,6 @@
         });
         list.innerHTML = html;
     }
-
     document.querySelectorAll('.signal-filter').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.signal-filter').forEach(b => b.classList.remove('active'));
@@ -1647,7 +1489,6 @@
             renderSignals();
         });
     });
-
     function openSignalDetail(id) {
         const s = signals.find(x => x.id === id);
         if (!s) return;
@@ -1678,7 +1519,6 @@
         openModal(`${s.pair} - ${s.type} Signal`, body);
         setTimeout(() => initModalChart(s.tvSymbol), 200);
     }
-
     renderSignals();
 
     // ===== YANGILIKLAR =====
@@ -1699,7 +1539,6 @@
         { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%' },
         { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K' }
     ];
-
     function getImpactStars(impact) {
         let stars = '';
         let color = '';
@@ -1709,9 +1548,7 @@
         else color = 'impact-low';
         return `<span class="${color}">${stars}</span>`;
     }
-
     let currentFilter = 'all';
-
     function renderNews() {
         const table = document.getElementById('newsTable');
         let html = `<div class="news-row header"><div>Vaqt</div><div>Valyuta</div><div>Voqea</div><div>Ta'sir</div><div>Prognoz</div></div>`;
@@ -1735,7 +1572,6 @@
         });
         table.innerHTML = html;
     }
-
     document.querySelectorAll('.news-filter').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.news-filter').forEach(b => b.classList.remove('active'));
@@ -1744,7 +1580,6 @@
             renderNews();
         });
     });
-
     function openNewsDetail(time, currency, event, impact, forecast) {
         let impactText = impact === 3 ? '🔴 Yuqori' : (impact === 2 ? '🟡 O\'rta' : '🟠 Past');
         let impactColor = impact === 3 ? '#F44336' : (impact === 2 ? '#FFC107' : '#FFA726');
@@ -1782,12 +1617,10 @@
         });
         chartInitialized = true;
     }
-
     document.getElementById('chart-symbol').addEventListener('change', function() {
         chartInitialized = false;
         initChart();
     });
-
     document.getElementById('fullscreenBtn').addEventListener('click', function() {
         const el = document.getElementById('chartContainer');
         if (!document.fullscreenElement) {
