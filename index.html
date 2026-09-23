@@ -27,7 +27,6 @@
             min-height: 100vh; transition: background 0.3s, color 0.3s;
             display: flex;
         }
-
         /* ===== SIDEBAR ===== */
         .sidebar {
             position: fixed; top: 0; right: 0;
@@ -97,7 +96,6 @@
             display: flex; align-items: center; justify-content: center;
             margin-top: 10px;
         }
-
         /* ===== ASOSIY ===== */
         .main-content {
             flex: 1; margin-right: var(--sidebar-w); padding: 20px;
@@ -106,7 +104,6 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         h2 { font-size: 20px; margin-bottom: 15px; color: var(--text); }
-
         /* ===== DASHBOARD ===== */
         .asset-sections { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         @media (min-width: 1200px) { .asset-sections { grid-template-columns: repeat(4, 1fr); } }
@@ -168,7 +165,6 @@
         .positive { color: var(--green); }
         .negative { color: var(--red); }
         .loading { text-align: center; color: var(--text-dim); padding: 20px; font-size: 12px; }
-
         /* ===== SIGNAL ===== */
         .signal-locked {
             background: var(--bg-card); border: 1px solid var(--border);
@@ -245,7 +241,6 @@
         .signal-status.tp { background: rgba(76, 175, 80, 0.2); color: var(--green); }
         .signal-status.sl { background: rgba(244, 67, 54, 0.2); color: var(--red); }
         .signal-status.pending { background: rgba(33, 150, 243, 0.2); color: var(--blue); }
-
         /* ===== PROFIL ===== */
         .profile-header {
             background: linear-gradient(135deg, var(--bg-card), var(--bg-input));
@@ -324,7 +319,6 @@
             font-size: 10px; padding: 3px 8px; border-radius: 10px;
             background: rgba(76, 175, 80, 0.2); color: var(--green); font-weight: bold;
         }
-
         /* ===== LOGIN / REGISTR ===== */
         .auth-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -408,7 +402,6 @@
         .auth-error.active { display: block; }
         .auth-guest { text-align: center; color: var(--text-dim); font-size: 13px; margin-top: 15px; cursor: pointer; }
         .auth-guest:hover { color: var(--green); }
-
         /* ===== RISK ===== */
         .risk-wrap {
             max-width: 500px; margin: 0 auto;
@@ -426,7 +419,6 @@
         .section-title { color: var(--green); font-weight: bold; margin: 20px 0 10px 0; font-size: 14px; }
         .result-box { margin-top: 15px; padding: 15px; background: var(--bg-input); border-radius: 8px; font-size: 14px; line-height: 1.8; }
         .result-row { display: flex; justify-content: space-between; }
-
         /* ===== GRAFIK ===== */
         #chartContainer {
             width: 100%; height: calc(100vh - 100px); min-height: 500px;
@@ -441,7 +433,6 @@
             color: var(--text); border-radius: 6px; cursor: pointer; font-size: 13px;
         }
         .fullscreen-btn:hover { background: var(--green); color: white; border-color: var(--green); }
-
         /* ===== YANGILIKLAR ===== */
         .news-filters { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
         .news-filter {
@@ -478,7 +469,6 @@
         .currency-CHF { background: #c62828; color: white; }
         .currency-CNY { background: #fbc02d; color: #000; }
         .currency-NZD { background: #00897b; color: white; }
-
         /* ===== MODAL ===== */
         .modal-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -522,7 +512,6 @@
         }
         .signal-detail-label { font-size: 11px; color: var(--text-dim); margin-bottom: 5px; }
         .signal-detail-value { font-size: 16px; font-weight: bold; }
-
         /* ===== MOBIL ===== */
         @media (max-width: 600px) {
             :root { --sidebar-w: 85px; }
@@ -1166,7 +1155,35 @@
     tpInput.addEventListener('input', calculate);
     detectSymbol();
 
-    // ===== DASHBOARD (BIQUOTE + COINGECKO) =====
+    // ===== BIQUOTE API =====
+    // Live aktivlar ro'yxatini olish (faqat hozir real vaqtda kotirovka qilinayotganlar)
+    let liveSymbols = null;
+    async function getLiveSymbols() {
+        if (liveSymbols) return liveSymbols;
+        try {
+            const res = await fetch('https://biquote.io/api/symbols?liveOnly=true');
+            if (!res.ok) throw new Error('Symbols API xatosi');
+            const data = await res.json();
+            // API turli formatlarda qaytarishi mumkin
+            liveSymbols = Array.isArray(data) ? data : (data.symbols || data.data || []);
+            console.log('Live aktivlar soni:', liveSymbols.length);
+            return liveSymbols;
+        } catch (e) {
+            console.error('Live symbols yuklanmadi:', e);
+            return [];
+        }
+    }
+
+    // Biquote'dan narxlarni olish (mid maydonidan)
+    async function fetchBiquote(symbols) {
+        const symbolString = symbols.map(s => s.trim()).join(',');
+        const url = `https://biquote.io/api/latest?symbols=${encodeURIComponent(symbolString)}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Biquote API xatosi');
+        return await res.json();
+    }
+
+    // ===== DASHBOARD MA'LUMOTLARI =====
     const assets = {
         forex: [
             { name: 'EUR/USD', symbol: 'EURUSD' }, { name: 'GBP/USD', symbol: 'GBPUSD' },
@@ -1198,20 +1215,17 @@
         ]
     };
 
-    // ===== BIQUOTE API YORDAMCHI FUNKSIYASI =====
-  async function fetchBiquote(symbols) {
-    const symbolString = symbols.map(s => s.trim()).join(',');
-    const url = `https://biquote.io/api/latest?symbols=${encodeURIComponent(symbolString)}`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Biquote API xatosi');
-    return await res.json();
-}
-        
-    // ===== REAL VAQT MA'LUMOTLARINI YUKLASH =====
     async function loadDashboard() {
-        // ===== FOREX (Biquote) =====
+        const live = await getLiveSymbols();
+        const useFilter = live.length > 0;
+
+        // ===== FOREX =====
         try {
-            const forexData = await fetchBiquote(assets.forex.map(i => i.symbol));
+            let symbolsToFetch = assets.forex.map(i => i.symbol);
+            if (useFilter) symbolsToFetch = symbolsToFetch.filter(s => live.includes(s));
+            if (symbolsToFetch.length === 0) symbolsToFetch = assets.forex.map(i => i.symbol);
+
+            const forexData = await fetchBiquote(symbolsToFetch);
             let forexHtml = '';
             assets.forex.forEach(item => {
                 const info = forexData[item.symbol];
@@ -1271,9 +1285,13 @@
             document.getElementById('cryptoList').innerHTML = '<div class="loading">⚠️ Kripto yuklanmadi</div>';
         }
 
-        // ===== INDEKSLAR (Biquote) =====
+        // ===== INDEKSLAR =====
         try {
-            const indicesData = await fetchBiquote(assets.indices.map(i => i.symbol));
+            let symbolsToFetch = assets.indices.map(i => i.symbol);
+            if (useFilter) symbolsToFetch = symbolsToFetch.filter(s => live.includes(s));
+            if (symbolsToFetch.length === 0) symbolsToFetch = assets.indices.map(i => i.symbol);
+
+            const indicesData = await fetchBiquote(symbolsToFetch);
             let indicesHtml = '';
             assets.indices.forEach(item => {
                 const info = indicesData[item.symbol];
@@ -1303,9 +1321,13 @@
             document.getElementById('indicesList').innerHTML = '<div class="loading">⚠️ Indekslar yuklanmadi</div>';
         }
 
-        // ===== AKSIYALAR (Biquote) =====
+        // ===== AKSIYALAR =====
         try {
-            const stocksData = await fetchBiquote(assets.stocks.map(i => i.symbol));
+            let symbolsToFetch = assets.stocks.map(i => i.symbol);
+            if (useFilter) symbolsToFetch = symbolsToFetch.filter(s => live.includes(s));
+            if (symbolsToFetch.length === 0) symbolsToFetch = assets.stocks.map(i => i.symbol);
+
+            const stocksData = await fetchBiquote(symbolsToFetch);
             let stocksHtml = '';
             assets.stocks.forEach(item => {
                 const info = stocksData[item.symbol];
