@@ -960,25 +960,29 @@
     async function loadDashboard
 
     // ===== MODAL =====
-    function openCryptoModal(name, symbol, price, change) {
-        const isPositive = change >= 0;
-        const tvSymbol = `BINANCE:${symbol}`;
-        const body = `
-            <div style="text-align:center;margin-bottom:15px;">
-                <div style="font-size:36px;font-weight:bold;">$${price}</div>
-                <div style="font-size:16px;font-weight:bold;color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '▲' : '▼'} ${Math.abs(change)}% (24 soat)</div>
+    function openCryptoModal(name, coinId) {
+    const info = window.cryptoData[coinId];
+    if (!info) return;
+    const isPositive = info.usd_24h_change >= 0;
+    const tvSymbol = `BINANCE:${coinId.toUpperCase()}USDT`;
+    const body = `
+        <div style="text-align:center;margin-bottom:15px;">
+            <div style="font-size:36px;font-weight:bold;">$${info.usd.toLocaleString()}</div>
+            <div style="font-size:16px;font-weight:bold;color:${isPositive ? 'var(--green)' : 'var(--red)'};">
+                ${isPositive ? '▲' : '▼'} ${Math.abs(info.usd_24h_change).toFixed(2)}% (24 soat)
             </div>
-            <div id="modalChart"></div>
-            <div class="modal-info">
-                <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
-                <div class="modal-info-row"><span class="modal-info-label">Joriy narx:</span><span class="modal-info-value">$${price}</span></div>
-                <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value" style="color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '+' : ''}${change}%</span></div>
-            </div>
-        `;
-        openModal(name, body);
-        setTimeout(() => initModalChart(tvSymbol), 200);
-    }
-
+        </div>
+        <div id="modalChart"></div>
+        <div class="modal-info">
+            <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
+            ${info.usd_market_cap ? `<div class="modal-info-row"><span class="modal-info-label">Bozor kapitallashuvi:</span><span class="modal-info-value">$${(info.usd_market_cap / 1e9).toFixed(2)} mlrd</span></div>` : ''}
+            ${info.usd_24h_vol ? `<div class="modal-info-row"><span class="modal-info-label">24 soatlik hajm:</span><span class="modal-info-value">$${(info.usd_24h_vol / 1e9).toFixed(2)} mlrd</span></div>` : ''}
+            <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value" style="color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span></div>
+        </div>
+    `;
+    openModal(name, body);
+    setTimeout(() => initModalChart(tvSymbol), 200);
+}
     function openAssetModal(name, category, price, change) {
         const isPositive = change >= 0;
         const categoryNames = { forex: 'Forex', indices: 'Indeks', stocks: 'Aksiya' };
