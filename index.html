@@ -957,68 +957,7 @@
         ]
     };
 
-    async function loadDashboard() {
-        // FOREX
-        try {
-            const symbols = assets.forex.map(i => i.symbol).join(',');
-            const data = await fetchFCS('/forex/latest', { symbol: symbols });
-            let html = '';
-            const response = data.response || [];
-            assets.forex.forEach(item => {
-                const info = response.find(r => r.ticker === `FX:${item.symbol}` || r.ticker === item.symbol);
-                if (info && info.active) {
-                    const price = item.symbol.includes('JPY') ? info.active.c.toFixed(2) :
-                                  (item.symbol.includes('XAU') ? info.active.c.toFixed(2) : info.active.c.toFixed(4));
-                    const change = info.active.chp ? parseFloat(info.active.chp).toFixed(2) : '0.00';
-                    const isPositive = parseFloat(change) >= 0;
-                    html += `
-                        <div class="asset-item" onclick="openAssetModal('${item.name}', 'forex', '${price}', ${change})">
-                            <div>
-                                <div class="asset-item-name">${item.name}</div>
-                                <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
-                            </div>
-                            <div class="asset-item-price">${price}</div>
-                        </div>`;
-                } else {
-                    html += `<div class="asset-item" style="opacity:0.5;"><div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div><div class="asset-item-price">N/A</div></div>`;
-                }
-            });
-            document.getElementById('forexList').innerHTML = html;
-        } catch (e) {
-            console.error('Forex error:', e);
-            document.getElementById('forexList').innerHTML = '<div class="loading">⚠️ Forex yuklanmadi</div>';
-        }
-
-        // KRIPTO
-        try {
-            const symbols = assets.crypto.map(i => i.symbol).join(',');
-            const data = await fetchFCS('/crypto/latest', { symbol: symbols });
-            let html = '';
-            const response = data.response || [];
-            assets.crypto.forEach(item => {
-                const info = response.find(r => r.symbol === item.symbol);
-                if (info) {
-                    const price = parseFloat(info.price || info.close || 0).toLocaleString();
-                    const change = parseFloat(info.change || info.chp || 0).toFixed(2);
-                    const isPositive = parseFloat(change) >= 0;
-                    html += `
-                        <div class="asset-item" onclick="openCryptoModal('${item.name}', '${item.symbol}', '${price}', ${change})">
-                            <div>
-                                <div class="asset-item-name">${item.name}</div>
-                                <div class="asset-item-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '▲' : '▼'} ${Math.abs(change)}%</div>
-                            </div>
-                            <div class="asset-item-price">$${price}</div>
-                        </div>`;
-                } else {
-                    html += `<div class="asset-item" style="opacity:0.5;"><div><div class="asset-item-name">${item.name}</div><div class="asset-item-change">—</div></div><div class="asset-item-price">N/A</div></div>`;
-                }
-            });
-            document.getElementById('cryptoList').innerHTML = html;
-        } catch (e) {
-            console.error('Crypto error:', e);
-            document.getElementById('cryptoList').innerHTML = '<div class="loading">⚠️ Kripto yuklanmadi</div>';
-        }
-    }
+    async function loadDashboard
 
     // ===== MODAL =====
     function openCryptoModal(name, symbol, price, change) {
