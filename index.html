@@ -238,31 +238,108 @@
         .chart-controls select { margin-bottom: 0; max-width: 250px; }
         .fullscreen-btn { padding: 10px 18px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text); border-radius: 6px; cursor: pointer; font-size: 13px; }
         .fullscreen-btn:hover { background: var(--green); color: white; border-color: var(--green); }
+        /* ===== YANGILIKLAR (YANGI DIZAYN) ===== */
         .news-filters { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; }
-        .news-filter { padding: 7px 14px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-dim); border-radius: 20px; font-size: 12px; cursor: pointer; }
+        .news-filter { padding: 8px 16px; background: var(--bg-input); border: 1px solid var(--border); color: var(--text-dim); border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: 600; transition: all 0.2s; }
         .news-filter.active { background: var(--green); color: white; border-color: var(--green); }
-        .news-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-        .news-row { display: grid; grid-template-columns: 80px 70px 1fr 100px 90px; gap: 10px; padding: 12px 15px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; transition: background 0.2s; font-size: 13px; }
-        .news-row:hover { background: var(--bg-input); }
-        .news-row:last-child { border-bottom: none; }
-        .news-row.header { background: var(--bg-input); font-weight: bold; font-size: 11px; color: var(--text-dim); cursor: default; text-transform: uppercase; }
-        .news-time { font-size: 12px; color: var(--text-dim); }
-        .news-event { font-size: 13px; color: var(--text); }
-        .news-impact { display: flex; gap: 2px; justify-content: center; }
-        .news-forecast { text-align: right; font-size: 12px; color: var(--text-dim); }
-        .impact-high { color: #F44336; }
-        .impact-medium { color: #FFC107; }
-        .impact-low { color: #FFA726; }
-        .currency-badge { display: inline-block; padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .currency-USD { background: #1e88e5; color: white; }
-        .currency-EUR { background: #43a047; color: white; }
-        .currency-GBP { background: #e53935; color: white; }
-        .currency-JPY { background: #fb8c00; color: white; }
-        .currency-AUD { background: #8e24aa; color: white; }
-        .currency-CAD { background: #d32f2f; color: white; }
-        .currency-CHF { background: #c62828; color: white; }
-        .currency-CNY { background: #fbc02d; color: #000; }
-        .currency-NZD { background: #00897b; color: white; }
+        .news-list { display: flex; flex-direction: column; gap: 12px; }
+        .news-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid var(--text-dim);
+            position: relative;
+        }
+        .news-card:hover { transform: translateX(4px); box-shadow: 0 4px 16px rgba(0,0,0,0.3); }
+        .news-card.impact-3 { border-left-color: #F44336; }
+        .news-card.impact-2 { border-left-color: #FFC107; }
+        .news-card.impact-1 { border-left-color: #FFA726; }
+        .news-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .news-datetime {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .news-date-badge {
+            background: var(--bg-input);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--text);
+        }
+        .news-time-badge {
+            background: var(--bg-input);
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--blue);
+        }
+        .news-impact-stars { display: flex; gap: 3px; font-size: 16px; }
+        .news-card-body { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+        .news-currency-circle {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+        .cur-USD { background: linear-gradient(135deg, #1e88e5, #1565c0); }
+        .cur-EUR { background: linear-gradient(135deg, #43a047, #2e7d32); }
+        .cur-GBP { background: linear-gradient(135deg, #e53935, #c62828); }
+        .cur-JPY { background: linear-gradient(135deg, #fb8c00, #ef6c00); }
+        .cur-AUD { background: linear-gradient(135deg, #8e24aa, #6a1b9a); }
+        .cur-CAD { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
+        .cur-CHF { background: linear-gradient(135deg, #c62828, #8e0000); }
+        .cur-CNY { background: linear-gradient(135deg, #fbc02d, #f9a825); color: #000 !important; }
+        .cur-NZD { background: linear-gradient(135deg, #00897b, #00695c); }
+        .news-content { flex: 1; }
+        .news-event-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+        .news-event-desc {
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.4;
+        }
+        .news-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+        .news-forecast-badge {
+            background: var(--bg-input);
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: bold;
+            color: var(--text);
+        }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 15px; max-width: 900px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 25px; animation: modalIn 0.3s ease; }
@@ -293,8 +370,6 @@
             .risk-wrap { padding: 18px; }
             .modal-box { padding: 18px; }
             #modalChart { height: 250px; }
-            .news-row { grid-template-columns: 60px 50px 1fr 60px; font-size: 11px; padding: 10px; }
-            .news-forecast { display: none; }
             .signal-stats { grid-template-columns: repeat(2, 1fr); }
             .signal-details { grid-template-columns: repeat(2, 1fr); }
             .signal-detail-grid { grid-template-columns: 1fr; }
@@ -477,7 +552,7 @@
                 <button class="news-filter" data-filter="medium">🟡 O'rta</button>
                 <button class="news-filter" data-filter="low">🟠 Past</button>
             </div>
-            <div class="news-table" id="newsTable"></div>
+            <div class="news-list" id="newsList"></div>
         </div>
 
         <div class="tab-content" id="profile">
@@ -812,14 +887,15 @@
             { name: 'USD/CAD', symbol: 'USDCAD' }, { name: 'USD/CHF', symbol: 'USDCHF' },
             { name: 'NZD/USD', symbol: 'NZDUSD' }, { name: 'EUR/GBP', symbol: 'EURGBP' },
             { name: 'XAU/USD', symbol: 'XAUUSD' }, { name: 'XAG/USD', symbol: 'XAGUSD' }
-        ],
-        crypto: [
-            { name: 'BTC/USDT', symbol: 'BTCUSDT' }, { name: 'ETH/USDT', symbol: 'ETHUSDT' },
-            { name: 'BNB/USDT', symbol: 'BNBUSDT' }, { name: 'SOL/USDT', symbol: 'SOLUSDT' },
-            { name: 'XRP/USDT', symbol: 'XRPUSDT' }, { name: 'ADA/USDT', symbol: 'ADAUSDT' },
-            { name: 'DOGE/USDT', symbol: 'DOGEUSDT' }, { name: 'DOT/USDT', symbol: 'DOTUSDT' },
-            { name: 'MATIC/USDT', symbol: 'MATICUSDT' }, { name: 'LINK/USDT', symbol: 'LINKUSDT' }
         ]
+    };
+
+    // CoinGecko ID xaritasi
+    const cryptoIdMap = {
+        'BTCUSDT': 'bitcoin', 'ETHUSDT': 'ethereum', 'BNBUSDT': 'binancecoin',
+        'SOLUSDT': 'solana', 'XRPUSDT': 'ripple', 'ADAUSDT': 'cardano',
+        'DOGEUSDT': 'dogecoin', 'DOTUSDT': 'polkadot', 'MATICUSDT': 'matic-network',
+        'LINKUSDT': 'chainlink'
     };
 
     async function loadDashboard() {
@@ -856,14 +932,20 @@
 
         // ===== KRIPTO (CoinGecko) =====
         try {
-            const cryptoList = assets.crypto;
-            const ids = cryptoList.map(i => i.symbol.replace('USDT','').toLowerCase()).join(',');
-            const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd&include_24hr_change=true&include_market_cap=true&include_24hr_vol=true`);
+            const coinIds = Object.values(cryptoIdMap).join(',');
+            const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true`);
             const data = await res.json();
             window.cryptoData = data;
             let html = '';
-            cryptoList.forEach(item => {
-                const coinId = item.symbol.replace('USDT','').toLowerCase();
+            const cryptoAssets = [
+                { name: 'BTC/USDT', key: 'BTCUSDT' }, { name: 'ETH/USDT', key: 'ETHUSDT' },
+                { name: 'BNB/USDT', key: 'BNBUSDT' }, { name: 'SOL/USDT', key: 'SOLUSDT' },
+                { name: 'XRP/USDT', key: 'XRPUSDT' }, { name: 'ADA/USDT', key: 'ADAUSDT' },
+                { name: 'DOGE/USDT', key: 'DOGEUSDT' }, { name: 'DOT/USDT', key: 'DOTUSDT' },
+                { name: 'MATIC/USDT', key: 'MATICUSDT' }, { name: 'LINK/USDT', key: 'LINKUSDT' }
+            ];
+            cryptoAssets.forEach(item => {
+                const coinId = cryptoIdMap[item.key];
                 const info = data[coinId];
                 if (info) {
                     const isPositive = info.usd_24h_change >= 0;
@@ -890,7 +972,7 @@
         const info = window.cryptoData[coinId];
         if (!info) return;
         const isPositive = info.usd_24h_change >= 0;
-        const tvSymbol = `BINANCE:${coinId.toUpperCase()}USDT`;
+        const tvSymbol = `BINANCE:${name.replace('/','')}`;
         const body = `
             <div style="text-align:center;margin-bottom:15px;">
                 <div style="font-size:36px;font-weight:bold;">$${info.usd.toLocaleString()}</div>
@@ -901,8 +983,7 @@
             <div id="modalChart"></div>
             <div class="modal-info">
                 <div class="modal-info-row"><span class="modal-info-label">Aktiv:</span><span class="modal-info-value">${name}</span></div>
-                ${info.usd_market_cap ? `<div class="modal-info-row"><span class="modal-info-label">Bozor kapitallashuvi:</span><span class="modal-info-value">$${(info.usd_market_cap / 1e9).toFixed(2)} mlrd</span></div>` : ''}
-                ${info.usd_24h_vol ? `<div class="modal-info-row"><span class="modal-info-label">24 soatlik hajm:</span><span class="modal-info-value">$${(info.usd_24h_vol / 1e9).toFixed(2)} mlrd</span></div>` : ''}
+                <div class="modal-info-row"><span class="modal-info-label">Joriy narx:</span><span class="modal-info-value">$${info.usd.toLocaleString()}</span></div>
                 <div class="modal-info-row"><span class="modal-info-label">24 soatlik o'zgarish:</span><span class="modal-info-value" style="color:${isPositive ? 'var(--green)' : 'var(--red)'};">${isPositive ? '+' : ''}${info.usd_24h_change.toFixed(2)}%</span></div>
             </div>
         `;
@@ -1035,36 +1116,34 @@
     }
     renderSignals();
 
+    // ===== YANGILIKLAR (YANGI DIZAYN) =====
     const newsData = [
-        { time: '09:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', impact: 3, forecast: '—', date: '2026-09-23' },
-        { time: '11:30', currency: 'GBP', event: 'BoE Prezidentining nutqi', impact: 3, forecast: '—', date: '2026-09-23' },
-        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', impact: 2, forecast: '220K', date: '2026-09-23' },
-        { time: '15:00', currency: 'USD', event: 'Chakana savdo hajmi', impact: 3, forecast: '0.3%', date: '2026-09-23' },
-        { time: '16:30', currency: 'USD', event: 'Xom neft zaxiralari', impact: 2, forecast: '-1.2M', date: '2026-09-23' },
-        { time: '18:00', currency: 'USD', event: 'FOMC majlisi bayonnomasi', impact: 3, forecast: '—', date: '2026-09-23' },
-        { time: '03:30', currency: 'AUD', event: 'RBA stavka qarori', impact: 3, forecast: '4.35%', date: '2026-09-24' },
-        { time: '10:00', currency: 'EUR', event: 'Germaniya YaIM', impact: 3, forecast: '0.2%', date: '2026-09-24' },
-        { time: '14:30', currency: 'CAD', event: 'YaIM (oylik)', impact: 3, forecast: '0.1%', date: '2026-09-24' },
-        { time: '16:00', currency: 'USD', event: 'ISM xizmat PMI', impact: 3, forecast: '54.5', date: '2026-09-24' },
-        { time: '02:00', currency: 'NZD', event: 'RBNZ stavka qarori', impact: 3, forecast: '5.50%', date: '2026-09-25' },
-        { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', impact: 3, forecast: '4.00%', date: '2026-09-25' },
-        { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', impact: 3, forecast: '0.3%', date: '2026-09-25' },
-        { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', impact: 3, forecast: '5.50%', date: '2026-09-25' },
-        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', impact: 3, forecast: '180K', date: '2026-09-26' }
+        { time: '09:00', currency: 'EUR', event: 'ECB Prezidentining nutqi', desc: 'Yevropa Markaziy Banki rahbarining iqtisodiy siyosat bo\'yicha nutqi', impact: 3, forecast: '—', date: '2026-09-23' },
+        { time: '11:30', currency: 'GBP', event: 'BoE Prezidentining nutqi', desc: 'Angliya Banki rahbarining foiz stavkalari bo\'yicha nutqi', impact: 3, forecast: '—', date: '2026-09-23' },
+        { time: '14:30', currency: 'USD', event: 'Ishsizlik da\'vosi', desc: 'AQShda ishsizlik bo\'yicha da\'volar soni', impact: 2, forecast: '220K', date: '2026-09-23' },
+        { time: '15:00', currency: 'USD', event: 'Chakana savdo hajmi', desc: 'AQSh chakana savdo hajmining oylik o\'zgarishi', impact: 3, forecast: '0.3%', date: '2026-09-23' },
+        { time: '16:30', currency: 'USD', event: 'Xom neft zaxiralari', desc: 'AQSh xom neft zaxiralarining haftalik o\'zgarishi', impact: 2, forecast: '-1.2M', date: '2026-09-23' },
+        { time: '18:00', currency: 'USD', event: 'FOMC majlisi bayonnomasi', desc: 'Federal Ochiq Bozor Qo\'mitasining majlisi bayonnomasi', impact: 3, forecast: '—', date: '2026-09-23' },
+        { time: '03:30', currency: 'AUD', event: 'RBA stavka qarori', desc: 'Avstraliya Zaxira Bankining foiz stavkasi qarori', impact: 3, forecast: '4.35%', date: '2026-09-24' },
+        { time: '10:00', currency: 'EUR', event: 'Germaniya YaIM', desc: 'Germaniya yalpi ichki mahsulotining choraklik o\'sishi', impact: 3, forecast: '0.2%', date: '2026-09-24' },
+        { time: '14:30', currency: 'CAD', event: 'YaIM (oylik)', desc: 'Kanada yalpi ichki mahsulotining oylik o\'sishi', impact: 3, forecast: '0.1%', date: '2026-09-24' },
+        { time: '16:00', currency: 'USD', event: 'ISM xizmat PMI', desc: 'AQSh xizmat ko\'rsatish sohasining PMI indeksi', impact: 3, forecast: '54.5', date: '2026-09-24' },
+        { time: '02:00', currency: 'NZD', event: 'RBNZ stavka qarori', desc: 'Yangi Zelandiya Zaxira Bankining foiz stavkasi qarori', impact: 3, forecast: '5.50%', date: '2026-09-25' },
+        { time: '09:00', currency: 'EUR', event: 'ECB stavka qarori', desc: 'Yevropa Markaziy Bankining foiz stavkasi qarori', impact: 3, forecast: '4.00%', date: '2026-09-25' },
+        { time: '14:30', currency: 'USD', event: 'Ish haqi (o\'rtacha)', desc: 'AQShda o\'rtacha ish haqining oylik o\'zgarishi', impact: 3, forecast: '0.3%', date: '2026-09-25' },
+        { time: '19:00', currency: 'USD', event: 'FOMC stavka qarori', desc: 'Federal Ochiq Bozor Qo\'mitasining foiz stavkasi qarori', impact: 3, forecast: '5.50%', date: '2026-09-25' },
+        { time: '14:30', currency: 'USD', event: 'Nofarm ish haqi (NFP)', desc: 'AQShda qishloq xo\'jaligidan tashqari ish haqi hisoboti', impact: 3, forecast: '180K', date: '2026-09-26' }
     ];
+
     function getImpactStars(impact) {
         let stars = '';
-        let color = '';
         for (let i = 1; i <= 3; i++) stars += i <= impact ? '★' : '☆';
-        if (impact === 3) color = 'impact-high';
-        else if (impact === 2) color = 'impact-medium';
-        else color = 'impact-low';
-        return `<span class="${color}">${stars}</span>`;
+        return stars;
     }
+
     let currentFilter = 'all';
     function renderNews() {
-        const table = document.getElementById('newsTable');
-        let html = `<div class="news-row header"><div>Vaqt</div><div>Valyuta</div><div>Voqea</div><div>Ta'sir</div><div>Sana</div></div>`;
+        const list = document.getElementById('newsList');
         const filtered = newsData.filter(item => {
             if (currentFilter === 'all') return true;
             if (currentFilter === 'high') return item.impact === 3;
@@ -1072,19 +1151,41 @@
             if (currentFilter === 'low') return item.impact === 1;
             return true;
         });
+
+        if (filtered.length === 0) {
+            list.innerHTML = '<div class="loading">📭 Bu filtrda yangiliklar yo\'q</div>';
+            return;
+        }
+
+        let html = '';
         filtered.forEach(item => {
+            const starColor = item.impact === 3 ? '#F44336' : (item.impact === 2 ? '#FFC107' : '#FFA726');
             html += `
-                <div class="news-row" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}', '${item.date}')">
-                    <div class="news-time">${item.time}</div>
-                    <div><span class="currency-badge currency-${item.currency}">${item.currency}</span></div>
-                    <div class="news-event">${item.event}</div>
-                    <div class="news-impact">${getImpactStars(item.impact)}</div>
-                    <div class="news-forecast">${item.date}</div>
+                <div class="news-card impact-${item.impact}" onclick="openNewsDetail('${item.time}', '${item.currency}', '${item.event}', ${item.impact}, '${item.forecast}', '${item.date}', '${item.desc}')">
+                    <div class="news-card-header">
+                        <div class="news-datetime">
+                            <span class="news-date-badge">📅 ${item.date}</span>
+                            <span class="news-time-badge">🕐 ${item.time} (Toshkent)</span>
+                        </div>
+                        <div class="news-impact-stars" style="color:${starColor};">${getImpactStars(item.impact)}</div>
+                    </div>
+                    <div class="news-card-body">
+                        <div class="news-currency-circle cur-${item.currency}">${item.currency}</div>
+                        <div class="news-content">
+                            <div class="news-event-name">${item.event}</div>
+                            <div class="news-event-desc">${item.desc}</div>
+                        </div>
+                    </div>
+                    <div class="news-card-footer">
+                        <span>📊 Prognoz: <span class="news-forecast-badge">${item.forecast}</span></span>
+                        <span>${item.impact === 3 ? '🔴 Yuqori ta\'sir' : (item.impact === 2 ? '🟡 O\'rta ta\'sir' : '🟠 Past ta\'sir')}</span>
+                    </div>
                 </div>
             `;
         });
-        table.innerHTML = html;
+        list.innerHTML = html;
     }
+
     document.querySelectorAll('.news-filter').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.news-filter').forEach(b => b.classList.remove('active'));
@@ -1093,20 +1194,31 @@
             renderNews();
         });
     });
-    function openNewsDetail(time, currency, event, impact, forecast, date) {
+
+    function openNewsDetail(time, currency, event, impact, forecast, date, desc) {
         let impactText = impact === 3 ? '🔴 Yuqori' : (impact === 2 ? '🟡 O\'rta' : '🟠 Past');
         let impactColor = impact === 3 ? '#F44336' : (impact === 2 ? '#FFC107' : '#FFA726');
         const body = `
             <div class="signal-detail-grid">
-                <div class="signal-detail-item"><div class="signal-detail-label">Vaqt</div><div class="signal-detail-value">${time}</div></div>
-                <div class="signal-detail-item"><div class="signal-detail-label">Sana</div><div class="signal-detail-value">${date}</div></div>
-                <div class="signal-detail-item"><div class="signal-detail-label">Valyuta</div><div class="signal-detail-value">${currency}</div></div>
-                <div class="signal-detail-item"><div class="signal-detail-label">Ta'sir</div><div class="signal-detail-value" style="color:${impactColor};">${impactText}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">📅 Sana</div><div class="signal-detail-value">${date}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">🕐 Vaqt</div><div class="signal-detail-value">${time}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">💱 Valyuta</div><div class="signal-detail-value">${currency}</div></div>
+                <div class="signal-detail-item"><div class="signal-detail-label">⭐ Ta'sir</div><div class="signal-detail-value" style="color:${impactColor};">${impactText}</div></div>
+            </div>
+            <div class="modal-info">
+                <div class="modal-info-row"><span class="modal-info-label">Voqea nomi:</span><span class="modal-info-value">${event}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Tavsif:</span><span class="modal-info-value">${desc}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Prognoz:</span><span class="modal-info-value">${forecast}</span></div>
+                <div class="modal-info-row"><span class="modal-info-label">Muhimlik:</span><span class="modal-info-value" style="color:${impactColor};">${getImpactStars(impact)} (${impactText})</span></div>
             </div>
             <div class="modal-desc">
                 <b>📊 Tahlil:</b><br>
-                ${event}. Bu ${impact === 3 ? 'yuqori' : (impact === 2 ? 'o\'rta' : 'past')} ta'sirli yangilik.
-                <br><br><b>📅 Sana:</b> ${date}<br><b>⏰ Chiqish vaqti:</b> ${time} (Toshkent vaqti)
+                Bu ${impact === 3 ? 'yuqori' : (impact === 2 ? 'o\'rta' : 'past')} ta'sirli yangilik. 
+                ${impact === 3 ? 'Bozorga kuchli ta\'sir qilishi mumkin — savdo qilishda ehtiyot bo\'ling.' : 
+                  (impact === 2 ? 'Bozorga o\'rtacha ta\'sir qilishi mumkin.' : 
+                  'Bozorga unchalik katta ta\'sir qilmaydi.')}
+                <br><br>
+                <b>⏰ Chiqish vaqti:</b> ${time} (Toshkent vaqti)
             </div>
         `;
         openModal(`${currency} - ${event}`, body);
