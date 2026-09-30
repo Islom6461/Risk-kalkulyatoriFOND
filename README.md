@@ -52,7 +52,10 @@ Eski versiyada ma'lumotlar **real vaqtda yangilanmasdi**:
 ├── backend/
 │   ├── app.py                  ← Flask + SQLite server
 │   ├── requirements.txt
-│   └── start.bat               ← Windows uchun ishga tushiruvchi
+│   ├── start.bat               ← qo'lda ishga tushirish
+│   ├── start_server.vbs        ← yashirin ishga tushirish (Startup uchun)
+│   └── install_autostart.bat   ← Windows da avtomatik o'rnatish
+├── render.yaml                 ← bulut deploy (Render.com) sozlamasi
 ├── .github/workflows/
 │   └── calendar.yml            ← har 10 daqiqada kalendarni yangilaydi
 └── README.md
@@ -78,8 +81,6 @@ python app.py
 ```
 Keyin `http://127.0.0.1:8000/` ni oching — backend ham saytni o'zi beradi.
 
-Windows'da `backend\start.bat` ni ikki marta bosing — hammasi avtomatik o'rnatiladi.
-
 ### 3. GitHub'ga joylash (desktop dastur uchun)
 
 ```bash
@@ -94,6 +95,79 @@ git push origin main
 > `RiskKalkulyatori_FOND.exe` — bu Tauri qobig'i bo'lib, u shu GitHub Pages manzilini
 > WebView2 oynasida ochadi. Saytni yangilsangiz, desktop dastur ham yangilanadi.
 > Qayta build qilish shart emas.
+
+---
+
+## 🔐 Boshqalarga tarqatish uchun server
+
+Frontend **server'siz ham to'liq ishlaydi** — narx, signal va kalendar to'g'ridan-to'g'ri keladi.
+Server faqat **ro'yxatdan o'tish va umumiy bazа** uchun kerak: boshqa odamlar ro'yxatdan o'tsin,
+bir bazada saqlansin.
+
+### 3.1 Majburiy qadam — admin token
+
+`ZA_ADMIN_TOKEN` **o'zgartirilmasa**, admin so'rovlari avtomatik ravishda bloklanadi (503/403).
+Standart qiymat `za_islamic_admin` bo'lib, GitHub'da ochiq ko'rinadi.
+
+Token yarating (PowerShell):
+
+```powershell
+-join ((48..122) | Get-Random -Count 48 | ForEach-Object { [char]$_ })
+```
+
+### 3.2 Variant A — bulutda (bepul, tavsiya etiladi)
+
+Boshqalar faqat **internet orqali** ulanadi. Sizning kompyuteringiz yopiq qoladi.
+
+**Render.com** (eng oson — `render.yaml` tayyor):
+
+1. `render.com` → **New → Blueprint** → repoyzingizni tanlang
+2. Render `render.yaml` ni o'zi o'qiydi — hech narsa sozlamasdan
+3. `ZA_ADMIN_TOKEN` ni Render avtomatik random qiymat bilan to'ldiradi
+4. Deploy tugagandan keyin manzil: `https://za-islamic-api.onrender.com`
+5. Ilovada: **Profil → Ma'lumot → Server manzili** → shu manzilni yozing
+
+**Railway.app** alternative:
+```
+railway init && railway up
+```
+Environment ga `ZA_ADMIN_TOKEN` qo'ying, keyin `PORT` ni Render/Flask beradi.
+
+> ⚠️ Render bepul rejada SQLite fayli **vaqtinchalik** (`/tmp`) — server o'chsa bazа
+> to'planadi. Doimiy saqlash uchun Render'ga disk qo'shing yoki Railway/Postgres ishlating.
+
+### 3.3 Variant B — o'z kompyuteringizda (faqat o'zingiz uchun)
+
+```bash
+cd backend
+set ZA_ADMIN_TOKEN=<random token>
+python app.py
+```
+
+Har bir ishga tushirishda avtomatik bo'lishi uchun:
+
+```bash
+backend\install_autostart.bat
+```
+
+Skript: Flask'ni tekshiradi, token mavjudligini tekshiradi va Windows **Startup**
+papkasiga qisqa echim qo'yadi. Endi kompyuterni qayta ishga tushsangiz,
+backend o'zi avtomatik ishga tushadi.
+
+> ⚠️ O'z kompyuteringizga tashqaridan ulanish uchun port forward + statik IP kerak
+> va xavfsiz emas. Sifatli natija uchun bulut variantidan foydalaning.
+
+### 3.4 Server manzilini o'zgartirish
+
+Ilovada **Profil → Ma'lumot** oynasida:
+
+```
+Server manzili: https://za-islamic-api.onrender.com
+[💾 Saqlash va tekshirish]
+```
+
+Manzil `localStorage` da saqlanadi. Boshqa foydalanuvchilar o'z kompyuterida
+bir xil manzilni kiritishlari kerak (yoki `?api=https://...` bilan ochishlari mumkin).
 
 ---
 
@@ -176,7 +250,7 @@ Holat avtomatik ravishda joriy narx bo'yicha yangilanadi.
 
 | Metod | Yo'l | Izoh |
 |---|---|---|
-| `GET` | `/api/health` | holat |
+| `GET` | `/api/health` | holat (`adminOk` — token o'zgartirilganmi) |
 | `GET` | `/api/market/quotes` | barcha narx + indikatorlar (3 s kesh) |
 | `GET` | `/api/calendar` | iqtisodiy kalendar (10 daq kesh) |
 | `POST` | `/api/auth/register` | ro'yxatdan o'tish |
@@ -190,17 +264,21 @@ Holat avtomatik ravishda joriy narx bo'yicha yangilanadi.
 | `DELETE` | `/api/signals/<id>` | o'chirish (admin) |
 | `GET` | `/api/auth/users` | foydalanuvchilar (admin) |
 
-Admin sarlavhasi: `X-Admin-Token: za_islamic_admin`
+Admin sarlavhasi: `X-Admin-Token: <ZA_ADMIN_TOKEN>`
 
 Atmosfer o'zgaruvchilari:
 
 | O'zgaruvchi | Standart | Vazifa |
 |---|---|---|
-| `ZA_ADMIN_TOKEN` | `za_islamic_admin` | admin kaliti |
+| `ZA_ADMIN_TOKEN` | `za_islamic_admin` | admin kaliti — **albatta o'zgartiring** |
 | `ZA_PORT` | `8000` | port |
 | `ZA_DB` | `backend/za_islamic.db` | bazа fayli |
 
-Xavfsizlik: PBKDF2-SHA256 (260 000 iteratsiya) + tasodifiy tuz, 30 kunlik tokenlar.
+Xavfsizlik:
+* Parollar — **PBKDF2-SHA256**, 260 000 iteratsiya + 16 baytli tasodifiy tuz
+* Tokenlar — 32 baytli tasodifiy, **30 kun** muddati bilan
+* Standart admin token bilan admin so'rovlari **avtomatik bloklanadi**
+* CORS — so'rov `Origin` ini qaytaradi + `Vary: Origin` (cache bilan aralashmasligi uchun)
 
 ---
 

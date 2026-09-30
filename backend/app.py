@@ -33,6 +33,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)          # loyiha ildizi (index.html shu ye
 DB_PATH = os.environ.get("ZA_DB", os.path.join(BASE_DIR, "za_islamic.db"))
 
 ADMIN_TOKEN = os.environ.get("ZA_ADMIN_TOKEN", "za_islamic_admin")
+DEFAULT_TOKEN = "za_islamic_admin"          # ochiq qiymat — internetga chiqmasligi kerak
 API_KEY = os.environ.get("ZA_FCS_KEY", "")   # ixtiyoriy: FCS API kaliti
 
 TOKEN_DAYS = 30
@@ -186,8 +187,17 @@ def auth_required(fn):
 
 
 def admin_required(fn):
+    """Admin so'rovlari. Ochiq (standart) token bilan ISHLAMAYDI —
+       aks holda kimdir internet orqali signal yozib/o'chira olardi."""
     @wraps(fn)
     def wrapper(*args, **kwargs):
+        if hmac.compare_digest(ADMIN_TOKEN, DEFAULT_TOKEN):
+            return jsonify({
+                "error": "Xavfsizlik: admin token o\'zgartirilmagan. "
+                         "Serverda ZA_ADMIN_TOKEN atrof-muhit o\'zgaruvchisini "
+                         "random qiymat bilan belgilang.",
+                "need": "ZA_ADMIN_TOKEN=<random 32+ belgi>"
+            }), 503
         token = request.headers.get("X-Admin-Token") or request.headers.get("Authorization", "")
         if token.startswith("Bearer "):
             token = token[7:].strip()
@@ -200,11 +210,16 @@ def admin_required(fn):
 
 @app.after_request
 def add_headers(resp: Response):
-    # lokal ishlash uchun CORS
-    resp.headers.setdefault("Access-Control-Allow-Origin", "*")
+    # lokal ishlash va alohida domen uchun CORS
+    origin = request.headers.get("Origin")
+    resp.headers.setdefault(
+        "Access-Control-Allow-Origin", origin if origin else "*"
+    )
+    resp.headers.setdefault("Vary", "Origin")
     resp.headers.setdefault("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Token")
     resp.headers.setdefault("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
     resp.headers.setdefault("Cache-Control", "no-store")
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     return resp
 
 
@@ -370,6 +385,7 @@ def api_health():
         "db": DB_PATH,
         "users": n_users,
         "signals": n_signals,
+        "adminOk": not hmac.compare_digest(ADMIN_TOKEN, DEFAULT_TOKEN),
         "time": now_iso(),
     })
 

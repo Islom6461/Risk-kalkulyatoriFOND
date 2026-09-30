@@ -1,19 +1,44 @@
 /* =============================================================
    API — backend bilan bog'lanish + zaxira (localStorage) rejimi
 
-   Backend ishga tushsa (python backend/app.py → :8000):
-     • haqiqiy foydalanuvchilar bazasi (SQLite)
-     • parollar xesh bilan saqlanadi
-     • signallar serverdan olinadi / yuboriladi
+   Server manzili 3 manbadan olinadi (birinchisi ishlaydi):
+     1) ?api=https://...  — URL orqali (bir martalik)
+     2) localStorage       — ilova ichida "Ma'lumot" oynasidan kiritilgan
+     3) CFG.API.base       — standart (http://127.0.0.1:8000)
 
-   Backend ishlamasa — ilova xatosiz localStorage rejimida ishlaydi.
+   Backend ishga tushsa:
+     • haqiqiy foydalanuvchilar bazasi (SQLite, PBKDF2 xesh)
+     • signallar serverdan olinadi / yuboriladi
+   Ishlamasa — ilova xatosiz localStorage rejimida ishlaydi.
    ============================================================= */
 const Api = (() => {
 
-  const state = { online: false, base: CFG.API.base, token: null, probed: false, lastError: null };
+  const BASE_KEY = 'za_islamic_api_base';
+
+  function configuredBase() {
+    try {
+      const q = new URLSearchParams(location.search).get('api');
+      if (q) return q.replace(/\/+$/, '');
+    } catch (e) { /* xato e'tiborsiz */ }
+    const saved = U.lsGet(BASE_KEY, '');
+    if (saved) return String(saved).replace(/\/+$/, '');
+    return CFG.API.base;
+  }
+
+  const state = { online: false, base: configuredBase(), token: null, probed: false, lastError: null };
   const subs = [];
   function onChange(fn) { subs.push(fn); return () => { const i = subs.indexOf(fn); if (i >= 0) subs.splice(i, 1); }; }
   function emit() { subs.forEach(f => { try { f(state); } catch (e) { console.error(e); } }); }
+
+  function setBase(url) {
+    const b = String(url || '').trim().replace(/\/+$/, '');
+    if (!b) { U.lsDel(BASE_KEY); state.base = configuredBase(); }
+    else { U.lsSet(BASE_KEY, b); state.base = b; }
+    setOnline(false, null);
+    probe();
+    return state.base;
+  }
+  function base() { return state.base; }
 
   function setOnline(v, err) {
     if (state.online !== v || state.lastError !== (err || null)) {
@@ -60,12 +85,12 @@ const Api = (() => {
     try {
       const j = await req('/api/health');
       state.probed = true;
-      if (j && j.status === 'ok') { setOnline(true); return true; }
+      if (j && j.status === 'ok') { setOnline(true, null); return true; }
       setOnline(false, 'noto\'g\'ri javob');
       return false;
     } catch (e) {
       state.probed = true;
-      setOnline(false, 'server topilmadi');
+      setOnline(false, 'server topilmadi: ' + state.base);
       return false;
     }
   }
@@ -196,6 +221,6 @@ const Api = (() => {
   return {
     start, probe, register, login, me, logout,
     pushSignals, fetchSignals, market, calendar,
-    state, setToken, token, onChange, stripUser
+    state, setToken, token, onChange, stripUser, setBase, base
   };
 })();

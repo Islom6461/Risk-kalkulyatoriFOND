@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: za-islamic-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 app:app
+    healthCheckPath: /api/health
+    envVars:
+      - key: ZA_ADMIN_TOKEN
+        generateValue: true        # Render random token beradi — xavfsiz
+      - key: ZA_DB
+        value: /tmp/za_islamic.db   # bepul reja: fayl vaqtincha saqlanadi
+      - key: ZA_PORT
+        value: "8000"

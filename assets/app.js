@@ -942,11 +942,51 @@ window.showAbout = function () {
       <div class="modal-info-row"><span class="modal-info-label">Kalendar manbai:</span><span class="modal-info-value">${Calendar.info().source}</span></div>
       <div class="modal-info-row"><span class="modal-info-label">Indikatorlar:</span><span class="modal-info-value">RSI · ATR · MACD · EMA · SMA · Stochastic · Bollinger</span></div>
       <div class="modal-info-row"><span class="modal-info-label">Avtomatik signal tili:</span><span class="modal-info-value">TradingView tavsiyasi + 6 ta indikator</span></div>
-      <div class="modal-info-row"><span class="modal-info-label">Backend:</span><span class="modal-info-value">${Api.state.online ? 'Flask + SQLite (ulangan)' : 'Yo\'q (localStorage rejimi)'}</span></div>
     </div>
-    <div class="warn-box">⚠️ <b>Ogohlantirish.</b> Avtomatik signallar algoritmik hisob-kitobga asoslanadi —
+
+    <div class="section-title">🔗 Server manzili</div>
+    <div class="info-box">
+      Narx, signal va kalendar uchun server <b>kerak emas</b> — ular to'g'ridan-to'g'ri ishlaydi.<br>
+      Server faqat <b>ro'yxatdan o'tish va umumiy bazа</b> uchun kerak. Boshqa kompyuterdagi
+      serverga ulanmoqchi bo'lsangiz, manzilni shu yerga yozing.
+    </div>
+    <label>Server manzili (masalan: https://backend.example.com)</label>
+    <input id="ab-base" value="${U.esc(Api.base())}" placeholder="http://127.0.0.1:8000">
+    <div id="ab-status" class="hint">—</div>
+    <div style="text-align:center;margin-top:12px">
+      <button class="btn sm" id="ab-save">💾 Saqlash va tekshirish</button>
+      <button class="btn sm secondary" id="ab-reset">Standartga qaytarish</button>
+    </div>
+
+    <div class="warn-box" style="margin-top:18px">⚠️ <b>Ogohlantirish.</b> Avtomatik signallar algoritmik hisob-kitobga asoslanadi —
       bu moliyaviy tavsiya emas. Real savdoda yo'qotish ehtimoli mavjud. Har doim Stop Loss qo'ying va
       balansingizning kichik qismini riskga qo'ying.</div>`);
+
+  const upd = () => {
+    const el = $('#ab-status');
+    if (!el) return;
+    el.textContent = Api.state.online
+      ? '✅ Ulangan: ' + Api.base()
+      : '❌ Ulangan emas: ' + Api.base() + (Api.state.lastError ? ' — ' + Api.state.lastError : '');
+  };
+  upd();
+
+  $('#ab-save').addEventListener('click', async function () {
+    this.disabled = true; this.textContent = 'Tekshirilmoqda…';
+    Api.setBase($('#ab-base').value);
+    const ok = await Api.probe();
+    upd();
+    this.disabled = false; this.textContent = '💾 Saqlash va tekshirish';
+    toast(ok ? 'Serverga ulanildi ✅' : 'Serverga ulanib bo\'lmadi ❌', ok ? '' : 'err');
+  });
+
+  $('#ab-reset').addEventListener('click', async function () {
+    Api.setBase('');
+    $('#ab-base').value = Api.base();
+    const ok = await Api.probe();
+    upd();
+    toast(ok ? 'Standart serverga ulanildi ✅' : 'Standart server topilmadi (normal)', ok ? '' : 'warn');
+  });
 };
 
 /* ================= 10) ishga tushirish ================= */
