@@ -1,0 +1,79 @@
+name: Kalendar yangilash
+
+# Har 10 daqiqada iqtisodiy kalendarni yangilab, data/calendar.json fayliga yozadi.
+# Shu tariqa GitHub Pages dagi sayt CORS muammosiz kalendarni ko'rsatadi
+# (ForexFactory brauzer uchun CORS ber emas, shuning uchun server orqali olinadi).
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: calendar-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repozitoriyani yuklash
+        uses: actions/checkout@v4
+
+      - name: Kalendarni yuklab olish va saqlash
+        env:
+          TZ: UTC
+        run: |
+          set -euo pipefail
+          mkdir -p data
+          curl -sSf --max-time 25 -A "ZA_ISLAMIC/1.0" \
+            "https://nfs.faireconomy.media/ff_calendar_thisweek.json" -o /tmp/ff.json
+          python3 - <<'PY'
+          import json, time, datetime
+
+          IMPACT = {"High": 3, "Medium": 2, "Low": 1, "Holiday": 1}
+          with open('/tmp/ff.json', encoding='utf-8') as f:
+              raw = json.load(f)
+
+          items = []
+          for x in raw:
+              country = (x.get('country') or 'ALL').upper()
+              impact = IMPACT.get(x.get('impact'), 1)
+              try:
+                  dt = datetime.datetime.fromisoformat(x['date'])
+              except Exception:
+                  continue
+              if dt.tzinfo is None:
+                  dt = dt.replace(tzinfo=datetime.timezone.utc)
+              items.append({
+                  'currency': country,
+                  'title': x.get('title') or '',
+                  'impact': impact,
+                  'impactRaw': x.get('impact') or 'Low',
+                  'forecast': x.get('forecast') or '',
+                  'previous': x.get('previous') or '',
+                  'ts': int(dt.timestamp() * 1000),
+              })
+
+          items.sort(key=lambda i: i['ts'])
+          out = {'ts': int(time.time() * 1000), 'count': len(items), 'items': items}
+          with open('data/calendar.json', 'w', encoding='utf-8') as f:
+              json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
+          print(f"Saqlandi: {len(items)} ta voqea")
+          PY
+
+      - name: O'zgarishni yuborish
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- data/calendar.json; then
+            echo "O'zgarish yo'q — commit qilinmaydi."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/calendar.json
+          git commit -m "chore(calendar): iqtisodiy kalendar yangilandi [skip ci]"
+          git push
