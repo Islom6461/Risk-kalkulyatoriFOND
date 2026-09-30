@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "instrument": "EURUSD",
+    "pair": "EUR/USD",
+    "type": "BUY",
+    "entry": 1.1340,
+    "sl": 1.1310,
+    "tp": 1.1420,
+    "status": "pending",
+    "note": "Misol formatida. O'zgartiring yoki [] qo'ying — bo'sh ro'yxat faqat avtomatik signallarni ko'rsatadi.",
+    "time": "2026-09-30T10:30:00Z",
+    "source": "manual"
+  }
+]
