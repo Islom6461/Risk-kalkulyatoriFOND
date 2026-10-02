@@ -8,7 +8,7 @@
     <title>ZA_ISLAMIC — Real Vaqt Risk Kalkulyatori</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="https://s3.tradingview.com/tv.js"></script>
-    <link rel="stylesheet" href="assets/style.css?v=1.1.0">
+    <link rel="stylesheet" href="assets/style.css?v=1.2.3">
 </head>
 <body>
 
@@ -69,6 +69,11 @@
                     <button type="button" class="password-toggle" onclick="togglePassword('regPassword2', this)">👁️</button>
                 </div>
             </div>
+            <label class="agree-row">
+                <input type="checkbox" id="regAgree" required>
+                <span><a href="#" onclick="showTerms();return false;">Foydalanish shartnomasi</a> va
+                <a href="#" onclick="showPrivacy();return false;">maxfiylik siyosati</a>ni o'qib chiqdim va rozilik beraman.</span>
+            </label>
             <button type="submit" class="auth-btn">Ro'yxatdan o'tish</button>
         </form>
 
@@ -83,9 +88,11 @@
         <button class="sidebar-btn profile-btn" data-tab="profile" title="Profil">👤<span class="label">Profil</span></button>
         <button class="sidebar-btn active" data-tab="dashboard" title="Bozor">🏠<span class="label">Bozor</span></button>
         <button class="sidebar-btn" data-tab="signal" id="signalBtn" title="Signallar">🎯<span class="label">Signal</span><span class="signal-badge" id="signalBadge" style="display:none">0</span></button>
+        <button class="sidebar-btn" data-tab="lessons" id="lessonsBtn" title="Darslar">📚<span class="label">Darslar</span></button>
         <button class="sidebar-btn" data-tab="chart" title="Grafik">📈<span class="label">Grafik</span></button>
         <button class="sidebar-btn" data-tab="risk" title="Risk">📊<span class="label">Risk</span></button>
         <button class="sidebar-btn" data-tab="news" title="Kalendar">📰<span class="label">Kalendar</span></button>
+        <button class="sidebar-btn" data-tab="admin" id="adminBtn" title="Admin" style="display:none">🛡️<span class="label">Admin</span></button>
     </div>
     <button class="sidebar-theme" id="themeToggle" title="Rejimni almashtirish">🌙</button>
 </div>
@@ -174,6 +181,15 @@
             <div class="signal-list" id="signalList">
                 <div class="loading">⏳ Yuklanmoqda...</div>
             </div>
+        </div>
+    </div>
+
+    <!-- -------- DARSLAR -------- -->
+    <div class="tab-content" id="lessons">
+        <h2>📚 Darslar <small id="lessonMeta">—</small></h2>
+        <div id="lessonList"><div class="loading">⏳ Yuklanmoqda...</div></div>
+        <div class="hint" style="margin-top:14px">
+            Darslar faqat server orqali ko'rinadi. <b>Profil → Ma'lumot</b> dan server manzilini kiriting.
         </div>
     </div>
 
@@ -274,6 +290,12 @@
         <div class="hint" style="margin-top:14px">Manba: ForexFactory haftalik kalendari. Vaqtlar <b>Toshkent</b> (UTC+5) bo'yicha ko'rsatilgan.</div>
     </div>
 
+    <!-- -------- ADMIN -------- -->
+    <div class="tab-content" id="admin">
+        <h2>🛡️ Admin paneli</h2>
+        <div id="adminBox"><div class="loading">⏳ Yuklanmoqda...</div></div>
+    </div>
+
     <!-- -------- PROFIL -------- -->
     <div class="tab-content" id="profile">
         <h2>👤 Mening Profilim</h2>
@@ -304,7 +326,15 @@
             <div class="user-info-title">💼 Hisob ma'lumotlari</div>
             <div class="user-info-row"><span class="user-info-label">🆔 Foydalanuvchi ID:</span><span class="user-info-value" id="userId">—</span></div>
             <div class="user-info-row"><span class="user-info-label">💎 Tarif:</span><span class="user-info-value" style="color:var(--yellow)" id="userTier">Bepul</span></div>
+            <div class="user-info-row"><span class="user-info-label">🎖️ Rol:</span><span class="user-info-value" id="userRole">—</span></div>
+            <div class="user-info-row"><span class="user-info-label">📊 Holat:</span><span class="user-info-value" id="userStatus">—</span></div>
             <div class="user-info-row"><span class="user-info-label">💾 Rejim:</span><span class="user-info-value" id="userMode">—</span></div>
+        </div>
+
+        <div class="user-info-card">
+            <div class="user-info-title">📄 Hujjatlar</div>
+            <div class="user-info-row"><span class="user-info-label">📄 Foydalanish shartnomasi:</span><span class="user-info-value"><a href="#" onclick="showTerms();return false;" style="color:var(--blue)">O'qish →</a></span></div>
+            <div class="user-info-row"><span class="user-info-label">🔒 Maxfiylik siyosati:</span><span class="user-info-value"><a href="#" onclick="showPrivacy();return false;" style="color:var(--blue)">O'qish →</a></span></div>
         </div>
 
         <div class="profile-actions">
@@ -331,12 +361,14 @@
 <div id="toasts"></div>
 
 <!-- ================= SKRIPT ================= -->
-<script src="assets/config.js?v=1.1.0"></script>
-<script src="assets/indicators.js?v=1.1.0"></script>
-<script src="assets/market.js?v=1.1.0"></script>
-<script src="assets/calendar.js?v=1.1.0"></script>
-<script src="assets/api.js?v=1.1.0"></script>
-<script src="assets/signals.js?v=1.1.0"></script>
-<script src="assets/app.js?v=1.1.0"></script>
+<script src="assets/config.js?v=1.2.3"></script>
+<script src="assets/indicators.js?v=1.2.3"></script>
+<script src="assets/market.js?v=1.2.3"></script>
+<script src="assets/calendar.js?v=1.2.3"></script>
+<script src="assets/api.js?v=1.2.3"></script>
+<script src="assets/signals.js?v=1.2.3"></script>
+<script src="assets/lessons.js?v=1.2.3"></script>
+<script src="assets/admin.js?v=1.2.3"></script>
+<script src="assets/app.js?v=1.2.3"></script>
 </body>
 </html>

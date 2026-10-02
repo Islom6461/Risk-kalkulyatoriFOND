@@ -123,6 +123,118 @@ def init_db():
             CREATE INDEX IF NOT EXISTS idx_tokens_expires ON tokens(expires_at);
             """
         )
+        # --- yangi versiyalar uchun ustunlar (idempotent) ---
+        for ddl in (
+            "ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'",
+            "ALTER TABLE users ADD COLUMN status TEXT DEFAULT 'active'",
+            "ALTER TABLE users ADD COLUMN blocked_at TEXT",
+            "ALTER TABLE users ADD COLUMN blocked_reason TEXT",
+            "ALTER TABLE users ADD COLUMN note TEXT DEFAULT ''",
+        ):
+            try:
+                conn.execute(ddl)
+                conn.commit()
+            except sqlite3.OperationalError:
+                pass  # ustun allaqachon bor
+
+        conn.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS lessons (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                title       TEXT NOT NULL,
+                body        TEXT DEFAULT '',
+                video_url   TEXT DEFAULT '',
+                category    TEXT DEFAULT 'Umumiy',
+                order_no    INTEGER DEFAULT 0,
+                published   INTEGER DEFAULT 1,
+                min_tier    TEXT DEFAULT 'Bepul',
+                created_at  TEXT NOT NULL,
+                updated_at  TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS audit_log (
+                id      INTEGER PRIMARY KEY AUTOINCREMENT,
+                ts      TEXT NOT NULL,
+                actor   TEXT DEFAULT '',
+                action  TEXT NOT NULL,
+                target  TEXT DEFAULT '',
+                detail  TEXT DEFAULT ''
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_audit_ts    ON audit_log(ts DESC);
+            CREATE INDEX IF NOT EXISTS idx_lessons_ord ON lessons(order_no, id);
+            """
+        )
+        conn.commit()
+
+
+# ------------------------------------------------------------------ rollar
+TIERS = ["Bepul", "Pro", "VIP"]
+ROLES = ["user", "moderator", "admin"]
+TIER_RANK = {t: i for i, t in enumerate(TIERS)}
+
+
+def permissions_of(row) -> dict:
+    """Foydalanuvchi imkoniyatlari — frontend ham shuni ko'radi."""
+    keys = row.keys()
+    role = (row["role"] if "role" in keys else "user") or "user"
+    tier = (row["tier"] if "tier" in keys else "Bepul") or "Bepul"
+    admin = role == "admin"
+    mod = role == "moderator" or admin
+    return {
+        "role": role,
+        "isAdmin": admin,
+        "isModerator": mod,
+        "tier": tier,
+        "tierRank": TIER_RANK.get(tier, 0),
+        "canManageSignals": mod,
+        "canManageLessons": admin,
+        "canBlockUsers": mod,
+        "canDeleteUsers": admin,
+        "canChangeRoles": admin,
+        "canViewAudit": admin,
+        "canViewStats": admin,
+    }
+
+
+def audit(actor: str, action: str, target: str = "", detail: str = ""):
+    try:
+        conn = db()
+        conn.execute(
+            "INSERT INTO audit_log (ts, actor, action, target, detail) VALUES (?,?,?,?,?)",
+            (now_iso(), actor, action, target, detail),
+        )
+        conn.commit()
+    except sqlite3.Error:
+        pass
+
+
+def require_admin(fn):
+    """Faqat admin: rol o'zgartirish, foydalanuvchi o'chirish, darslar, audit."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        u = current_user()
+        if u is None:
+            return jsonify({"error": "Kirish talab qilinadi"}), 401
+        if (u["role"] or "user") != "admin":
+            return jsonify({"error": "Faqat admin uchun"}), 403
+        g.user = u
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+def require_moderator(fn):
+    """Moderator ham, admin ham: bloklash, signal boshqaruvi."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        u = current_user()
+        if u is None:
+            return jsonify({"error": "Kirish talab qilinadi"}), 401
+        if (u["role"] or "user") not in ("moderator", "admin"):
+            return jsonify({"error": "Faqat moderator yoki admin uchun"}), 403
+        g.user = u
+        return fn(*args, **kwargs)
+    return wrapper
 
 
 def hash_password(password: str, salt: str) -> str:
@@ -136,6 +248,8 @@ def verify_password(password: str, salt: str, expected: str) -> bool:
 
 
 def public_user(row) -> dict:
+    keys = row.keys()
+    status = (row["status"] if "status" in keys else "active") or "active"
     return {
         "id": row["id"],
         "name": row["name"],
@@ -145,6 +259,11 @@ def public_user(row) -> dict:
         "balance": row["balance"],
         "registered": (row["created_at"] or "")[:10],
         "lastLogin": row["last_login"],
+        "status": status,
+        "blocked": status == "blocked",
+        "blockedReason": (row["blocked_reason"] if "blocked_reason" in keys else "") or "",
+        "note": (row["note"] if "note" in keys else "") or "",
+        "perms": permissions_of(row),
     }
 
 
@@ -160,7 +279,8 @@ def make_token(conn, user_id: str) -> str:
 
 
 def current_user():
-    """Authorization: Bearer <token> orqali joriy foydalanuvchini qaytaradi."""
+    """Authorization: Bearer <token> orqali joriy foydalanuvchini qaytaradi.
+       Bloklangan foydalanuvchilar uchun None qaytaradi (token o'chiriladi)."""
     header = request.headers.get("Authorization", "")
     if not header.startswith("Bearer "):
         return None
@@ -171,7 +291,39 @@ def current_user():
            WHERE t.token = ? AND t.expires_at > ?""",
         (token, now_iso()),
     ).fetchone()
+    if row is None:
+        return None
+    if (row["status"] or "active") == "blocked":
+        # bloklanganini darhol kuzatib boramiz va token'ni o'chiramiz
+        try:
+            conn.execute("DELETE FROM tokens WHERE token = ?", (token,))
+            conn.commit()
+        except sqlite3.Error:
+            pass
+        return None
     return row
+
+
+def blocked_guard(fn):
+    """Bloklangan foydalanuvchi uchun aniq xabar (401 emas, 403)."""
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        header = request.headers.get("Authorization", "")
+        if header.startswith("Bearer "):
+            token = header[7:].strip()
+            row = db().execute(
+                """SELECT u.status, u.blocked_reason FROM tokens t
+                   JOIN users u ON u.id = t.user_id
+                   WHERE t.token = ? AND t.expires_at > ?""",
+                (token, now_iso()),
+            ).fetchone()
+            if row is not None and (row["status"] or "active") == "blocked":
+                return jsonify({
+                    "error": "Hisobingiz bloklangan." + (" Sabab: " + (row["blocked_reason"] or "") if row["blocked_reason"] else ""),
+                    "blocked": True,
+                }), 403
+        return fn(*args, **kwargs)
+    return wrapper
 
 
 def auth_required(fn):
@@ -179,7 +331,7 @@ def auth_required(fn):
     def wrapper(*args, **kwargs):
         u = current_user()
         if u is None:
-            return jsonify({"error": "Kirish talab qilinadi"}), 401
+            return jsonify({"error": "Kirish talab qilinadi yoki hisob bloklangan"}), 401
         g.user = u
         return fn(*args, **kwargs)
 
@@ -221,6 +373,49 @@ def add_headers(resp: Response):
     resp.headers.setdefault("Cache-Control", "no-store")
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     return resp
+
+
+# ------------------------------------------------------------------ RATE LIMIT
+# Oddiy slayd-window limiter (jaroatda, DB emas). IP bo'yicha.
+RATE_READ = int(os.environ.get("ZA_RATE_READ", "600"))    # daqiqada o'qish
+RATE_WRITE = int(os.environ.get("ZA_RATE_WRITE", "60"))   # daqiqada yozish
+RATE_LOGIN = int(os.environ.get("ZA_RATE_LOGIN", "15"))   # daqiqada kirish urinish
+_hits: dict = {}
+
+
+def rate_limit(max_per_min: int, bucket: str):
+    """So'rov sonini cheklaydi. Bloklasa 429 qaytaradi."""
+    def guard(*_a, **_kw):
+        ip = request.headers.get("X-Forwarded-For", "").split(",")[0].strip() or request.remote_addr or "?"
+        now = time.time()
+        key = f"{bucket}:{ip}"
+        arr = [t for t in _hits.get(key, []) if now - t < 60]
+        if len(arr) >= max_per_min:
+            _hits[key] = arr
+            resp = jsonify({"error": "Juda ko'p so'rov. Bir daqiqada kutib turing.", "retryIn": 60})
+            resp.status_code = 429
+            resp.headers["Retry-After"] = "60"
+            return resp
+        arr.append(now)
+        _hits[key] = arr
+        # xotira tozalash
+        if len(_hits) > 5000:
+            for k in [k for k, v in _hits.items() if not v or now - v[-1] > 120]:
+                _hits.pop(k, None)
+        return None
+    return guard
+
+
+@app.before_request
+def _apply_limits():
+    if request.method == "OPTIONS":
+        return None
+    path = request.path
+    if path.startswith("/api/auth/login") or path.startswith("/api/auth/register"):
+        return rate_limit(RATE_LOGIN, "auth")()
+    if request.method in ("GET", "HEAD"):
+        return rate_limit(RATE_READ, "read")()
+    return rate_limit(RATE_WRITE, "write")()
 
 
 # ------------------------------------------------------------------ HTTP kesh
@@ -319,7 +514,9 @@ def _tv_quotes():
 
 @app.get("/api/market/quotes")
 def api_quotes():
-    """Barcha narxlar + indikatorlar (3 soniya server keshi bilan)."""
+    """Barcha narxlar + indikatorlar (3 soniya server keshi bilan).
+       Frontend har bir foydalanuvchi uchun alohida so'rov yubormasligi uchun
+       barcha narxlar shu yerdan (kesh bilan) olinadi."""
     def produce():
         try:
             quotes = _tv_quotes()
@@ -376,16 +573,21 @@ def api_health():
         conn = db()
         n_users = conn.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
         n_signals = conn.execute("SELECT COUNT(*) c FROM signals").fetchone()["c"]
+        n_lessons = conn.execute("SELECT COUNT(*) c FROM lessons").fetchone()["c"]
     except sqlite3.Error as e:                              # noqa: BLE001
         return jsonify({"status": "error", "error": str(e)}), 503
     return jsonify({
         "status": "ok",
         "app": "ZA_ISLAMIC",
-        "version": "1.0.0",
+        "version": "1.1.0",
         "db": DB_PATH,
         "users": n_users,
         "signals": n_signals,
+        "lessons": n_lessons,
+        "admins": conn.execute(
+            "SELECT COUNT(*) c FROM users WHERE role = 'admin'").fetchone()["c"],
         "adminOk": not hmac.compare_digest(ADMIN_TOKEN, DEFAULT_TOKEN),
+        "limits": {"read": RATE_READ, "write": RATE_WRITE, "login": RATE_LOGIN},
         "time": now_iso(),
     })
 
@@ -405,19 +607,30 @@ def api_register():
         return jsonify({"error": "Email noto'g'ri"}), 400
     if len(password) < 6:
         return jsonify({"error": "Parol kamida 6 belgidan iborat bo'lishi kerak"}), 400
+    if not d.get("agree"):
+        return jsonify({"error": "Foydalanish shartnomasi va maxfiylik siyosatiga rozilik bermasiz"}), 400
 
     conn = db()
     if conn.execute("SELECT 1 FROM users WHERE email = ?", (email,)).fetchone():
         return jsonify({"error": "Bu email allaqachon ro'yxatdan o'tgan"}), 409
 
-    uid = "#ZA-" + secrets.token_hex(3).upper()
+    uid = "ZA-" + secrets.token_hex(3).upper()
     salt = secrets.token_hex(16)
+
+    # Birinchi ro'yxatdan o'tgan odam avtomatik admin bo'ladi
+    total = conn.execute("SELECT COUNT(*) c FROM users").fetchone()["c"]
+    role = "admin" if total == 0 else "user"
+
     conn.execute(
-        """INSERT INTO users (id,name,email,phone,pw_hash,pw_salt,tier,balance,created_at,last_login)
-           VALUES (?,?,?,?,?,?,'Bepul',0,?,?)""",
-        (uid, name, email, phone, hash_password(password, salt), salt, now_iso(), now_iso()),
+        """INSERT INTO users (id,name,email,phone,pw_hash,pw_salt,tier,balance,
+                              created_at,last_login,role,status)
+           VALUES (?,?,?,?,?,?,'Bepul',0,?,?,?,'active')""",
+        (uid, name, email, phone, hash_password(password, salt), salt,
+         now_iso(), now_iso(), role),
     )
     conn.commit()
+    if role == "admin":
+        audit(uid, "system.first_admin", uid, "birinchi foydalanuvchi — admin")
     row = conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone()
     return jsonify({"user": public_user(row), "token": make_token(conn, uid)}), 201
 
@@ -434,6 +647,14 @@ def api_login():
     row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
     if row is None or not verify_password(password, row["pw_salt"], row["pw_hash"]):
         return jsonify({"error": "Email yoki parol noto'g'ri"}), 401
+
+    if (row["status"] or "active") == "blocked":
+        reason = (row["blocked_reason"] if "blocked_reason" in row.keys() else "") or ""
+        audit(row["id"], "login.blocked", row["id"], reason)
+        return jsonify({
+            "error": "Hisobingiz bloklangan." + (" Sabab: " + reason if reason else ""),
+            "blocked": True,
+        }), 403
 
     conn.execute("UPDATE users SET last_login = ? WHERE id = ?", (now_iso(), row["id"]))
     conn.commit()
@@ -455,11 +676,279 @@ def api_logout():
     return jsonify({"status": "ok"})
 
 
-@app.get("/api/auth/users")
-@admin_required
-def api_users():
+# ------------------------------------------------------------------ DARS(L)LAR
+def lesson_dict(r, full: bool = True) -> dict:
+    d = {
+        "id": r["id"],
+        "title": r["title"],
+        "category": r["category"],
+        "orderNo": r["order_no"],
+        "published": bool(r["published"]),
+        "minTier": r["min_tier"],
+        "updatedAt": r["updated_at"],
+        "createdAt": r["created_at"],
+    }
+    if full:
+        d["body"] = r["body"]
+        d["videoUrl"] = r["video_url"]
+    else:
+        preview = (r["body"] or "")[:160]
+        d["preview"] = (preview + "…") if len(r["body"] or "") > 160 else preview
+    return d
+
+
+@app.get("/api/lessons")
+@auth_required
+def api_lessons_list():
+    """Foydalanuvchiga ko'rinadigan darslar (tarifiga qarab)."""
+    rank = TIER_RANK.get(g.user["tier"] or "Bepul", 0)
+    rows = db().execute(
+        "SELECT * FROM lessons WHERE published = 1 ORDER BY order_no ASC, id ASC"
+    ).fetchall()
+    out = []
+    for r in rows:
+        need = TIER_RANK.get(r["min_tier"] or "Bepul", 0)
+        if need > rank:
+            out.append({
+                "id": r["id"], "title": r["title"], "category": r["category"],
+                "orderNo": r["order_no"], "locked": True, "minTier": r["min_tier"],
+                "preview": "Bu dars " + str(r["min_tier"]) + " tarifida.",
+            })
+        else:
+            d = lesson_dict(r, full=False)
+            d["locked"] = False
+            out.append(d)
+    return jsonify({"lessons": out})
+
+
+@app.get("/api/lessons/<int:lid>")
+@auth_required
+def api_lesson_get(lid: int):
+    r = db().execute("SELECT * FROM lessons WHERE id = ?", (lid,)).fetchone()
+    if r is None:
+        return jsonify({"error": "Dars topilmadi"}), 404
+    if not r["published"] and (g.user["role"] or "user") != "admin":
+        return jsonify({"error": "Dars hali e'lon qilinmagan"}), 403
+    rank = TIER_RANK.get(g.user["tier"] or "Bepul", 0)
+    if TIER_RANK.get(r["min_tier"] or "Bepul", 0) > rank:
+        return jsonify({"error": "Bu dars " + str(r["min_tier"]) + " tarifida mavjud"}), 403
+    return jsonify({"lesson": lesson_dict(r)})
+
+
+@app.post("/api/admin/lessons")
+@require_admin
+def api_lesson_create():
+    d = request.get_json(silent=True) or {}
+    title = (d.get("title") or "").strip()
+    if not title:
+        return jsonify({"error": "Sarlavha talab qilinadi"}), 400
+    tier = d.get("minTier") if d.get("minTier") in TIERS else "Bepul"
+    conn = db()
+    conn.execute(
+        """INSERT INTO lessons
+           (title, body, video_url, category, order_no, published, min_tier, created_at, updated_at)
+           VALUES (?,?,?,?,?,?,?,?,?)""",
+        (
+            title, d.get("body") or "", d.get("videoUrl") or "",
+            d.get("category") or "Umumiy", int(d.get("orderNo") or 0),
+            1 if d.get("published", True) else 0, tier, now_iso(), now_iso(),
+        ),
+    )
+    conn.commit()
+    rid = conn.execute("SELECT last_insert_rowid() id").fetchone()["id"]
+    audit(g.user["id"], "lesson.create", str(rid), title)
+    row = conn.execute("SELECT * FROM lessons WHERE id = ?", (rid,)).fetchone()
+    return jsonify({"lesson": lesson_dict(row)}), 201
+
+
+@app.patch("/api/admin/lessons/<int:lid>")
+@require_admin
+def api_lesson_update(lid: int):
+    d = request.get_json(silent=True) or {}
+    conn = db()
+    row = conn.execute("SELECT * FROM lessons WHERE id = ?", (lid,)).fetchone()
+    if row is None:
+        return jsonify({"error": "Dars topilmadi"}), 404
+    fields, vals = [], []
+    mapping = {
+        "title": "title", "body": "body", "videoUrl": "video_url",
+        "category": "category", "orderNo": "order_no", "minTier": "min_tier",
+    }
+    for key, col in mapping.items():
+        if key in d:
+            v = d[key]
+            if col == "min_tier" and v not in TIERS:
+                continue
+            fields.append(f"{col} = ?")
+            vals.append(int(v) if col == "order_no" else v)
+    if "published" in d:
+        fields.append("published = ?")
+        vals.append(1 if d["published"] else 0)
+    if not fields:
+        return jsonify({"error": "Hech narsa yangilanmadi"}), 400
+    fields.append("updated_at = ?")
+    vals.append(now_iso())
+    conn.execute(f"UPDATE lessons SET {', '.join(fields)} WHERE id = ?", (*vals, lid))
+    conn.commit()
+    audit(g.user["id"], "lesson.update", str(lid), row["title"])
+    return jsonify({"lesson": lesson_dict(conn.execute("SELECT * FROM lessons WHERE id = ?", (lid,)).fetchone())})
+
+
+@app.delete("/api/admin/lessons/<int:lid>")
+@require_admin
+def api_lesson_delete(lid: int):
+    conn = db()
+    cur = conn.execute("DELETE FROM lessons WHERE id = ?", (lid,))
+    conn.commit()
+    if cur.rowcount == 0:
+        return jsonify({"error": "Dars topilmadi"}), 404
+    audit(g.user["id"], "lesson.delete", str(lid))
+    return jsonify({"status": "ok"})
+
+
+# ------------------------------------------------------------------ ADMIN: FOYDALANUVCHILAR
+@app.get("/api/admin/users")
+@require_admin
+def api_admin_users():
+    q = (request.args.get("q") or "").strip().lower()
     rows = db().execute("SELECT * FROM users ORDER BY created_at DESC").fetchall()
-    return jsonify({"users": [public_user(r) for r in rows]})
+    out = []
+    for r in rows:
+        if q and q not in (r["name"] or "").lower() and q not in (r["email"] or "").lower():
+            continue
+        u = public_user(r)
+        stats = db().execute(
+            "SELECT COUNT(*) c FROM signals WHERE uid = ?", (r["id"],)
+        ).fetchone()["c"]
+        u["signalCount"] = stats
+        out.append(u)
+    return jsonify({"users": out, "tiers": TIERS, "roles": ROLES})
+
+
+@app.patch("/api/admin/users/<uid>")
+@require_admin
+def api_admin_user_update(uid: str):
+    d = request.get_json(silent=True) or {}
+    conn = db()
+    row = conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone()
+    if row is None:
+        return jsonify({"error": "Foydalanuvchi topilmadi"}), 404
+    if uid == g.user["id"] and d.get("role") and d["role"] != "admin":
+        return jsonify({"error": "O'z ro'lingizni pasaytira olmaysiz"}), 400
+
+    fields, vals, changes = [], [], []
+    if "tier" in d and d["tier"] in TIERS:
+        fields.append("tier = ?"); vals.append(d["tier"])
+        if d["tier"] != row["tier"]:
+            changes.append(f"tier: {row['tier']} → {d['tier']}")
+    if "role" in d and d["role"] in ROLES:
+        fields.append("role = ?"); vals.append(d["role"])
+        if d["role"] != row["role"]:
+            changes.append(f"role: {row['role']} → {d['role']}")
+    if "note" in d:
+        fields.append("note = ?"); vals.append(str(d["note"])[:500])
+        changes.append("izoh yangilandi")
+    if "name" in d and d["name"].strip():
+        fields.append("name = ?"); vals.append(d["name"].strip()[:80])
+
+    if not fields:
+        return jsonify({"error": "Hech narsa yangilanmadi"}), 400
+    conn.execute(f"UPDATE users SET {', '.join(fields)} WHERE id = ?", (*vals, uid))
+    conn.commit()
+    audit(g.user["id"], "user.update", uid, "; ".join(changes))
+    return jsonify({"user": public_user(conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone())})
+
+
+@app.post("/api/admin/users/<uid>/block")
+@require_moderator
+def api_admin_user_block(uid: str):
+    d = request.get_json(silent=True) or {}
+    conn = db()
+    row = conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone()
+    if row is None:
+        return jsonify({"error": "Foydalanuvchi topilmadi"}), 404
+    if uid == g.user["id"]:
+        return jsonify({"error": "O'z'zingizni bloklay olmaysiz"}), 400
+    if (row["role"] or "user") == "admin" and (g.user["role"] or "user") != "admin":
+        return jsonify({"error": "Adminga tegishli emas"}), 403
+
+    reason = (d.get("reason") or "").strip()[:300]
+    conn.execute(
+        "UPDATE users SET status = 'blocked', blocked_at = ?, blocked_reason = ? WHERE id = ?",
+        (now_iso(), reason, uid),
+    )
+    conn.execute("DELETE FROM tokens WHERE user_id = ?", (uid,))   # darhol chiqarish
+    conn.commit()
+    audit(g.user["id"], "user.block", uid, reason or "(sababsiz)")
+    return jsonify({"user": public_user(conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone())})
+
+
+@app.post("/api/admin/users/<uid>/unblock")
+@require_moderator
+def api_admin_user_unblock(uid: str):
+    conn = db()
+    cur = conn.execute(
+        "UPDATE users SET status = 'active', blocked_at = NULL, blocked_reason = '' WHERE id = ?",
+        (uid,),
+    )
+    conn.commit()
+    if cur.rowcount == 0:
+        return jsonify({"error": "Foydalanuvchi topilmadi"}), 404
+    audit(g.user["id"], "user.unblock", uid)
+    return jsonify({"user": public_user(conn.execute("SELECT * FROM users WHERE id = ?", (uid,)).fetchone())})
+
+
+@app.delete("/api/admin/users/<uid>")
+@require_admin
+def api_admin_user_delete(uid: str):
+    if uid == g.user["id"]:
+        return jsonify({"error": "O'z'zingizni o'chira olmaysiz"}), 400
+    conn = db()
+    row = conn.execute("SELECT name, email FROM users WHERE id = ?", (uid,)).fetchone()
+    if row is None:
+        return jsonify({"error": "Foydalanuvchi topilmadi"}), 404
+    conn.execute("DELETE FROM tokens WHERE user_id = ?", (uid,))
+    conn.execute("DELETE FROM signals   WHERE uid = ?", (uid,))
+    conn.execute("DELETE FROM users     WHERE id = ?", (uid,))
+    conn.commit()
+    audit(g.user["id"], "user.delete", uid, f"{row['name']} <{row['email']}>")
+    return jsonify({"status": "ok"})
+
+
+@app.get("/api/admin/stats")
+@require_admin
+def api_admin_stats():
+    conn = db()
+
+    def q(sql: str, args=()):
+        return conn.execute(sql, args).fetchone()[0]
+
+    return jsonify({
+        "users": q("SELECT COUNT(*) FROM users"),
+        "newToday": q(
+            "SELECT COUNT(*) FROM users WHERE substr(created_at,1,10) = ?",
+            (now_iso()[:10],),
+        ),
+        "blocked": q("SELECT COUNT(*) FROM users WHERE status = 'blocked'"),
+        "signals": q("SELECT COUNT(*) FROM signals"),
+        "lessons": q("SELECT COUNT(*) FROM lessons"),
+        "admins": q("SELECT COUNT(*) FROM users WHERE role IN ('admin','moderator')"),
+        "premium": q("SELECT COUNT(*) FROM users WHERE tier <> 'Bepul'"),
+    })
+
+
+@app.get("/api/admin/audit")
+@require_admin
+def api_admin_audit():
+    limit = min(int(request.args.get("limit", "100")), 500)
+    rows = db().execute(
+        "SELECT * FROM audit_log ORDER BY id DESC LIMIT ?", (limit,)
+    ).fetchall()
+    return jsonify({"log": [
+        {"id": r["id"], "ts": r["ts"], "actor": r["actor"],
+         "action": r["action"], "target": r["target"], "detail": r["detail"]}
+        for r in rows
+    ]})
 
 
 # ------------------------------------------------------------------ SIGNALS
@@ -492,7 +981,7 @@ def api_signals_list():
 
 
 @app.post("/api/signals")
-@admin_required
+@require_moderator
 def api_signals_create():
     d = request.get_json(silent=True) or {}
     inst = (d.get("instrument") or "").strip().upper()
@@ -506,7 +995,7 @@ def api_signals_create():
                (uid,instrument,pair,type,entry,sl,tp,status,time,note,tv_symbol,source,score)
                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (
-                d.get("owner", ""), inst, d.get("pair") or inst,
+                d.get("owner", "") or g.user["id"], inst, d.get("pair") or inst,
                 (d.get("type") or "BUY").upper(),
                 float(d["entry"]),
                 float(d["sl"]) if d.get("sl") is not None else None,
@@ -523,11 +1012,12 @@ def api_signals_create():
         return jsonify({"error": "Bu signal allaqachon mavjud"}), 409
 
     row = conn.execute("SELECT * FROM signals ORDER BY id DESC LIMIT 1").fetchone()
+    audit(g.user["id"], "signal.create", str(row["id"]), f"{row['pair']} {row['type']}")
     return jsonify({"signal": signal_row_to_dict(row)}), 201
 
 
 @app.post("/api/signals/bulk")
-@admin_required
+@require_moderator
 def api_signals_bulk():
     """Frontend'dan foydalanuvchi qo'shgan signallarni serverga saqlash."""
     d = request.get_json(silent=True) or {}
@@ -559,15 +1049,16 @@ def api_signals_bulk():
 
 
 @app.patch("/api/signals/<int:sid>")
-@admin_required
+@require_moderator
 def api_signals_update(sid: int):
     d = request.get_json(silent=True) or {}
-    fields, values = [], []
+    fields, values, changes = [], [], []
     for key, col in (("status", "status"), ("entry", "entry"), ("sl", "sl"),
                      ("tp", "tp"), ("note", "note"), ("type", "type")):
         if key in d:
             fields.append(f"{col} = ?")
             values.append(d[key])
+            changes.append(f"{key}={d[key]}")
     if not fields:
         return jsonify({"error": "Hech narsa yangilanmadi"}), 400
 
@@ -577,17 +1068,20 @@ def api_signals_update(sid: int):
     row = conn.execute("SELECT * FROM signals WHERE id = ?", (sid,)).fetchone()
     if row is None:
         return jsonify({"error": "Signal topilmadi"}), 404
+    audit(g.user["id"], "signal.update", str(sid), "; ".join(changes))
     return jsonify({"signal": signal_row_to_dict(row)})
 
 
 @app.delete("/api/signals/<int:sid>")
-@admin_required
+@require_moderator
 def api_signals_delete(sid: int):
     conn = db()
+    row = conn.execute("SELECT pair FROM signals WHERE id = ?", (sid,)).fetchone()
     cur = conn.execute("DELETE FROM signals WHERE id = ?", (sid,))
     conn.commit()
     if cur.rowcount == 0:
         return jsonify({"error": "Signal topilmadi"}), 404
+    audit(g.user["id"], "signal.delete", str(sid), row["pair"] if row else "")
     return jsonify({"status": "ok"})
 
 

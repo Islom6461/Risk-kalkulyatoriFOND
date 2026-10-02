@@ -2,6 +2,25 @@
    ZA_ISLAMIC / RiskKalkulyatori_FOND — umumiy sozlamalar
    ============================================================= */
 
+/* Barcha modullar uchun umumiy DOM yordamchilari */
+const $  = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+/* Bildirishnoma (toast) — barcha modullardan foydalaniladi */
+function toast(msg, type) {
+  let box = document.getElementById('toasts');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'toasts';
+    document.body.appendChild(box);
+  }
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || '');
+  el.textContent = msg;
+  box.appendChild(el);
+  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3600);
+}
+
 const CFG = {
   /* --- Tarmoq --- */
   NET: {

@@ -5,17 +5,7 @@
 'use strict';
 
 /* ================= 0) Yordamchilar ================= */
-const $  = s => document.querySelector(s);
-const $$ = s => Array.from(document.querySelectorAll(s));
-
-function toast(msg, type) {
-  const box = $('#toasts');
-  const el = document.createElement('div');
-  el.className = 'toast ' + (type || '');
-  el.textContent = msg;
-  box.appendChild(el);
-  setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3600);
-}
+/* $ , $$ va toast — config.js da global sifatida e'lon qilingan */
 
 function openModal(title, html) {
   $('#modalTitle').textContent = title;
@@ -27,8 +17,11 @@ function closeModal() {
   $('#modalOverlay').classList.remove('active');
   document.body.style.overflow = '';
   $('#modalBody').innerHTML = '';
-  tvWidget = null;
+  try { S.tvWidget = null; } catch (e) { /* S hali tayyor emas */ }
 }
+/* lessons.js va admin.js ham shu modallarni ishlatadi */
+window.openModal = openModal;
+window.closeModal = closeModal;
 $('#modalOverlay').addEventListener('click', e => { if (e.target === this) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
@@ -38,8 +31,141 @@ window.togglePassword = function (id, btn) {
   else { i.type = 'password'; btn.textContent = '👁️'; }
 };
 
+/* ================= 0.5) Hujjatlar: shartnoma + maxfiylik ================= */
+const TODAY = new Date().toISOString().slice(0, 10);
+
+window.showTerms = function () {
+  openModal('📄 Foydalanish shartnomasi', `
+    <div class="hint" style="margin-bottom:12px">Oxirgi yangilanish: ${TODAY} · versiya 1.2.0</div>
+    <div class="lesson-body">
+      <h3>1. Dastur haqida</h3>
+      <p>ZA_ISLAMIC — forex, kripto va indekslar uchun ma'lumot va tahlil vositasi.
+      Dastur <b>ta'lim va tahlil</b> maqsadida yaratilgan.</p>
+
+      <h3>2. ⚠️ Moliyaviy tavsiya emas</h3>
+      <p>Bu dasturda ko'rsatilgan narxlar, indikatorlar va signallar
+      <b>moliyaviy tavsiya hisoblanmaydi</b>. Dastur:
+      <ul>
+        <li>kiringizni tahlil qilmaydi va bozor bashorat qilmaydi;</li>
+        <li>broker yoki moliyaviy institut sifatida faoliyat yuritmaydi;</li>
+        <li>foydalanuvchining ma'lumotlari asosida individual tavsiya bermaydi.</li>
+      </ul>
+      Savdo qarorini <b>o'zingiz</b> qabul qilasiz va uning oqibatlari
+      sizga tegishlidir. Avval <b>demo hisob</b>da sinab ko'ring.</p>
+
+      <h3>3. Avtomatik signallar</h3>
+      <p>Avtomatik signallar texnik indikatorlar (RSI, MACD, EMA, Stochastic,
+      Bollinger, ATR) asosida algoritmik hisob-kitob bilan yaratiladi.
+      Bu <b>professional trader tahlili emas</b>. Signallar to'g'ri chiqmasligi mumkin
+      va yo'qotishga olib kelishi mumkin.</p>
+
+      <h3>4. Ma'lumot manbalari</h3>
+      <p>Narxlar TradingView Scanner, Binance va ForexFactory kabi
+      <b>uchinchi tomon ochiq manbalaridan</b> olinadi. Dastur bu manbalarning
+      to'g'riligi yoki uzluksizligini kafolatlamaydi. Ba'zi ma'lumotlar kechikish bilan
+      yoki noto'g'ri kelishi mumkin.</p>
+
+      <h3>5. Mas'uliyat cheklovi</h3>
+      <p>Dastur "sifat va ishlash bo'yicha" taqdim etiladi. Muallif:
+      <ul>
+        <li>to'g'rilik, to'liqlik yoki foydali bo'lishga kafolat bermaydi;</li>
+        <li>ma'lumot manbalarining uzilishidan kelib chiqadagi zarar uchun mas'ul emas;</li>
+        <li>server ishdan chiqsa xizmatning to'xtashi uchun mas'ul emas.</li>
+      </ul></p>
+
+      <h3>6. Foydalanish qoidalari</h3>
+      <p>Foydalanuvchi quyidagilarga majbur:</p>
+      <ul>
+        <li>ro'yxatdan o'tishda <b>o'z ma'lumotlarini</b> kiritish;</li>
+        <li>serverga zararli so'rov yubormaslik;</li>
+        <li>boshqa foydalanuvchilarning ma'lumotlariga tegmaslik;</li>
+        <li>ro'yxatdan o'tish paytida shartnomaga rozilik berish.</li>
+      </ul>
+      <p>Shartlomaning buzilishi administrator tomonidan hisobni
+      <b>bloklash yoki o'chirish</b>ga olib kelishi mumkin.</p>
+
+      <h3>7. O'zgartirish</h3>
+      <p>Administrator shartnomani istalgan paytda o'zgartirishi mumkin.
+      O'zgarishdan keyin foydalanish davom etsa, yangi shartnoma qabul qilingan
+      deb hisoblanadi.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn" onclick="closeModal()">Tushundim</button>
+    </div>`);
+};
+
+window.showPrivacy = function () {
+  openModal('🔒 Maxfiylik siyosati', `
+    <div class="hint" style="margin-bottom:12px">Oxirgi yangilanish: ${TODAY} · versiya 1.2.0</div>
+    <div class="lesson-body">
+      <h3>1. Qanday ma'lumot yig'iladi</h3>
+      <ul>
+        <li><b>Ism</b> — ro'yxatdan o'tishda (ko'rsatish uchun)</li>
+        <li><b>Email</b> — hisobga kirish uchun</li>
+        <li><b>Telefon</b> — ixtiyoriy, faqat aloqa uchun</li>
+        <li><b>Parol</b> — <b>ochiq holda saqlanmaydi</b>, PBKDF2-SHA256
+            algoritmi bilan 260 000 iteratsiya va tasodifiy tuz orqali xeshlanadi</li>
+        <li><b>Kirish vaqti</b> — hisobni himoya qilish uchun</li>
+        <li><b>Sessiya tokeni</b> — 30 kun muddati bilan</li>
+      </ul>
+
+      <h3>2. Nima yig'ilmaydi</h3>
+      <ul>
+        <li>Banking ma'lumotlari, karta raqamlari — <b>butunlay</b></li>
+        <li>Brokersiz savdo hisobi — dastur hech qanday savdo qilmaydi</li>
+        <li>Joylashuv, qurilma ma'lumotlari</li>
+      </ul>
+
+      <h3>3. Ma'lumot qayerda saqlanadi</h3>
+      <p>Ma'lumot <b>dastur serverining bazasi</b> (SQLite) da saqlanadi.
+      Server <b>sizning kompyuteringizda</b> bo'lsa — faqat sizda.
+      Bulutda bo'lsa — server provayderining infratuzilmasida.</p>
+      <div class="info-box">
+        Server <b>ulanmagan</b> holatda dastur <b>localStorage</b> rejimida ishlaydi —
+        ma'lumot faqat shu brauzerda qoladi va hech qerga yuborilmaydi.
+      </div>
+
+      <h3>4. Kim ko'radi</h3>
+      <p>Faqat <b>dastur administratori</b> (siz). Boshqa foydalanuvchilar
+      sizning email va ismingizni <b>ko'ra olmaydi</b> — faqat o'z ma'lumotlarini.
+      Ro'yxatdan o'tganlar soni umumiy ko'rinadi.</p>
+
+      <h3>5. Bloklash va o'chirish</h3>
+      <p>Administrator:
+      <ul>
+        <li>foydalanuvchini <b>bloklashi</b> mumkin (sabab yoziladi va
+            foydalanuvchiga ko'rsatiladi);</li>
+        <li>foydalanuvchini <b>tizimdan butunlay chiqarishi</b> mumkin.</li>
+      </ul>
+      Bloklangan foydalanuvchining ma'lumotlari o'chirilmaydi — faqat kirish
+      taqiqlanadi. Chiqarilganda ma'lumotlar va shu odamning signallari
+      butunlay o'chiriladi.</p>
+
+      <h3>6. Sizning huquqlaringiz</h3>
+      <p>Profil → <b>Ma'lumot → Eksport</b> orqali o'z ma'lumotlaringizni
+      JSON faylda yuklab olasiz. Profilni tahrirlash orqali ism, telefon va
+      emailni o'zgartirasiz.</p>
+
+      <h3>7. Xavfsizlik</h3>
+      <ul>
+        <li>Parol serverda faqat xesh holda saqlanadi</li>
+        <li>Brute-force ga qarshi: daqiqada 10 ta kirish urinish cheklangan</li>
+        <li>Har IP dan daqiqada 120 ta o'qish / 30 ta yozish so'rovi</li>
+      </ul>
+
+      <h3>8. Aloqa</h3>
+      <p>Savollar yoki ma'lumotlaringizni o'chirishni so'rasangiz —
+      administratorga murojaat qiling.</p>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn" onclick="closeModal()">Tushundim</button>
+    </div>`);
+};
+
 /* ================= 1) Sessiya / Auth ================= */
 const S = { user: null, theme: 'dark', tab: 'dashboard', chartInit: false, tvWidget: null };
+/* lessons.js / admin.js ham joriy foydalanuvchini o'qishi kerak */
+window.S = S;
 
 function isGuest() { return !S.user || S.user.isGuest; }
 
@@ -69,12 +195,36 @@ function closeAuth() { $('#authOverlay').classList.remove('active'); }
 window.openAuth = function () { $('#authOverlay').classList.add('active'); };
 
 /* Signal bo'limiga kirish nazorati */
+let refreshingUser = false;
 function applyAccess() {
   const guest = isGuest();
   $('#signalLocked').style.display  = guest ? 'block' : 'none';
   $('#signalContent').style.display = guest ? 'none' : 'block';
   $('#signalBtn').classList.toggle('locked', guest);
-  if (!guest) renderSignals();
+
+  /* admin tugmasi faqat admin/moderatorga */
+  const p = (S.user && S.user.perms) ? S.user.perms : {};
+  const isAdmin = !!p.isModerator || !!p.isAdmin;
+  const btn = $('#adminBtn');
+  if (btn) btn.style.display = (isAdmin && !guest) ? '' : 'none';
+
+  if (!guest) {
+    renderSignals();
+    /* profil ma'lumotlarini serverdan yangilash (bir martalik — rekursiya yo'q) */
+    if (!refreshingUser && Api.state.online && Api.token()) {
+      refreshingUser = true;
+      Api.me().then(u => {
+        refreshingUser = false;
+        if (!u) return;
+        S.user = Object.assign({}, S.user, u);
+        saveSession();
+        const np = (S.user && S.user.perms) ? S.user.perms : {};
+        const b2 = $('#adminBtn');
+        if (b2) b2.style.display = (np.isModerator || np.isAdmin) ? '' : 'none';
+        renderProfile();
+      }).catch(() => { refreshingUser = false; });
+    }
+  }
 }
 
 $$('.auth-tab').forEach(t => t.addEventListener('click', function () {
@@ -114,18 +264,23 @@ $('#registerForm').addEventListener('submit', async e => {
   const phone = $('#regPhone').value.trim();
   const p1 = $('#regPassword').value;
   const p2 = $('#regPassword2').value;
+  const agree = $('#regAgree').checked;
+  if (!agree) return showAuthError('❌ Shartnoma va maxfiylik siyosatiga rozilik berishingiz kerak');
   if (p1 !== p2) return showAuthError('❌ Parollar mos kelmadi!');
   if (p1.length < 6) return showAuthError('❌ Parol kamida 6 belgidan iborat bo\'lishi kerak!');
   const btn = e.target.querySelector('.auth-btn');
   btn.disabled = true; btn.textContent = 'Yuborilmoqda…';
   try {
-    const r = await Api.register({ name, email, phone, password: p1 });
+    const r = await Api.register({ name, email, phone, password: p1, agree: true });
     S.user = Object.assign({}, r.user, { lastLogin: new Date().toISOString() });
     saveSession();
     showAuthOk('✅ Ro\'yxatdan o\'tdingiz, ' + S.user.name + '!');
     e.target.reset();
     setTimeout(() => { closeAuth(); applyAccess(); renderProfile(); }, 500);
     toast(r.mode === 'backend' ? 'Serverga saqlandi' : 'Mahalliy saqlandi (backend yo\'q)', 'info');
+    if (S.user.perms && S.user.perms.isAdmin) {
+      setTimeout(() => toast('🎉 Siz birinchi foydalanuvchisiz — ADMIN bo\'ldingiz!', ''), 1200);
+    }
   } catch (err) {
     showAuthError('❌ ' + err.message);
   } finally {
@@ -154,12 +309,18 @@ window.logoutUser = function () {
 /* ================= 2) Tablar va mavzu ================= */
 $$('.sidebar-btn').forEach(b => b.addEventListener('click', function () {
   const tab = this.dataset.tab;
-  if (tab === 'signal' && isGuest()) {
+  if ((tab === 'signal' || tab === 'lessons') && isGuest()) {
     $$('.sidebar-btn').forEach(x => x.classList.remove('active'));
     $$('.tab-content').forEach(x => x.classList.remove('active'));
     this.classList.add('active');
-    $('#signal').classList.add('active');
-    S.tab = 'signal'; applyAccess(); return;
+    $('#' + tab).classList.add('active');
+    S.tab = tab;
+    applyAccess();
+    if (tab === 'signal') toast('Bu bo\'lim uchun ro\'yxatdan o\'ting', 'warn');
+    return;
+  }
+  if (tab === 'admin' && !Admin.can().view) {
+    return toast('Admin paneliga kirish huquqingiz yo\'q', 'warn');
   }
   $$('.sidebar-btn').forEach(x => x.classList.remove('active'));
   $$('.tab-content').forEach(x => x.classList.remove('active'));
@@ -169,6 +330,8 @@ $$('.sidebar-btn').forEach(b => b.addEventListener('click', function () {
   if (tab === 'chart') setTimeout(initChart, 120);
   if (tab === 'profile') renderProfile();
   if (tab === 'risk') calcRisk();
+  if (tab === 'lessons') Lessons.render();
+  if (tab === 'admin') Admin.loadAll();
 }));
 
 function setTheme(t) {
@@ -867,6 +1030,18 @@ function renderProfile() {
   $('#userTier').textContent      = u ? (u.tier || 'Bepul') : '—';
   $('#userMode').textContent      = Api.state.online ? '☁️ Server (SQLite)' : '💾 Mahalliy (localStorage)';
 
+  const p = (u && u.perms) ? u.perms : {};
+  const roleTxt = { admin: '👑 Administrator', moderator: '🛡️ Moderator', user: '👤 Foydalanuvchi' };
+  const roleEl = $('#userRole');
+  if (roleEl) roleEl.textContent = u ? (roleTxt[p.role] || '👤 Foydalanuvchi') : '—';
+
+  const stEl = $('#userStatus');
+  if (stEl) {
+    if (u && u.blocked) { stEl.textContent = '🚫 Bloklangan'; stEl.style.color = 'var(--red)'; }
+    else if (u && u.status === 'active') { stEl.textContent = '✅ Faol'; stEl.style.color = 'var(--green)'; }
+    else { stEl.textContent = '—'; stEl.style.color = ''; }
+  }
+
   const st = Signals.stats();
   $('#profileSignals').textContent = st.total;
   $('#profileWins').textContent    = st.tp;
@@ -995,11 +1170,22 @@ function boot() {
   if (booted) return;
   booted = true;
 
+  /* bloklash xabari — foydalanuvchi darhol chiqariladi */
+  window.addEventListener('za:blocked', e => {
+    const msg = (e.detail && e.detail.error) || 'Hisobingiz bloklangan';
+    S.user = null;
+    U.lsDel(CFG.NET.keys.session);
+    Api.setToken(null);
+    openAuth();
+    showAuthError('🚫 ' + msg);
+  });
+
   /* modallardagi onclick uchun global funksiyalar */
   Object.assign(window, {
     closeModal, openAuth, loginAsGuest, logoutUser,
     editProfile, showAllUsers, exportData, showAbout,
-    openSignalDetail, removeSignal, addSignalPrefill
+    openSignalDetail, removeSignal, addSignalPrefill,
+    showTerms, showPrivacy
   });
 
   /* mavzu */
@@ -1019,6 +1205,7 @@ function boot() {
   Market.start();
   Calendar.start();
   Signals.start();
+  Lessons.start();
 
   /* render */
   Market.onTick(() => {

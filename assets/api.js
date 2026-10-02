@@ -25,7 +25,7 @@ const Api = (() => {
     return CFG.API.base;
   }
 
-  const state = { online: false, base: configuredBase(), token: null, probed: false, lastError: null };
+  const state = { online: false, base: configuredBase(), token: null, probed: false, lastError: null, throttledUntil: 0 };
   const subs = [];
   function onChange(fn) { subs.push(fn); return () => { const i = subs.indexOf(fn); if (i >= 0) subs.splice(i, 1); }; }
   function emit() { subs.forEach(f => { try { f(state); } catch (e) { console.error(e); } }); }
@@ -56,6 +56,14 @@ const Api = (() => {
   function salt() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
 
   /* ---------------- HTTP ---------------- */
+  function notifyBlocked(e) {
+    /* bloklangan foydalanuvchi — ilovani darhol to'xtatamiz */
+    if (e && e.blocked) {
+      setOnline(false, 'bloklangan');
+      try { window.dispatchEvent(new CustomEvent('za:blocked', { detail: { error: e.message } })); } catch (x) {}
+    }
+  }
+
   async function req(path, opts) {
     const ctl = new AbortController();
     const to = setTimeout(() => ctl.abort(), CFG.API.timeoutMs);
@@ -72,7 +80,14 @@ const Api = (() => {
       try { j = txt ? JSON.parse(txt) : null; } catch (e) { j = { error: txt.slice(0, 200) }; }
       if (!r.ok) {
         const msg = (j && (j.error || j.message)) || ('HTTP ' + r.status);
-        const e = new Error(msg); e.status = r.status; throw e;
+        const e = new Error(msg);
+        e.status = r.status;
+        if (r.status === 429) {
+          e.rateLimited = true;
+          state.throttledUntil = Date.now() + (Number(r.headers.get('Retry-After')) || 60) * 1000;
+        }
+        if (r.status === 403 && j && j.blocked) e.blocked = true;
+        throw e;
       }
       setOnline(true);
       return j;
@@ -117,7 +132,13 @@ const Api = (() => {
     if (!data.password || data.password.length < 6) throw new Error('Parol kamida 6 belgidan iborat bo\'lishi kerak');
 
     if (state.online) {
-      const j = await req('/api/auth/register', { method: 'POST', body: JSON.stringify(data) });
+      const j = await req('/api/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: data.name, email: data.email, phone: data.phone || '',
+          password: data.password, agree: !!data.agree
+        })
+      });
       setToken(j.token);
       return { user: j.user, token: j.token, mode: 'backend' };
     }
@@ -126,17 +147,22 @@ const Api = (() => {
     const users = U.lsGet(CFG.NET.keys.users, []) || [];
     if (users.find(u => u.email === data.email)) throw new Error('Bu email allaqachon ro\'yxatdan o\'tgan');
     const user = {
-      id: '#ZA-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
+      id: 'ZA-' + Math.random().toString(36).slice(2, 8).toUpperCase(),
       name: data.name,
       email: data.email,
       phone: data.phone || '—',
       registered: new Date().toISOString().slice(0, 10),
       tier: 'Bepul',
+      role: 'user',
+      status: 'active',
       balance: 0,
       _salt: salt(),
-      _hash: await sha256(data.password + salt())
+      _hash: ''
     };
     user._hash = await sha256(data.password + user._salt);
+    user.perms = { role: 'user', isAdmin: false, isModerator: false, tier: 'Bepul', tierRank: 0,
+      canManageSignals: false, canManageLessons: false, canBlockUsers: false,
+      canDeleteUsers: false, canChangeRoles: false, canViewAudit: false, canViewStats: false };
     users.push(user);
     U.lsSet(CFG.NET.keys.users, users);
     return { user: stripUser(user), mode: 'local' };
@@ -154,6 +180,7 @@ const Api = (() => {
     const users = U.lsGet(CFG.NET.keys.users, []) || [];
     const u = users.find(x => x.email === email);
     if (!u) throw new Error('Email yoki parol noto\'g\'ri');
+    if (u.status === 'blocked') throw new Error('Hisobingiz bloklangan' + (u.blockedReason ? '. Sabab: ' + u.blockedReason : ''));
     const h = await sha256(password + (u._salt || ''));
     if (u._hash && u._hash !== h) throw new Error('Email yoki parol noto\'g\'ri');
     if (!u._hash) { /* eski formatdagi (ochiq) parol */
@@ -174,7 +201,10 @@ const Api = (() => {
     try {
       const j = await req('/api/auth/me');
       return j.user || null;
-    } catch (e) { return null; }
+    } catch (e) {
+      notifyBlocked(e);
+      return null;
+    }
   }
 
   function logout() {
@@ -221,6 +251,7 @@ const Api = (() => {
   return {
     start, probe, register, login, me, logout,
     pushSignals, fetchSignals, market, calendar,
-    state, setToken, token, onChange, stripUser, setBase, base
+    state, setToken, token, onChange, stripUser, setBase, base,
+    call: req
   };
 })();

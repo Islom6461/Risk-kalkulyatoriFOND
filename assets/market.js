@@ -182,33 +182,50 @@ const Market = (() => {
     Object.keys(j.quotes).forEach(id => {
       const q = j.quotes[id];
       if (!q || q.price == null) return;
-      putQuote(id, { price: q.price, chg: q.chg, source: q.source || 'backend' });
+      putQuote(id, {
+        price: q.price, chg: q.chg, chgAbs: q.chgAbs,
+        high: q.high, low: q.low, vol: q.vol,
+        ind: q.ind || null,
+        source: q.source || 'backend'
+      });
+      pushHistory(id, q.price);
       n++;
     });
     return n;
   }
 
-  /* ---------------- 4) narx sikli ---------------- */
+  /* ---------------- 4) narx sikli ----------------
+     Birinchi navbatda BACKEND orqali (keshli) — barcha foydalanuvchi bitta
+     so'rovdan foydalanadi va manba 100x kam yuklanadi.
+     Backend ishlamasa — to'g'ridan-to'g'ri (TradingView, CORS ochiq). */
   async function refreshPrices() {
     let n = 0;
+    /* 1) backend orqali */
+    if (typeof Api !== 'undefined' && Api.state.online) {
+      try {
+        n = await fetchViaBackend();
+        if (n) {
+          state.viaBackend = true;
+          state.errors = 0;
+          state.lastTick = Date.now();
+          setOnline(true);
+          emitTick();
+          return;
+        }
+      } catch (e) { /* backend javob bermadi — to'g'ridan-to'g'ri urinib ko'ramiz */ }
+    }
+    /* 2) to'g'ridan-to'g'ri */
     try {
       n = await fetchTV();
       state.viaBackend = false;
       state.errors = 0;
     } catch (e) {
-      /* to'g'ridan-to'g'ri ishlamadi → backend orqali urinib ko'ramiz */
-      try {
-        const bn = await fetchViaBackend();
-        if (bn) { state.viaBackend = true; state.errors = 0; n = bn; }
-        else throw e;
-      } catch (e2) {
-        console.warn('[Market] narx xatosi:', (e2 && e2.message) || e);
-        state.errors++;
-        Object.keys(state.quotes).forEach(k => { state.quotes[k].stale = true; });
-        if (state.errors >= 3) setOnline(false);
-        emitStatus();
-        return;
-      }
+      console.warn('[Market] narx xatosi:', e.message);
+      state.errors++;
+      Object.keys(state.quotes).forEach(k => { state.quotes[k].stale = true; });
+      if (state.errors >= 3) setOnline(false);
+      emitStatus();
+      return;
     }
     state.lastTick = Date.now();
     setOnline(n > 0);
