@@ -26,10 +26,15 @@ Eski versiyada ma'lumotlar **real vaqtda yangilanmasdi**:
 | **Avtomatik signallar** | 4 ta timeframe + 7 ta indikator tahlili | har **30 soniya** |
 | **Signal holati (TP/SL)** | Joriy narx bo'yicha qayta hisoblanadi | **5 soniya** |
 | **Iqtisodiy kalendar** | ForexFactory haftalik ma'lumot | **10 daqiqa** |
-| **Login / bazа** | Flask + SQLite (ixtiyoriy), parollar PBKDF2 xesh bilan | — |
+| **Login / bazа** | Flask + SQLite, parollar PBKDF2 xesh bilan | — |
+| **📚 Darslar** | Markdown + YouTube/MP4, tarifga qarab ochiladi | — |
+| **🛡️ Admin panel** | Rol, tarif, bloklash, audit jurnali | — |
 
-> ⚠️ Backend kerak **emas**. Sayt GitHub Pages da ham to'liq ishlaydi.
-> Backend faqat haqiqiy ko'p-foydalanuvchi bazasi uchun (ixtiyoriy).
+> ⚠️ **Backend kerak emas** narx, signal, grafik, risk kalkulyator va kalendar uchun —
+> ular GitHub Pages da to'liq ishlaydi.
+>
+> **Darslar, ro'yxat va admin panel** uchun backend kerak. Buni bir marta
+> `backend\install_autostart.bat` bilan o'rnatib qo'ying — keyin o'zi ishlaydi.
 
 ---
 
@@ -43,6 +48,8 @@ Eski versiyada ma'lumotlar **real vaqtda yangilanmasdi**:
 │   ├── market.js               ← real vaqt narx dvigyori
 │   ├── signals.js              ← avtomatik + qo'lda signal tizimi
 │   ├── calendar.js             ← iqtisodiy kalendar
+│   ├── lessons.js              ← darslar (markdown + video)
+│   ├── admin.js                ← admin panel, rol/tarif/bloklash
 │   ├── api.js                  ← backend bilan bog'lanish + zaxira rejim
 │   ├── app.js                  ← UI logikasi
 │   └── style.css               ← uslublar
@@ -52,9 +59,12 @@ Eski versiyada ma'lumotlar **real vaqtda yangilanmasdi**:
 ├── backend/
 │   ├── app.py                  ← Flask + SQLite server
 │   ├── requirements.txt
-│   ├── start.bat               ← qo'lda ishga tushirish
-│   ├── start_server.vbs        ← yashirin ishga tushirish (Startup uchun)
-│   └── install_autostart.bat   ← Windows da avtomatik o'rnatish
+│   ├── install_autostart.bat   ← Windows da bir marta o'rnatish
+│   ├── start_backend.bat       ← qo'lda ishga tushirish
+│   ├── stop_server.bat         ← qo'lda to'xtatish
+│   ├── za_config.json          ← sozlamalar (maxfiy, .gitignore da)
+│   ├── python_path.txt         ← topilgan Python yo'li
+│   └── backend.log             ← oxirgi xatolar
 ├── render.yaml                 ← bulut deploy (Render.com) sozlamasi
 ├── .github/workflows/
 │   └── calendar.yml            ← har 10 daqiqada kalendarni yangilaydi
@@ -106,10 +116,19 @@ bir bazada saqlansin.
 
 ### 3.1 Majburiy qadam — admin token
 
-`ZA_ADMIN_TOKEN` **o'zgartirilmasa**, admin so'rovlari avtomatik ravishda bloklanadi (503/403).
+`ADMIN_TOKEN` **o'zgartirilmasa**, admin so'rovlari avtomatik ravishda bloklanadi (403).
 Standart qiymat `za_islamic_admin` bo'lib, GitHub'da ochiq ko'rinadi.
 
-Token yarating (PowerShell):
+Sozlamalar **ikki manbadan** o'qiladi (birinchisi ustun):
+
+1. Atrof-muhit o'zgaruvchisi — `ZA_ADMIN_TOKEN`, `ZA_PORT`, `ZA_DB`
+2. `backend/za_config.json` fayli
+
+> 💡 Nega fayl ham kerak? Windows **Startup** da atrof-muhit o'zgaruvchilari
+> qo'lda belgilanmaganda token yuklanmay qoladi. `za_config.json` esa har doim
+> qo'lda bo'ladi. Shu sabab `install_autostart.bat` tokeni avtomatik shu faylga yozadi.
+
+Token qo'lda yaratmoqchi bo'lsangiz (PowerShell):
 
 ```powershell
 -join ((48..122) | Get-Random -Count 48 | ForEach-Object { [char]$_ })
@@ -136,23 +155,39 @@ Environment ga `ZA_ADMIN_TOKEN` qo'ying, keyin `PORT` ni Render/Flask beradi.
 > ⚠️ Render bepul rejada SQLite fayli **vaqtinchalik** (`/tmp`) — server o'chsa bazа
 > to'planadi. Doimiy saqlash uchun Render'ga disk qo'shing yoki Railway/Postgres ishlating.
 
-### 3.3 Variant B — o'z kompyuteringizda (faqat o'zingiz uchun)
+### 3.3 Variant B — o'z kompyuteringizda
 
-```bash
-cd backend
-set ZA_ADMIN_TOKEN=<random token>
-python app.py
+**Bir marta** shu skriptni ishga tushiring:
+
 ```
-
-Har bir ishga tushirishda avtomatik bo'lishi uchun:
-
-```bash
 backend\install_autostart.bat
 ```
 
-Skript: Flask'ni tekshiradi, token mavjudligini tekshiradi va Windows **Startup**
-papkasiga qisqa echim qo'yadi. Endi kompyuterni qayta ishga tushsangiz,
-backend o'zi avtomatik ishga tushadi.
+Skript qiladigan ish:
+
+| Qadam | Vazifasi |
+|---|---|
+| 1/4 | Python 3.9+ ni izlaydi, Flask'ni o'rnatadi |
+| 2/4 | Yo'q bo'lsa `za_config.json` ga **xavfsiz token** yaratadi |
+| 3/4 | Windows **Startup** papkasiga qisqa echim qo'yadi |
+| 4/4 | Server ishga tushiradi va **haqiqatda tekshiradi** |
+
+Tayyor bo'lgach "TAYYOR" yozuvi chiqadi. Endi har gal kompyuterni yoqsangiz
+server o'zi avtomatik ishga tushadi — konsol oynasi chiqmaydi (`pythonw.exe`).
+
+**Qo'lda boshqarish:**
+
+| Skript | Vazifasi |
+|---|---|
+| `backend\start_backend.bat` | Serverni ishga tushirish (konsol oynasi bilan) |
+| `backend\stop_server.bat` | Serverni to'xtatish |
+
+> 💡 `start_backend.bat` ni xohlagancha ko'p marta bosing — `app.py` o'zini
+> tekshiradi va allaqachon ishlamayotgan bo'lsa ikkinchi nusxani jim qilib
+> yopadi. Xatolar `backend\backend.log` fayliga yoziladi.
+
+> 🪟 Papka nomi kirillcha bo'lsa ham ishlaydi: skriptlar avval **qisqa (8.3)
+> yo'l**ga o'tadi, chunki `cmd.exe` kirill yo'llarni buzadi.
 
 > ⚠️ O'z kompyuteringizga tashqaridan ulanish uchun port forward + statik IP kerak
 > va xavfsiz emas. Sifatli natija uchun bulut variantidan foydalaning.
@@ -264,21 +299,39 @@ Holat avtomatik ravishda joriy narx bo'yicha yangilanadi.
 | `DELETE` | `/api/signals/<id>` | o'chirish (admin) |
 | `GET` | `/api/auth/users` | foydalanuvchilar (admin) |
 
-Admin sarlavhasi: `X-Admin-Token: <ZA_ADMIN_TOKEN>`
+Admin sarlavhasi: `X-Admin-Token: <ADMIN_TOKEN>`
 
-Atmosfer o'zgaruvchilari:
+Sozlamalar (ustunlik tartibi bilan):
 
-| O'zgaruvchi | Standart | Vazifa |
+| Nomi | Standart | Vazifa |
 |---|---|---|
-| `ZA_ADMIN_TOKEN` | `za_islamic_admin` | admin kaliti — **albatta o'zgartiring** |
-| `ZA_PORT` | `8000` | port |
-| `ZA_DB` | `backend/za_islamic.db` | bazа fayli |
+| `ADMIN_TOKEN` / `ZA_ADMIN_TOKEN` | `za_islamic_admin` | admin kaliti — **albatta o'zgartiring** |
+| `PORT` / `ZA_PORT` | `8000` | port |
+| `DB` / `ZA_DB` | `backend/za_islamic.db` | bazа fayli |
+| `RATE_READ` / `ZA_RATE_READ` | `600` | daqiqada o'qish so'rovi |
+| `RATE_WRITE` / `ZA_RATE_WRITE` | `60` | daqiqada yozish so'rovi |
+| `RATE_LOGIN` / `ZA_RATE_LOGIN` | `15` | daqiqada kirish urinish |
+
+Har bir sozlamani **ikki manbadan** o'qish mumkin — oldingi ustun:
+
+1. Atrof-muhit o'zgaruvchisi (`ZA_<NOMI>`)
+2. `backend/za_config.json` fayli
+
+```json
+{
+  "ADMIN_TOKEN": "bu_yerda_tasodifiy_40_belgi",
+  "PORT": "8000"
+}
+```
+
+> 🔒 `za_config.json` `.gitignore` da — maxfiy token hech qachon GitHub'ga tushmaydi.
 
 Xavfsizlik:
 * Parollar — **PBKDF2-SHA256**, 260 000 iteratsiya + 16 baytli tasodifiy tuz
 * Tokenlar — 32 baytli tasodifiy, **30 kun** muddati bilan
 * Standart admin token bilan admin so'rovlari **avtomatik bloklanadi**
 * CORS — so'rov `Origin` ini qaytaradi + `Vary: Origin` (cache bilan aralashmasligi uchun)
+* Bloklangan foydalanuvchining **hamma seksi** darhol bekor qilinadi
 
 ---
 

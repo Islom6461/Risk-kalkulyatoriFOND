@@ -358,10 +358,42 @@ function initLivebar() {
     if (cs) cs.textContent = st.mode === 'ws+http' ? 'Binance WebSocket (sub-sekund push)' : 'TradingView Scanner (5 s)';
   }, 1000);
 
-  Market.onStatus(st => {
+  const apiItem = $('#liveApiItem');
+  Market.onStatus(() => {
     const api = $('#liveApi');
-    if (Api.state.online) { api.textContent = 'Server: ulangan'; api.style.color = 'var(--green)'; }
-    else { api.textContent = 'Server: yo\'q (local rejim)'; api.style.color = 'var(--yellow)'; }
+    if (Api.state.online) {
+      api.textContent = 'Server: ulangan';
+      api.style.color = 'var(--green)';
+      apiItem.style.cursor = 'default';
+      apiItem.title = 'Backend ishlayapti — darslar, admin panel va ro\'yxat faol';
+    } else {
+      api.textContent = 'Server: yo\'q (local rejim)';
+      api.style.color = 'var(--yellow)';
+      apiItem.style.cursor = 'pointer';
+      apiItem.title = 'Bosib ko\'rsatma berish uchun';
+    }
+  });
+
+  /* Server yo'q bo'lsa — nima qilish keragini ko'rsatamiz.
+     Narx/signal/kalendar ishlaydi, lekin darslar, admin panel va
+     ro'yxatga kirish serverga bog'liq. */
+  apiItem.addEventListener('click', () => {
+    if (Api.state.online) return;
+    openModal('Server ishlamayapti', `
+      <p>Hozircha <b>local rejim</b>da ishlayapsiz:</p>
+      <ul class="hint-list">
+        <li>✅ Narxlar, signallar, grafik, risk kalkulyator, kalendar — <b>ishlaydi</b></li>
+        <li>❌ Darslar, admin panel, ro'yxatdan o'tish — <b>ishlamaydi</b></li>
+      </ul>
+      <p>Serverni ishga tushirish uchun <b>bir marta</b> quyidagini bajarish yetarli:</p>
+      <ol class="hint-list">
+        <li><code>backend</code> papkasini oching</li>
+        <li><code>install_autostart.bat</code> faylini <b>ikki marta bosing</b></li>
+        <li>"TAYYOR" yozuvi chiqishini kutiling</li>
+      </ol>
+      <p>Keyin kompyuterni har gal yoqishingizda server <b>o'zi</b> ishga tushadi.</p>
+      <p class="hint-note">Hozircha server izlanmoqda… bu oyna yopilsa, keyin ochsangiz ham bo'ladi.</p>
+    `);
   });
 
   $('#pollSelect').addEventListener('change', function () {
@@ -386,12 +418,20 @@ let lastPrices = {};
 function sparkline(id, w, h) {
   const hist = Market.history(id);
   if (hist.length < 2) return '';
-  const v = hist.slice(-60).map(x => x[1]);
+
+  /* Ketma-ket takrorlanadigan narxlarni olib tashlaymiz.
+     Aks holda bir xil qiymatlar gradient'ni to'ldirib,
+     grafikni to'liq "blok" qilib ko'rsatadi. */
+  const raw = hist.slice(-240).map(x => x[1]);
+  const v = raw.filter((y, i) => i === 0 || y !== raw[i - 1]);
+  if (v.length < 2) return '';
+
   const mn = Math.min(...v), mx = Math.max(...v), rg = (mx - mn) || 1;
   const pts = v.map((y, i) => {
     const x = (i / (v.length - 1)) * w;
-    const yy = h - ((y - mn) / rg) * h;
-    return x.toFixed(1) + ',' + yy.toFixed(1);
+    /* yuqori va pastki chekkadan 1px ichida qoldiramiz — chetga tegib turmasin */
+    const yy = (1 + (1 - (y - mn) / rg) * (h - 2)).toFixed(1);
+    return x.toFixed(1) + ',' + yy;
   }).join(' ');
   const up = v[v.length - 1] >= v[0];
   /* SVG presentation attribute'ida CSS o'zgaruvchilari ishlamaydi →

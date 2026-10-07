@@ -108,6 +108,17 @@ h2 small { font-size: 12px; color: var(--text-dim); font-weight: normal; }
 }
 .livebar .lb-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
 .livebar .lb-item b { color: var(--text); font-weight: 600; }
+.livebar .lb-item[style*="cursor"] { transition: opacity .15s; }
+.livebar .lb-item:hover { opacity: .8; }
+
+/* "Server yo'q" yordam oynasi */
+.hint-list { margin: 10px 0 14px; padding-left: 22px; }
+.hint-list li { margin: 6px 0; line-height: 1.5; }
+.hint-note { font-size: 12px; color: var(--text-dim); margin-top: 12px; }
+.modal-body code {
+  background: var(--bg); padding: 2px 6px; border-radius: 4px;
+  font-size: 12px; border: 1px solid var(--border);
+}
 .livebar .grow { flex: 1; }
 .livebar select { width: auto; margin: 0; padding: 5px 8px; font-size: 12px; }
 .lb-btn {

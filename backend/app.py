@@ -30,15 +30,37 @@ from flask import Flask, request, jsonify, g, send_from_directory, Response
 # ------------------------------------------------------------------ sozlamalar
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)          # loyiha ildizi (index.html shu yerda)
-DB_PATH = os.environ.get("ZA_DB", os.path.join(BASE_DIR, "za_islamic.db"))
 
-ADMIN_TOKEN = os.environ.get("ZA_ADMIN_TOKEN", "za_islamic_admin")
+CONFIG_PATH = os.path.join(BASE_DIR, "za_config.json")
+_file_cfg = {}
+try:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as fh:
+        _file_cfg = json.load(fh) or {}
+except Exception:
+    _file_cfg = {}
+
+
+def cfg(name: str, default: str = "") -> str:
+    """Sozlama tartibi: atrof-muhit o'zgaruvchisi > za_config.json > default.
+
+    za_config.json kerak, chunki Windows "Startup" da atrof-muhit
+    o'zgaruvchilari qo'lda belgilanmaganda token yuklanmay qoladi.    """
+    v = os.environ.get("ZA_" + name)
+    if v:
+        return v
+    v = _file_cfg.get(name)
+    return str(v) if v not in (None, "") else default
+
+
+DB_PATH = cfg("DB", os.path.join(BASE_DIR, "za_islamic.db"))
+
+ADMIN_TOKEN = cfg("ADMIN_TOKEN", "za_islamic_admin")
 DEFAULT_TOKEN = "za_islamic_admin"          # ochiq qiymat — internetga chiqmasligi kerak
-API_KEY = os.environ.get("ZA_FCS_KEY", "")   # ixtiyoriy: FCS API kaliti
+API_KEY = cfg("FCS_KEY", "")                # ixtiyoriy: FCS API kaliti
 
 TOKEN_DAYS = 30
 PBKDF2_ROUNDS = 260_000
-PORT = int(os.environ.get("ZA_PORT", "8000"))
+PORT = int(cfg("PORT", "8000"))
 
 app = Flask(__name__, static_folder=None)
 app.config["JSON_AS_ASCII"] = False
@@ -377,9 +399,9 @@ def add_headers(resp: Response):
 
 # ------------------------------------------------------------------ RATE LIMIT
 # Oddiy slayd-window limiter (jaroatda, DB emas). IP bo'yicha.
-RATE_READ = int(os.environ.get("ZA_RATE_READ", "600"))    # daqiqada o'qish
-RATE_WRITE = int(os.environ.get("ZA_RATE_WRITE", "60"))   # daqiqada yozish
-RATE_LOGIN = int(os.environ.get("ZA_RATE_LOGIN", "15"))   # daqiqada kirish urinish
+RATE_READ = int(cfg("RATE_READ", "600"))    # daqiqada o'qish
+RATE_WRITE = int(cfg("RATE_WRITE", "60"))   # daqiqada yozish
+RATE_LOGIN = int(cfg("RATE_LOGIN", "15"))   # daqiqada kirish urinish
 _hits: dict = {}
 
 
@@ -448,7 +470,7 @@ TV_SYMBOLS = {
     "AUDUSD": "FX:AUDUSD", "USDCAD": "FX:USDCAD", "USDCHF": "FX:USDCHF",
     "NZDUSD": "FX:NZDUSD", "EURGBP": "FX:EURGBP", "EURJPY": "FX:EURJPY",
     "GBPJPY": "FX:GBPJPY", "XAUUSD": "OANDA:XAUUSD", "XAGUSD": "TVC:SILVER",
-    "SPX500": "SP:SPX", "NAS100": "NASDAQ:NDX", "DJI": "DJ:DJI", "DE40": "TVC:DE30",
+    "SPX500": "SP:SPX", "NAS100": "NASDAQ:NDX", "DJI": "DJ:DJI", "DE40": "XETR:DAX",
     "BTCUSDT": "BINANCE:BTCUSDT", "ETHUSDT": "BINANCE:ETHUSDT",
     "BNBUSDT": "BINANCE:BNBUSDT", "SOLUSDT": "BINANCE:SOLUSDT",
     "XRPUSDT": "BINANCE:XRPUSDT", "ADAUSDT": "BINANCE:ADAUSDT",
@@ -579,7 +601,7 @@ def api_health():
     return jsonify({
         "status": "ok",
         "app": "ZA_ISLAMIC",
-        "version": "1.1.0",
+        "version": "1.3.0",
         "db": DB_PATH,
         "users": n_users,
         "signals": n_signals,
@@ -1127,11 +1149,45 @@ def se(e):                                                # noqa: ANN001
 
 
 # ------------------------------------------------------------------ ishga tushirish
+def _log(msg: str) -> None:
+    """backend.log ga yozish (pythonw.exe da konsol yo'q)."""
+    try:
+        with open(os.path.join(BASE_DIR, "backend.log"), "a", encoding="utf-8") as fh:
+            fh.write("[%s] %s\n" % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), msg))
+    except Exception:
+        pass
+
+
+def _already_running() -> bool:
+    """Bu portda allaqachon ishlayotgan ZA_ISLAMIC server bormi?
+
+    Windows Startup da skript bir necha marta chaqirilishi mumkin
+    (foydalanuvchi ham qo'lda ishga tushirishi mumkin). Bunday
+    holda ikkinchi nusxa 'Address already in use' bilan o'ladi —
+    biz uni jim chiqib ketamiz.                                  """
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:%d/api/health" % PORT, timeout=2) as r:
+            body = json.loads(r.read().decode("utf-8", "replace"))
+        return str(body.get("app", "")) == "ZA_ISLAMIC"
+    except Exception:
+        return False
+
+
 if __name__ == "__main__":
+    if _already_running():
+        _log("Server allaqachon ishlayapti (port %d) - yangi nusxa ishga tushirilmadi." % PORT)
+        raise SystemExit(0)
+
     init_db()
-    print("=" * 62)
-    print("  ZA_ISLAMIC backend — http://127.0.0.1:%d" % PORT)
-    print("  Bazа:      %s" % DB_PATH)
-    print("  Admin token: %s" % ADMIN_TOKEN)
-    print("=" * 62)
+    banner = "=" * 62
+    lines = [
+        banner,
+        "  ZA_ISLAMIC backend - http://127.0.0.1:%d" % PORT,
+        "  Baza:  %s" % DB_PATH,
+        "  Admin token: %s" % ADMIN_TOKEN,
+        "  Sozlama: %s" % CONFIG_PATH,
+        banner,
+    ]
+    _log("\n".join(lines))
+    print("\n".join(lines))
     app.run(host="127.0.0.1", port=PORT, debug=False, threaded=True)

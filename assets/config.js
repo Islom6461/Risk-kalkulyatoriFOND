@@ -88,7 +88,7 @@ const CFG = {
         { id: 'SPX500', name: 'S&P 500',   tv: 'SP:SPX',     pip: 1, dig: 2 },
         { id: 'NAS100', name: 'NAS100',    tv: 'NASDAQ:NDX', pip: 1, dig: 2 },
         { id: 'DJI',    name: 'Dow Jones', tv: 'DJ:DJI',     pip: 1, dig: 2 },
-        { id: 'DE40',   name: 'DE40',      tv: 'TVC:DE30',   pip: 1, dig: 2 }
+        { id: 'DE40',   name: 'DE40',      tv: 'XETR:DAX',   pip: 1, dig: 2 }
       ]
     },
     {
